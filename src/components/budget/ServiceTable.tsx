@@ -104,7 +104,7 @@ export function ServiceTable({
                             <div className="flex items-center justify-end gap-1">
                               <span className="text-xs text-muted-foreground">$</span>
                               <Input
-                                className="h-7 w-24 text-sm text-right"
+                                className="h-7 w-24 text-sm text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                 type="number"
                                 min={0}
                                 value={item.lumpSumAmount}
@@ -118,7 +118,7 @@ export function ServiceTable({
                         <>
                           <td className="px-2 py-2 text-right">
                             <Input
-                              className="h-7 w-16 text-sm text-right ml-auto"
+                              className="h-7 w-20 text-sm text-right pr-1 ml-auto [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                               type="number"
                               min={0}
                               value={item.ratePerHour}
@@ -127,7 +127,7 @@ export function ServiceTable({
                           </td>
                           <td className="px-2 py-2 text-right">
                             <Input
-                              className="h-7 w-14 text-sm text-right ml-auto"
+                              className="h-7 w-16 text-sm text-right pr-1 ml-auto [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                               type="number"
                               min={0}
                               step={0.5}
@@ -137,7 +137,7 @@ export function ServiceTable({
                           </td>
                           <td className="px-2 py-2 text-right">
                             <Input
-                              className="h-7 w-12 text-sm text-right ml-auto"
+                              className="h-7 w-14 text-sm text-right pr-1 ml-auto [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                               type="number"
                               min={1}
                               max={52}
