@@ -19,6 +19,11 @@ export async function POST(req: NextRequest) {
     const data = await pdfParse(buffer);
     const text: string = data.text;
 
+    // Log extracted text for debugging
+    console.log("=== PDF EXTRACTED TEXT ===");
+    console.log(text);
+    console.log("=== END PDF TEXT ===");
+
     return NextResponse.json({ text });
   } catch (err: any) {
     console.error("PDF parse error:", err);
