@@ -3,10 +3,10 @@ import type { ClientBudget, ServiceLineItem, ServiceCategory, BudgetType, Pensio
 import { ALL_CLASSIFICATIONS, QUARTERS, CARE_MANAGEMENT_DEFAULT_PCT } from "./constants";
 
 // ─── PDF Import ───────────────────────────────────────────────────────────────
-// Parses extracted text from our own PDF export or similar structured PDFs.
-// PDF text extraction often produces unpredictable line breaks, so we use
-// multiple strategies: same-line matching, next-line matching, and full-text
-// regex scanning.
+// Parses:
+// 1. AlayaCare budget exports (primary format from JBC)
+// 2. Our own PDF exports
+// 3. Generic PDFs with dollar amounts
 
 function defaultTab(budgetType: BudgetType): BudgetTab {
   return {
@@ -16,61 +16,50 @@ function defaultTab(budgetType: BudgetType): BudgetTab {
   };
 }
 
-function normaliseCategory(raw: string): ServiceCategory {
-  const lower = raw.toLowerCase().trim();
-  if (lower.includes("clinical")) return "clinical";
-  if (lower.includes("independence")) return "independence";
-  if (lower.includes("everyday")) return "everyday";
-  if (lower.includes("nurs") || lower.includes("physio") || lower.includes("therapy") || lower.includes("speech") || lower.includes("podiat") || lower.includes("dietit") || lower.includes("psychol") || lower.includes("occ") || lower.includes("continence") || lower.includes("exercise")) return "clinical";
-  if (lower.includes("domestic") || lower.includes("garden") || lower.includes("home mod") || lower.includes("home maint") || lower.includes("ramp") || lower.includes("bathroom mod")) return "everyday";
-  return "independence";
+function normaliseCategory(name: string): ServiceCategory {
+  const lower = name.toLowerCase();
+  // Clinical
+  if (lower.includes("nurs") || lower.includes("rn") || lower.includes("physio") || lower.includes("therapy") ||
+      lower.includes("speech") || lower.includes("podiat") || lower.includes("dietit") || lower.includes("psychol") ||
+      lower.includes("occ") || lower.includes("continence") || lower.includes("exercise") || lower.includes("clinical") ||
+      lower.includes("allied health") || lower.includes("massage") || lower.includes("remedial")) return "clinical";
+  // Everyday
+  if (lower.includes("domestic") || lower.includes("garden") || lower.includes("home mod") || lower.includes("home maint") ||
+      lower.includes("ramp") || lower.includes("bathroom") || lower.includes("pressure clean") || lower.includes("handyman") ||
+      lower.includes("consumable") || lower.includes("capital")) return "everyday";
+  // Independence
+  if (lower.includes("social") || lower.includes("personal care") || lower.includes("meal") || lower.includes("transport") ||
+      lower.includes("cab") || lower.includes("travel") || lower.includes("respite")) return "independence";
+  return "independence"; // safe default
 }
 
-function normalisePensionStatus(raw: string): PensionStatus {
-  const lower = raw.toLowerCase().trim();
-  if (lower.includes("self") || lower.includes("funded")) return "self_funded";
-  if (lower.includes("part")) return "part_pensioner";
-  return "full_pensioner";
-}
-
-function findClassification(raw: string): string {
-  const lower = raw.toLowerCase().trim();
-  for (const c of ALL_CLASSIFICATIONS) {
-    if (lower.includes(c.label.toLowerCase())) return c.id;
-  }
-  const numMatch = raw.match(/classification\s*(\d+)/i);
-  if (numMatch) {
-    const num = parseInt(numMatch[1]);
-    if (num >= 1 && num <= 8) return String(num);
-  }
-  const levelMatch = raw.match(/level\s*(\d+)/i);
+function findHcpLevel(text: string): string {
+  // Match "Level 1" through "Level 4" — map to transitioned HCP
+  const levelMatch = text.match(/level\s*(\d)/i);
   if (levelMatch) {
     const num = parseInt(levelMatch[1]);
     if (num >= 1 && num <= 4) return `t${num}`;
   }
-  // Just a bare number
-  const bareNum = raw.match(/(\d+)/);
-  if (bareNum) {
-    const num = parseInt(bareNum[1]);
+  // Match "Classification X"
+  const classMatch = text.match(/classification\s*(\d)/i);
+  if (classMatch) {
+    const num = parseInt(classMatch[1]);
     if (num >= 1 && num <= 8) return String(num);
   }
-  return "4";
+  return "t3"; // default to Level 3 if we can't determine
 }
 
-function findQuarter(raw: string): string {
-  for (const q of QUARTERS) {
-    if (raw.includes(q)) return q;
-  }
-  for (const q of QUARTERS) {
-    const parts = q.split("(")[0].trim();
-    if (raw.includes(parts)) return q;
-  }
-  // Try month abbreviations
-  const monthMatch = raw.match(/(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/i);
-  if (monthMatch) {
-    const month = monthMatch[1].toLowerCase();
+function findQuarter(text: string): string {
+  // Try to match a date range and determine the quarter
+  const dateMatch = text.match(/(\d{2})\/(\d{2})\/(\d{4})\s*to\s*(\d{2})\/(\d{2})\/(\d{4})/);
+  if (dateMatch) {
+    const startMonth = parseInt(dateMatch[2]);
+    const startYear = parseInt(dateMatch[3]);
+    // Find the quarter that contains this start date
     for (const q of QUARTERS) {
-      if (q.toLowerCase().includes(month)) return q;
+      if (q.includes(String(startYear)) || q.includes(String(startYear + 1))) {
+        return q;
+      }
     }
   }
   return QUARTERS[2];
@@ -82,166 +71,401 @@ function parseCurrency(s: string): number {
   return isNaN(n) ? 0 : n;
 }
 
-function detectSection(line: string): BudgetType | null {
-  const lower = line.toLowerCase().trim();
-  if (lower === "ongoing services" || (lower.startsWith("ongoing") && lower.length < 30)) return "ongoing";
-  if (lower.includes("restorative") && lower.length < 30) return "restorative";
-  if ((lower.includes("end-of-life") || lower.includes("end of life")) && lower.length < 30) return "end_of_life";
-  if ((lower.includes("at-hm") || lower.includes("athm")) && lower.length < 30) return "at_hm";
-  return null;
+// ─── AlayaCare format parser ──────────────────────────────────────────────────
+
+interface AlayaService {
+  sectionName: string;   // e.g. "HCP - Domestic Assistance"
+  serviceName: string;   // e.g. "SAH - Meal Preparation" or from Notes
+  ratePerHour: number;
+  hoursPerWeek: number;
+  total: number;
+  notes: string;
+  type: "service" | "fee" | "premium";
 }
 
-// Extract a value that appears after a label — either on the same line or the next line
-function extractAfterLabel(lines: string[], labelPattern: RegExp): string {
-  for (let i = 0; i < lines.length; i++) {
-    const match = lines[i].match(labelPattern);
-    if (match) {
-      // Check if there's content after the label on the same line
-      const afterLabel = lines[i].replace(labelPattern, "").trim();
-      if (afterLabel && afterLabel.length > 0) return afterLabel;
-      // Otherwise check the next line
-      if (i + 1 < lines.length) {
-        const nextLine = lines[i + 1].trim();
-        // Skip if next line looks like another label
-        if (nextLine && !nextLine.match(/^(Client|My Aged|Classification|Pension|Quarter|Care Manag|Provider|Annual|Quarterly|Available|Service|Category|Generated)/i)) {
-          return nextLine;
-        }
+function parseAlayaCare(text: string): { clientName: string; level: string; services: AlayaService[] } | null {
+  const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+  const fullText = lines.join(" ");
+
+  // Detect AlayaCare format
+  if (!fullText.includes("alayacare") && !fullText.includes("FunderHCP") && !fullText.includes("Service Total")) {
+    return null;
+  }
+
+  // ─── Client name ────────────────────────────────────────────────────
+  // Pattern: "Alan (Alan) Bashford" at the top, or from "Client Budget - X's"
+  let clientName = "";
+
+  // Try "Client Budget - Name's ..." pattern
+  const budgetNameMatch = fullText.match(/Client Budget\s*-\s*(.+?)(?:'s|'s)\s/i);
+  if (budgetNameMatch) {
+    clientName = budgetNameMatch[1].trim();
+  }
+
+  // Try the header name pattern "FirstName (Preferred) LastName Active"
+  if (!clientName) {
+    for (const line of lines) {
+      const headerMatch = line.match(/^([A-Z][a-z]+(?:\s*\([^)]+\))?\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+Active/);
+      if (headerMatch) {
+        // Strip the preferred name in brackets for cleaner name
+        clientName = headerMatch[1].replace(/\s*\([^)]+\)\s*/, " ").trim();
+        break;
       }
     }
   }
-  return "";
-}
 
-// Also try full-text regex for cases where labels and values get merged
-function extractFromFullText(fullText: string, pattern: RegExp): string {
-  const match = fullText.match(pattern);
-  return match ? match[1].trim() : "";
-}
-
-export function parsePdfText(text: string): ClientBudget {
-  const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
-  const fullText = text.replace(/\n/g, " ").replace(/\s+/g, " ");
-
-  // ─── Client details ─────────────────────────────────────────────────
-  // Strategy: try line-by-line first, then full-text regex fallback
-
-  let clientName = extractAfterLabel(lines, /client\s*name/i);
+  // Try title pattern
   if (!clientName) {
-    clientName = extractFromFullText(fullText, /Client\s*Name\s+([^$\n]+?)(?:\s+(?:My Aged|Classification|Pension|Quarter|Care|Provider|Annual|Generated))/i);
+    const titleMatch = fullText.match(/Alan \(Alan\) Bashford|([A-Z][a-z]+\s+(?:\([^)]+\)\s+)?[A-Z][a-z]+)\s+Active/);
+    if (titleMatch) {
+      clientName = (titleMatch[1] || titleMatch[0]).replace(/\s*\([^)]+\)\s*/, " ").replace(/\s+Active.*$/, "").trim();
+    }
   }
-  // Clean up: remove any trailing labels that got merged
-  clientName = clientName.replace(/\s*(My Aged Care|Classification|Pension|Quarter).*$/i, "").trim();
 
-  let macId = extractAfterLabel(lines, /(?:my\s*aged\s*care\s*id|mac\s*id)/i);
-  if (!macId) {
-    macId = extractFromFullText(fullText, /(?:My Aged Care ID|MAC ID)\s+([\d-]+)/i);
+  // ─── Level / Classification ─────────────────────────────────────────
+  let level = "t3";
+  const funderMatch = fullText.match(/(?:Funder|Level)\s*(?:HCP\s*SC\s*\(HCP\s*SC\)\s*-?\s*)?Level\s*(\d)/i);
+  if (funderMatch) {
+    level = `t${funderMatch[1]}`;
+  } else {
+    // Try from budget name or title
+    const lvlMatch = fullText.match(/Lvl\s*(\d)|Level\s*(\d)/i);
+    if (lvlMatch) {
+      const num = lvlMatch[1] || lvlMatch[2];
+      level = `t${num}`;
+    }
   }
-  macId = macId.replace(/\s*(Classification|Pension|Quarter).*$/i, "").trim();
 
-  let classificationRaw = extractAfterLabel(lines, /classification/i);
-  if (!classificationRaw) {
-    classificationRaw = extractFromFullText(fullText, /Classification\s+((?:Classification\s+)?\d+|(?:Transitioned\s+HCP\s+Level\s+)\d+)/i);
-  }
-  const classificationId = findClassification(classificationRaw || "4");
-
-  let pensionRaw = extractAfterLabel(lines, /pension\s*status/i);
-  if (!pensionRaw) {
-    pensionRaw = extractFromFullText(fullText, /Pension\s*Status\s+(Full Pensioner|Part Pensioner|Self.Funded Retiree|CSHC)/i);
-  }
-  const pensionStatus = normalisePensionStatus(pensionRaw || "full_pensioner");
-
-  let quarterRaw = extractAfterLabel(lines, /^quarter$/i) || extractAfterLabel(lines, /quarter(?!\s*ly)/i);
-  if (!quarterRaw) {
-    quarterRaw = extractFromFullText(fullText, /Quarter\s+((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[^$]*?\(Q\d\))/i);
-  }
-  const quarter = findQuarter(quarterRaw || "");
-
-  let cmRaw = extractAfterLabel(lines, /care\s*management/i);
-  if (!cmRaw) {
-    cmRaw = extractFromFullText(fullText, /Care\s*Management\s+(\d+(?:\.\d+)?)\s*%/i);
-  }
-  const cmMatch = (cmRaw || "").match(/(\d+(?:\.\d+)?)\s*%?/);
-  const careManagementPct = cmMatch ? parseFloat(cmMatch[1]) : CARE_MANAGEMENT_DEFAULT_PCT;
-
-  // ─── Services ───────────────────────────────────────────────────────
-  const tabs: BudgetTab[] = (["ongoing", "restorative", "end_of_life", "at_hm"] as BudgetType[]).map(defaultTab);
-  let currentSection: BudgetType = "ongoing";
-
-  const skipPatterns = /^(total|service|category|qtr cost|client contrib|govt subsidy|budget|annual|quarterly|care management|available|utilisation|remaining|carryover|disclaimer|this document|verify current|generated)/i;
+  // ─── Parse service blocks ──────────────────────────────────────────
+  const services: AlayaService[] = [];
+  let currentSection = "";
+  let currentServiceName = "";
+  let currentRate = 0;
+  let currentHours = 0;
+  let currentTotal = 0;
+  let currentNotes = "";
+  let currentType: "service" | "fee" | "premium" = "service";
+  let inServiceBlock = false;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
-    // Detect section headers
-    const section = detectSection(line);
-    if (section !== null) {
-      currentSection = section;
+    // Detect section headers like "HCP - Domestic Assistance (29/07/2025 - 15/09/2026)"
+    const sectionMatch = line.match(/^(HCP\s*-\s*.+?)(?:\s*\([\d/]+\s*-\s*[\d/]+\))?$/);
+    if (sectionMatch && !line.startsWith("FunderHCP") && !line.startsWith("ServiceHCP") && !line.startsWith("PremiumHCP") && !line.startsWith("Rate") && !line.startsWith("Fee")) {
+      // Save previous block
+      if (inServiceBlock && currentTotal > 0) {
+        services.push({
+          sectionName: currentSection,
+          serviceName: currentServiceName || currentSection,
+          ratePerHour: currentRate,
+          hoursPerWeek: currentHours,
+          total: currentTotal,
+          notes: currentNotes,
+          type: currentType,
+        });
+      }
+      currentSection = sectionMatch[1].trim();
+      currentServiceName = "";
+      currentRate = 0;
+      currentHours = 0;
+      currentTotal = 0;
+      currentNotes = "";
+      currentType = "service";
+      inServiceBlock = true;
       continue;
     }
 
-    // Look for lines with dollar amounts (service rows)
-    const dollarMatches = line.match(/\$[\d,]+(?:\.\d{2})?/g);
-    if (!dollarMatches || dollarMatches.length < 1) continue;
+    // Also detect fee/premium section headers
+    const feeSection = line.match(/^((?:Package|Care)\s+Management\s*-\s*Level\s*\d)/i);
+    if (feeSection) {
+      if (inServiceBlock && currentTotal > 0) {
+        services.push({ sectionName: currentSection, serviceName: currentServiceName || currentSection, ratePerHour: currentRate, hoursPerWeek: currentHours, total: currentTotal, notes: currentNotes, type: currentType });
+      }
+      currentSection = feeSection[1];
+      currentServiceName = feeSection[1];
+      currentRate = 0; currentHours = 0; currentTotal = 0; currentNotes = "";
+      currentType = "fee";
+      inServiceBlock = true;
+      continue;
+    }
 
-    // Extract service name (everything before first $ or category keyword)
-    const firstDollar = line.indexOf("$");
-    let servicePart = line.substring(0, firstDollar).trim();
+    if (!inServiceBlock) continue;
 
-    // Extract category if present in the line
-    let category: ServiceCategory = "independence";
-    const catPatterns: [RegExp, ServiceCategory][] = [
-      [/\bClinical\b/i, "clinical"],
-      [/\bIndependence\b/i, "independence"],
-      [/\bEveryday\b/i, "everyday"],
-    ];
-    for (const [pattern, cat] of catPatterns) {
-      if (pattern.test(line)) {
-        category = cat;
-        servicePart = servicePart.replace(pattern, "").trim();
-        break;
+    // Service name: "ServiceSAH - Registered Nurse" or "ServiceHCP - ..."
+    const serviceNameMatch = line.match(/^Service\s*(.+)/i);
+    if (serviceNameMatch) {
+      currentServiceName = serviceNameMatch[1].trim();
+      // Clean up "SAH - " or "HCP - " prefix for cleaner names
+      currentServiceName = currentServiceName.replace(/^(?:SAH|HCP)\s*-\s*/i, "").trim();
+      continue;
+    }
+
+    // Premium name: "PremiumHCP - Allied Health" or "PremiumTravel KMs..."
+    const premiumMatch = line.match(/^Premium\s*(.+)/i);
+    if (premiumMatch) {
+      currentType = "premium";
+      currentServiceName = premiumMatch[1].trim().replace(/^(?:SAH|HCP)\s*-\s*/i, "").trim();
+      continue;
+    }
+
+    // Fee name
+    const feeMatch = line.match(/^Fee\s+(.+)/i);
+    if (feeMatch) {
+      currentType = "fee";
+      currentServiceName = feeMatch[1].trim();
+      continue;
+    }
+
+    // Rate line: "$155.00 per hour | 2 hours total | $310.00 total"
+    // or: "$90.00 per hour | 1 hour per week | $90.00 per week"
+    // or: "$90.00 per hour | 1 hour per month | $90.00 per month"
+    const rateMatch = line.match(/\$?([\d,.]+)\s*per\s*hour/i);
+    if (rateMatch) {
+      currentRate = parseFloat(rateMatch[1].replace(",", ""));
+    }
+    const hoursMatch = line.match(/(\d+(?:\.\d+)?)\s*hour(?:s)?\s*(?:per\s*(week|month)|total)/i);
+    if (hoursMatch) {
+      const hrs = parseFloat(hoursMatch[1]);
+      const period = hoursMatch[2]?.toLowerCase();
+      if (period === "month") {
+        currentHours = hrs / 4.33; // approx weekly
+      } else {
+        currentHours = hrs;
       }
     }
 
-    // Skip non-service lines
-    if (!servicePart || skipPatterns.test(servicePart)) continue;
-
-    // If no explicit category found, infer from service name
-    if (!catPatterns.some(([p]) => p.test(line))) {
-      category = normaliseCategory(servicePart);
+    // Notes line
+    const notesMatch = line.match(/^Notes\s+(.+)/i);
+    if (notesMatch) {
+      currentNotes = notesMatch[1].trim();
+      continue;
     }
+
+    // Service Total / Fee Total / Premium Total
+    const totalMatch = line.match(/(?:Service|Fee|Premium)\s*Total/i);
+    if (totalMatch) {
+      // The dollar amount might be on this line or the next
+      const amountOnLine = line.match(/\$([\d,.]+)/);
+      if (amountOnLine) {
+        currentTotal = parseCurrency(amountOnLine[0]);
+      } else if (i + 1 < lines.length) {
+        const nextLine = lines[i + 1];
+        const amountNext = nextLine.match(/\$([\d,.]+)/);
+        if (amountNext) {
+          currentTotal = parseCurrency(amountNext[0]);
+        }
+      }
+
+      // Save this service block
+      if (currentTotal > 0) {
+        services.push({
+          sectionName: currentSection,
+          serviceName: currentNotes || currentServiceName || currentSection,
+          ratePerHour: currentRate,
+          hoursPerWeek: currentHours,
+          total: currentTotal,
+          notes: currentNotes,
+          type: currentType,
+        });
+      }
+      // Reset for next block (but keep section name)
+      currentServiceName = "";
+      currentRate = 0;
+      currentHours = 0;
+      currentTotal = 0;
+      currentNotes = "";
+      inServiceBlock = false;
+      continue;
+    }
+  }
+
+  // Don't forget the last block
+  if (inServiceBlock && currentTotal > 0) {
+    services.push({ sectionName: currentSection, serviceName: currentNotes || currentServiceName || currentSection, ratePerHour: currentRate, hoursPerWeek: currentHours, total: currentTotal, notes: currentNotes, type: currentType });
+  }
+
+  return { clientName, level, services };
+}
+
+// ─── Our own PDF format parser ────────────────────────────────────────────────
+
+function parseOwnFormat(text: string): ClientBudget | null {
+  if (!text.includes("Support at Home") || !text.includes("Budget Plan")) return null;
+
+  const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+  const fullText = text.replace(/\n/g, " ").replace(/\s+/g, " ");
+
+  let clientName = "";
+  let macId = "";
+  let classificationId = "4";
+  let pensionStatus: PensionStatus = "full_pensioner";
+  let quarter = QUARTERS[2];
+  let careManagementPct = CARE_MANAGEMENT_DEFAULT_PCT;
+
+  // Extract fields from full text
+  const nameMatch = fullText.match(/Client\s*Name\s+([^$]+?)(?:\s+My Aged Care|$)/i);
+  if (nameMatch) clientName = nameMatch[1].trim();
+
+  const macMatch = fullText.match(/(?:My Aged Care ID|MAC ID)\s+([\d-]+)/i);
+  if (macMatch) macId = macMatch[1].trim();
+
+  const classMatch = fullText.match(/Classification\s+(Classification\s+\d+|Transitioned[^$]+?Level\s+\d+)/i);
+  if (classMatch) classificationId = findHcpLevel(classMatch[1]);
+
+  const pensionMatch = fullText.match(/Pension\s*Status\s+(Full Pensioner|Part Pensioner|Self.Funded)/i);
+  if (pensionMatch) {
+    const p = pensionMatch[1].toLowerCase();
+    if (p.includes("self")) pensionStatus = "self_funded";
+    else if (p.includes("part")) pensionStatus = "part_pensioner";
+  }
+
+  const quarterMatch = fullText.match(/Quarter\s+((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[^$]*?\(Q\d\))/i);
+  if (quarterMatch) quarter = findQuarter(quarterMatch[0]);
+
+  const cmMatch = fullText.match(/Care\s*Management\s+(\d+(?:\.\d+)?)\s*%/i);
+  if (cmMatch) careManagementPct = parseFloat(cmMatch[1]);
+
+  // Parse services (same as before — lines with $ amounts under section headers)
+  const tabs: BudgetTab[] = (["ongoing", "restorative", "end_of_life", "at_hm"] as BudgetType[]).map(defaultTab);
+  let currentSection: BudgetType = "ongoing";
+
+  const skipPatterns = /^(total|service$|category|qtr cost|client contrib|govt subsidy|budget|annual|quarterly|care management|available|utilisation|remaining|carryover|disclaimer|this document|verify current|generated)/i;
+
+  for (const line of lines) {
+    const lower = line.toLowerCase().trim();
+    if (lower === "ongoing services" || (lower.startsWith("ongoing") && lower.length < 30)) { currentSection = "ongoing"; continue; }
+    if (lower.includes("restorative") && lower.length < 30) { currentSection = "restorative"; continue; }
+    if ((lower.includes("end-of-life") || lower.includes("end of life")) && lower.length < 30) { currentSection = "end_of_life"; continue; }
+    if ((lower.includes("at-hm") || lower.includes("athm")) && lower.length < 30) { currentSection = "at_hm"; continue; }
+
+    const dollarMatches = line.match(/\$[\d,]+(?:\.\d{2})?/g);
+    if (!dollarMatches || dollarMatches.length < 1) continue;
+
+    const firstDollar = line.indexOf("$");
+    let servicePart = line.substring(0, firstDollar).trim();
+    let category: ServiceCategory = "independence";
+    for (const [pat, cat] of [[/\bClinical\b/i, "clinical"], [/\bIndependence\b/i, "independence"], [/\bEveryday\b/i, "everyday"]] as [RegExp, ServiceCategory][]) {
+      if (pat.test(line)) { category = cat; servicePart = servicePart.replace(pat, "").trim(); break; }
+    }
+    if (!servicePart || skipPatterns.test(servicePart)) continue;
+    if (category === "independence") category = normaliseCategory(servicePart);
 
     const cost = parseCurrency(dollarMatches[0]);
     if (cost <= 0) continue;
 
-    const service: ServiceLineItem = {
-      id: uuidv4(),
-      name: servicePart,
-      category,
-      ratePerHour: 0,
-      hoursPerWeek: 0,
-      weeksInQuarter: 1,
-      isLumpSum: true,
-      lumpSumAmount: cost,
-    };
-
-    const tab = tabs.find((t) => t.budgetType === currentSection);
-    if (tab) tab.services.push(service);
+    const tab = tabs.find(t => t.budgetType === currentSection);
+    if (tab) tab.services.push({
+      id: uuidv4(), name: servicePart, category, ratePerHour: 0, hoursPerWeek: 0, weeksInQuarter: 1, isLumpSum: true, lumpSumAmount: cost,
+    });
   }
 
   const now = new Date().toISOString();
   return {
-    id: uuidv4(),
-    clientName,
-    macId,
-    providerName: "Just Better Care Sunshine Coast PTY LTD",
-    classificationId,
-    pensionStatus,
-    quarter,
-    careManagementPct,
+    id: uuidv4(), clientName, macId, providerName: "Just Better Care Sunshine Coast PTY LTD",
+    classificationId, pensionStatus, quarter, careManagementPct,
     partPensionerRates: { independence: 0.25, everyday: 0.475 },
-    tabs,
-    activeTab: "ongoing",
-    createdAt: now,
-    updatedAt: now,
+    tabs, activeTab: "ongoing", createdAt: now, updatedAt: now,
+  };
+}
+
+// ─── Main export ──────────────────────────────────────────────────────────────
+
+export function parsePdfText(text: string): ClientBudget {
+  // Try our own format first
+  const own = parseOwnFormat(text);
+  if (own) return own;
+
+  // Try AlayaCare format
+  const alaya = parseAlayaCare(text);
+  if (alaya && alaya.services.length > 0) {
+    const tabs: BudgetTab[] = (["ongoing", "restorative", "end_of_life", "at_hm"] as BudgetType[]).map(defaultTab);
+    const ongoingTab = tabs.find(t => t.budgetType === "ongoing")!;
+
+    for (const svc of alaya.services) {
+      // Skip $0 services and fee items (package/care management)
+      if (svc.total <= 0) continue;
+      if (svc.type === "fee") continue; // care/package management fees — not services
+
+      // Use the notes field as the service name if it's more descriptive
+      let name = svc.serviceName;
+      // Clean up generic names using the section header
+      if (name === "Other Subcontracted/Brokered Staff" || name === "Consumables" || name === "Allied Health") {
+        name = svc.notes || svc.sectionName.replace(/^HCP\s*-\s*/i, "").replace(/\s*\([\d/].*$/, "").trim();
+      }
+      // Clean up section name prefix
+      name = name.replace(/^HCP\s*-\s*/i, "").replace(/\s*\([\d/].*$/, "").trim();
+
+      const category = normaliseCategory(name + " " + svc.sectionName);
+
+      // Convert annual total to quarterly
+      // AlayaCare budgets are typically annual — divide by 4 for quarterly
+      const quarterlyTotal = Math.round((svc.total / 4) * 100) / 100;
+
+      const service: ServiceLineItem = {
+        id: uuidv4(),
+        name,
+        category,
+        ratePerHour: svc.ratePerHour || 0,
+        hoursPerWeek: svc.hoursPerWeek || 0,
+        weeksInQuarter: svc.ratePerHour > 0 && svc.hoursPerWeek > 0 ? 13 : 1,
+        isLumpSum: !(svc.ratePerHour > 0 && svc.hoursPerWeek > 0),
+        lumpSumAmount: svc.ratePerHour > 0 && svc.hoursPerWeek > 0 ? 0 : quarterlyTotal,
+      };
+
+      ongoingTab.services.push(service);
+    }
+
+    const now = new Date().toISOString();
+    return {
+      id: uuidv4(),
+      clientName: alaya.clientName,
+      macId: "",
+      providerName: "Just Better Care Sunshine Coast PTY LTD",
+      classificationId: alaya.level,
+      pensionStatus: "full_pensioner",
+      quarter: QUARTERS[2],
+      careManagementPct: CARE_MANAGEMENT_DEFAULT_PCT,
+      partPensionerRates: { independence: 0.25, everyday: 0.475 },
+      tabs,
+      activeTab: "ongoing",
+      createdAt: now,
+      updatedAt: now,
+    };
+  }
+
+  // Fallback: generic PDF with dollar amounts
+  const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+  const tabs: BudgetTab[] = (["ongoing", "restorative", "end_of_life", "at_hm"] as BudgetType[]).map(defaultTab);
+  const ongoingTab = tabs.find(t => t.budgetType === "ongoing")!;
+
+  for (const line of lines) {
+    const dollarMatches = line.match(/\$[\d,]+(?:\.\d{2})?/g);
+    if (!dollarMatches) continue;
+    const firstDollar = line.indexOf("$");
+    const servicePart = line.substring(0, firstDollar).trim();
+    if (!servicePart || servicePart.length < 3 || servicePart.length > 60) continue;
+    if (/^(total|source|income|balance|expense|fee|funder|rate|notes|cost|flag|premium\s*total|service\s*total|fee\s*total)/i.test(servicePart)) continue;
+    const cost = parseCurrency(dollarMatches[0]);
+    if (cost <= 0) continue;
+
+    ongoingTab.services.push({
+      id: uuidv4(), name: servicePart, category: normaliseCategory(servicePart),
+      ratePerHour: 0, hoursPerWeek: 0, weeksInQuarter: 1, isLumpSum: true, lumpSumAmount: cost,
+    });
+  }
+
+  // Try to extract client name from filename-style patterns
+  let clientName = "";
+  const nameMatch = text.match(/([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\s+Active/);
+  if (nameMatch) clientName = nameMatch[1].replace(/\s*\([^)]+\)\s*/, " ").trim();
+
+  const now = new Date().toISOString();
+  return {
+    id: uuidv4(), clientName, macId: "", providerName: "Just Better Care Sunshine Coast PTY LTD",
+    classificationId: "4", pensionStatus: "full_pensioner", quarter: QUARTERS[2],
+    careManagementPct: CARE_MANAGEMENT_DEFAULT_PCT,
+    partPensionerRates: { independence: 0.25, everyday: 0.475 },
+    tabs, activeTab: "ongoing", createdAt: now, updatedAt: now,
   };
 }
