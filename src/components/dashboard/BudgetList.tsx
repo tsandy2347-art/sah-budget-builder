@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BudgetCard } from "./BudgetCard";
+import { ImportBudgetButton } from "./ImportBudgetButton";
 import { apiFetchBudgets, apiSaveBudget } from "@/lib/api-client";
 import { createNewBudget } from "@/lib/storage";
 import type { ClientBudget } from "@/lib/types";
@@ -70,10 +71,13 @@ export function BudgetList({ onExportPDF }: BudgetListProps) {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <Button onClick={handleCreate} className="gap-2">
-          <Plus className="h-4 w-4" />
-          New Budget
-        </Button>
+        <div className="flex gap-2">
+          <ImportBudgetButton onImported={refresh} />
+          <Button onClick={handleCreate} className="gap-2">
+            <Plus className="h-4 w-4" />
+            New Budget
+          </Button>
+        </div>
       </div>
 
       {filtered.length === 0 ? (
