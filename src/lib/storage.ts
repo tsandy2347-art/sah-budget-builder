@@ -22,7 +22,7 @@ export function createNewBudget(): ClientBudget {
     id: uuidv4(),
     clientName: "",
     macId: "",
-    providerName: "",
+    providerName: "Just Better Care Sunshine Coast PTY LTD",
     classificationId: "4",
     pensionStatus: "full_pensioner",
     quarter: QUARTERS[2], // Jan–Mar 2026

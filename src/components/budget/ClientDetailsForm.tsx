@@ -45,13 +45,10 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="providerName">Provider Name</Label>
-          <Input
-            id="providerName"
-            value={budget.providerName}
-            onChange={(e) => onChange({ providerName: e.target.value })}
-            placeholder="Your organisation"
-          />
+          <Label>Provider Name</Label>
+          <p className="text-sm font-medium py-2 px-3 bg-muted rounded-md">
+            Just Better Care Sunshine Coast PTY LTD
+          </p>
         </div>
         <div className="space-y-1.5">
           <Label>Classification</Label>
