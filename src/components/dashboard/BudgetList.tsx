@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { v4 as uuidv4 } from "uuid";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BudgetCard } from "./BudgetCard";
-import { listBudgets, saveBudget, createNewBudget } from "@/lib/storage";
+import { apiFetchBudgets, apiSaveBudget } from "@/lib/api-client";
+import { createNewBudget } from "@/lib/storage";
 import type { ClientBudget } from "@/lib/types";
-import { Plus, Search, FileSpreadsheet } from "lucide-react";
+import { Plus, Search, FileSpreadsheet, Loader2 } from "lucide-react";
 
 interface BudgetListProps {
   onExportPDF: (budget: ClientBudget) => void;
@@ -16,20 +17,29 @@ interface BudgetListProps {
 
 export function BudgetList({ onExportPDF }: BudgetListProps) {
   const router = useRouter();
+  const { status } = useSession();
   const [budgets, setBudgets] = useState<ClientBudget[]>([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
-  const refresh = useCallback(() => {
-    setBudgets(listBudgets().sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)));
+  const refresh = useCallback(async () => {
+    try {
+      const data = await apiFetchBudgets();
+      setBudgets(data);
+    } catch {
+      setBudgets([]);
+    }
+    setLoading(false);
   }, []);
 
   useEffect(() => {
-    refresh();
-  }, [refresh]);
+    if (status === "authenticated") refresh();
+    if (status === "unauthenticated") router.push("/login");
+  }, [status, refresh, router]);
 
-  function handleCreate() {
+  async function handleCreate() {
     const budget = createNewBudget();
-    saveBudget(budget);
+    await apiSaveBudget(budget);
     router.push(`/budget/${budget.id}`);
   }
 
@@ -39,6 +49,14 @@ export function BudgetList({ onExportPDF }: BudgetListProps) {
         b.macId.toLowerCase().includes(search.toLowerCase())
       )
     : budgets;
+
+  if (loading || status === "loading") {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

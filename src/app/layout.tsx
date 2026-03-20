@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/components/session-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Navbar } from "@/components/navbar";
 
@@ -16,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
+        <AuthProvider>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <TooltipProvider>
             <div className="min-h-screen flex flex-col bg-background">
@@ -30,6 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </TooltipProvider>
         </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

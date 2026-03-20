@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Pencil, Copy, Trash2, FileDown } from "lucide-react";
-import { duplicateBudget, deleteBudget } from "@/lib/storage";
+import { apiDeleteBudget, apiDuplicateBudget } from "@/lib/api-client";
 import { calcBudget, getClassification } from "@/lib/calculations";
 import { ALL_CLASSIFICATIONS, PENSION_STATUS_LABELS } from "@/lib/constants";
 import type { ClientBudget } from "@/lib/types";
@@ -28,14 +28,14 @@ export function BudgetCard({ budget, onRefresh, onExportPDF }: BudgetCardProps) 
   const utilisationColor =
     utilisation > 100 ? "text-red-600" : utilisation > 85 ? "text-amber-600" : "text-green-600";
 
-  function handleDuplicate() {
-    duplicateBudget(budget.id);
+  async function handleDuplicate() {
+    await apiDuplicateBudget(budget);
     onRefresh();
   }
 
-  function handleDelete() {
+  async function handleDelete() {
     if (confirm(`Delete budget for "${budget.clientName || "Unnamed client"}"?`)) {
-      deleteBudget(budget.id);
+      await apiDeleteBudget(budget.id);
       onRefresh();
     }
   }

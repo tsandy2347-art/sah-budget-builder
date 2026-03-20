@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { useTheme } from "next-themes";
+import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { Sun, Moon, Home } from "lucide-react";
+import { Sun, Moon, Home, LogOut } from "lucide-react";
 
 export function Navbar() {
   const { theme, setTheme } = useTheme();
+  const { data: session } = useSession();
 
   return (
     <header className="border-b bg-background/95 backdrop-blur sticky top-0 z-50">
@@ -16,6 +18,11 @@ export function Navbar() {
           <span>Budget Builder</span>
         </Link>
         <div className="flex items-center gap-2">
+          {session?.user && (
+            <span className="text-sm text-muted-foreground hidden sm:inline mr-2">
+              {session.user.name}
+            </span>
+          )}
           <Button
             variant="ghost"
             size="icon"
@@ -30,6 +37,16 @@ export function Navbar() {
               <Home className="h-4 w-4" />
             </Link>
           </Button>
+          {session && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              aria-label="Sign out"
+            >
+              <LogOut className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
     </header>

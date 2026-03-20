@@ -2,26 +2,44 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { getBudget, createNewBudget } from "@/lib/storage";
-import { useAutoSave } from "./useAutoSave";
+import { apiFetchBudget, apiSaveBudget } from "@/lib/api-client";
+import { createNewBudget } from "@/lib/storage";
 import type { ClientBudget, ServiceLineItem, BudgetType, PathwayConfig } from "@/lib/types";
 
 export function useBudget(id: string) {
   const [budget, setBudget] = useState<ClientBudget | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Load from API on mount
   useEffect(() => {
-    const existing = getBudget(id);
-    if (existing) {
-      setBudget(existing);
-    } else {
-      const fresh = { ...createNewBudget(), id };
-      setBudget(fresh);
+    async function load() {
+      try {
+        const existing = await apiFetchBudget(id);
+        if (existing) {
+          setBudget(existing);
+        } else {
+          const fresh = { ...createNewBudget(), id };
+          setBudget(fresh);
+          await apiSaveBudget(fresh);
+        }
+      } catch {
+        // Fallback: create fresh budget if API fails
+        const fresh = { ...createNewBudget(), id };
+        setBudget(fresh);
+      }
+      setLoading(false);
     }
-    setLoading(false);
+    load();
   }, [id]);
 
-  useAutoSave(budget);
+  // Debounced save to API
+  useEffect(() => {
+    if (!budget) return;
+    const timer = setTimeout(() => {
+      apiSaveBudget(budget).catch(console.error);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [budget]);
 
   const updateClientDetails = useCallback(
     (updates: Partial<Omit<ClientBudget, "id" | "tabs" | "createdAt" | "updatedAt">>) => {
