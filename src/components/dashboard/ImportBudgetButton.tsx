@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { apiSaveBudget } from "@/lib/api-client";
-import { Upload, FileSpreadsheet, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import type { ClientBudget } from "@/lib/types";
+import { Upload, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 
 interface ImportBudgetButtonProps {
   onImported: () => void;
@@ -24,8 +25,26 @@ export function ImportBudgetButton({ onImported }: ImportBudgetButtonProps) {
     setSuccess(null);
 
     try {
-      const { importBudgetFromExcel } = await import("@/lib/import-excel");
-      const budget = await importBudgetFromExcel(file);
+      let budget: ClientBudget;
+      const ext = file.name.split(".").pop()?.toLowerCase();
+
+      if (ext === "pdf") {
+        // Upload PDF to server for text extraction
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await fetch("/api/import-pdf", { method: "POST", body: formData });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || "Failed to parse PDF");
+        }
+        const { text } = await res.json();
+        const { parsePdfText } = await import("@/lib/import-pdf");
+        budget = parsePdfText(text);
+      } else {
+        // Excel / CSV
+        const { importBudgetFromExcel } = await import("@/lib/import-excel");
+        budget = await importBudgetFromExcel(file);
+      }
 
       // Save to database
       await apiSaveBudget(budget);
@@ -38,10 +57,9 @@ export function ImportBudgetButton({ onImported }: ImportBudgetButtonProps) {
       });
       onImported();
     } catch (err: any) {
-      setError(err.message || "Failed to import spreadsheet");
+      setError(err.message || "Failed to import file");
     } finally {
       setImporting(false);
-      // Reset the file input
       if (fileRef.current) fileRef.current.value = "";
     }
   }
@@ -51,18 +69,12 @@ export function ImportBudgetButton({ onImported }: ImportBudgetButtonProps) {
     if (file) handleFile(file);
   }
 
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault();
-    const file = e.dataTransfer.files?.[0];
-    if (file) handleFile(file);
-  }
-
   return (
     <>
       <input
         ref={fileRef}
         type="file"
-        accept=".xlsx,.xls,.csv"
+        accept=".xlsx,.xls,.csv,.pdf"
         className="hidden"
         onChange={handleChange}
       />
@@ -78,7 +90,7 @@ export function ImportBudgetButton({ onImported }: ImportBudgetButtonProps) {
         ) : (
           <Upload className="h-4 w-4" />
         )}
-        Import Excel
+        Import Budget
       </Button>
 
       {/* Error dialog */}
@@ -115,6 +127,11 @@ export function ImportBudgetButton({ onImported }: ImportBudgetButtonProps) {
             <p>
               <span className="font-medium text-foreground">{success?.services}</span> services loaded across all tabs
             </p>
+            {success && success.services > 0 && (
+              <p className="text-xs text-amber-600">
+                Note: PDF imports load services as lump sums with the quarterly cost. You may want to update rates, hours, and weeks in the builder.
+              </p>
+            )}
           </div>
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setSuccess(null)}>
