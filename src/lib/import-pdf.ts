@@ -99,37 +99,68 @@ function parseAlayaCare(text: string): ClientBudget | null {
     }
   }
 
-  // ─── Parse service/fee/premium blocks ───────────────────────────────
-  const blocks: ParsedBlock[] = [];
-  let currentSectionName = "";
+  // ─── Pass 1: Collect ALL section headers in order ────────────────────
+  // Section headers appear as "HCP - Domestic Assistance" followed by a date range.
+  // In some PDFs they cluster together (sidebar) before the actual blocks,
+  // so we can't rely on a single currentSectionName variable.
+  const allSectionHeaders: string[] = [];
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
-    // Track section headers: "HCP - Domestic Assistance" or "HCP - Clinical Services - RN"
-    // These appear as standalone lines with "HCP - " prefix followed by a date range on same/next line
+    // Match "HCP - Something" section headers (not Service/Premium/Fee/Funder prefixed)
+    if (line.startsWith("FunderHCP") || line.startsWith("ServiceHCP") || line.startsWith("ServiceSAH") ||
+        line.startsWith("PremiumHCP") || line.startsWith("PremiumTravel") || line.startsWith("PremiumSAH") ||
+        line.startsWith("Rate") || line.startsWith("Fee") ||
+        line.startsWith("Service Total") || line.startsWith("Premium Total") || line.startsWith("Fee Total")) {
+      continue;
+    }
+
+    // "HCP - Something (dd/mm/yyyy - dd/mm/yyyy)" on same line
+    const sectionWithDate = line.match(/^(HCP\s*-\s*.+?)\s*\(\d{2}\/\d{2}\/\d{4}/);
+    if (sectionWithDate) {
+      allSectionHeaders.push(sectionWithDate[1].trim());
+      continue;
+    }
+
+    // "HCP - Something" where next line has date or is a continuation
     const sectionMatch = line.match(/^(HCP\s*-\s*.+?)$/);
-    if (sectionMatch && !line.startsWith("FunderHCP") && !line.startsWith("ServiceHCP") &&
-        !line.startsWith("PremiumHCP") && !line.startsWith("Rate") && !line.startsWith("Fee") &&
-        !line.startsWith("Service Total") && !line.startsWith("Premium Total") && !line.startsWith("Fee Total")) {
-      // Check if next line has a date range (confirms it's a section header)
+    if (sectionMatch) {
       const nextLine = lines[i + 1] || "";
-      if (nextLine.match(/^\(\d{2}\/\d{2}\/\d{4}/) || line.match(/\(\d{2}\/\d{2}\/\d{4}/)) {
-        currentSectionName = sectionMatch[1].replace(/\s*\(\d{2}\/\d{2}\/\d{4}.*$/, "").trim();
+      const nextLine2 = lines[i + 2] || "";
+
+      if (nextLine.match(/^\(\d{2}\/\d{2}\/\d{4}/)) {
+        // Next line is "(dd/mm/yyyy ..." — simple case
+        allSectionHeaders.push(sectionMatch[1].trim());
+      } else if (nextLine.match(/^[A-Za-z]/) && !nextLine.match(/^(Funder|Service|Premium|Rate|Fee|Cost|Flag|Notes)/)) {
+        // Next line is a name continuation: "Cab" + "Charges (18/08/..."
+        // or "Cab" + "Charges" + "(18/08/..."
+        let headerName = sectionMatch[1].trim();
+        if (nextLine.match(/\(\d{2}\/\d{2}\/\d{4}/)) {
+          headerName += " " + nextLine.replace(/\s*\(\d{2}\/\d{2}\/\d{4}.*$/, "").trim();
+          allSectionHeaders.push(headerName);
+        } else if (nextLine2.match(/^\(\d{2}\/\d{2}\/\d{4}/)) {
+          headerName += " " + nextLine;
+          allSectionHeaders.push(headerName);
+        }
+      } else if (line.match(/\(\d{2}\/\d{2}\/\d{4}/)) {
+        allSectionHeaders.push(sectionMatch[1].replace(/\s*\(\d{2}\/\d{2}\/\d{4}.*$/, "").trim());
       }
     }
 
-    // Also catch section headers with date on same line
-    const sectionWithDate = line.match(/^(HCP\s*-\s*.+?)\s*\(\d{2}\/\d{2}\/\d{4}/);
-    if (sectionWithDate && !line.startsWith("FunderHCP") && !line.startsWith("ServiceHCP") && !line.startsWith("PremiumHCP")) {
-      currentSectionName = sectionWithDate[1].trim();
+    // Also catch standalone section names followed by date on next line
+    // like "Travel KMs Within Visit (18/08/2025 -" where "Travel" doesn't start with "HCP"
+    const nonHcpSection = line.match(/^((?:Travel|Dementia|Income|Basic Daily)\s.+?)\s*\(\d{2}\/\d{2}\/\d{4}/);
+    if (nonHcpSection) {
+      allSectionHeaders.push(nonHcpSection[1].trim());
     }
+  }
 
-    // Fee/premium section headers
-    const feeSectionMatch = line.match(/^((?:Package|Care)\s+Management\s*-\s*Level\s*\d)/i);
-    if (feeSectionMatch) {
-      currentSectionName = feeSectionMatch[1];
-    }
+  // ─── Pass 2: Parse service/fee/premium blocks ──────────────────────
+  const blocks: ParsedBlock[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
 
     // Detect service block start: "ServiceSAH - ..." or "ServiceHCP - ..."
     // Skip false positives like "Services", "Services Total", "Service Total"
@@ -144,7 +175,7 @@ function parseAlayaCare(text: string): ClientBudget | null {
           fullName += " " + nextLine;
         }
       }
-      const block = parseBlock(lines, i, "service", fullName, currentSectionName);
+      const block = parseBlock(lines, i, "service", fullName, "");
       if (block) blocks.push(block);
       continue;
     }
@@ -161,7 +192,7 @@ function parseAlayaCare(text: string): ClientBudget | null {
           fullName += nextLine;
         }
       }
-      const block = parseBlock(lines, i, "premium", fullName, currentSectionName);
+      const block = parseBlock(lines, i, "premium", fullName, "");
       if (block) blocks.push(block);
       continue;
     }
@@ -170,7 +201,7 @@ function parseAlayaCare(text: string): ClientBudget | null {
     // Skip false positives like "Fees", "Fees Total", "Fee Total"
     const feeMatch = line.match(/^Fee((?:Package|Care)\s+.+)/);
     if (feeMatch) {
-      const block = parseBlock(lines, i, "fee", feeMatch[1].trim(), currentSectionName);
+      const block = parseBlock(lines, i, "fee", feeMatch[1].trim(), "");
       if (block) blocks.push(block);
       continue;
     }
@@ -182,18 +213,88 @@ function parseAlayaCare(text: string): ClientBudget | null {
   const tabs: BudgetTab[] = (["ongoing", "restorative", "end_of_life", "at_hm"] as BudgetType[]).map(defaultTab);
   const ongoingTab = tabs.find(t => t.budgetType === "ongoing")!;
 
+  // Track which section headers have been used (for positional fallback)
+  const usedHeaders = new Set<number>();
+
+  // Pre-pass: mark section headers as used when they exactly match a direct-name block
+  // This prevents "Travel KMs Within Visit" header being grabbed by a generic premium's fallback
+  for (const block of blocks) {
+    if (block.total <= 0 || block.blockType === "fee") continue;
+    const directName = block.serviceName.replace(/^(?:SAH|HCP)\s*-\s*/i, "").trim().toLowerCase();
+    for (let h = 0; h < allSectionHeaders.length; h++) {
+      const headerClean = allSectionHeaders[h].replace(/^HCP\s*-\s*/i, "").trim().toLowerCase();
+      if (headerClean === directName) {
+        usedHeaders.add(h);
+        break;
+      }
+    }
+  }
+
   for (const block of blocks) {
     if (block.total <= 0) continue;
     if (block.blockType === "fee") continue; // skip care/package management fees
 
     // Determine the best display name
     let name = block.serviceName.replace(/^(?:SAH|HCP)\s*-\s*/i, "").trim();
-    // For generic names like "Other Sub-contracted/Brokered Staff", use notes or section
-    if (name.includes("Other Sub") || name === "Consumables" || name === "Allied Health" || name === "Transport Services") {
+
+    // For generic names, try to find a better name from notes or section headers
+    const isGeneric = name.includes("Other Sub") || name === "Consumables" ||
+      name === "Allied Health" || name === "Transport Services" ||
+      name.startsWith("Other") || name === "Capital and Consumables" ||
+      name === "Third Party Services";
+
+    if (isGeneric) {
       if (block.notes) {
+        // Notes always have the real service name (e.g. "Cab Charge", "Domestic Assistance")
         name = block.notes;
       } else {
-        name = block.sectionName.replace(/^HCP\s*-\s*/i, "").replace(/\s*\(\d{2}\/.*$/, "").trim();
+        // No notes — find matching section header by keyword overlap
+        // The premium service name (e.g. "Transport Services") should be a substring
+        // of the section header (e.g. "HCP - Transport Services - Cab Charges")
+        const strippedName = name.toLowerCase();
+        let bestMatch = "";
+        let bestIdx = -1;
+
+        for (let h = 0; h < allSectionHeaders.length; h++) {
+          if (usedHeaders.has(h)) continue;
+          const header = allSectionHeaders[h];
+          const headerLower = header.toLowerCase().replace(/^hcp\s*-\s*/i, "");
+
+          // Check if the premium's generic name is a prefix/substring of the header
+          if (headerLower.startsWith(strippedName) && headerLower.length > strippedName.length) {
+            // Extract the more specific suffix: "Transport Services - Cab Charges" → "Cab Charges"
+            bestMatch = header.replace(/^HCP\s*-\s*/i, "").trim();
+            bestIdx = h;
+            break;
+          }
+        }
+
+        if (bestIdx >= 0) {
+          // Use the section header's full specific name
+          // e.g. "Transport Services - Cab Charges" or "Allied Health - Podiatry"
+          // Strip the generic prefix to get just the specific part
+          const parts = bestMatch.split(" - ");
+          if (parts.length > 1) {
+            // "Transport Services - Cab Charges" → "Cab Charges"
+            // "Allied Health - Podiatry" → "Podiatry"
+            name = parts.slice(1).join(" - ").trim();
+          } else {
+            name = bestMatch;
+          }
+          usedHeaders.add(bestIdx);
+        } else {
+          // Positional fallback: find first unused section header
+          for (let h = 0; h < allSectionHeaders.length; h++) {
+            if (usedHeaders.has(h)) continue;
+            const header = allSectionHeaders[h];
+            // Skip headers that are clearly for services/fees, not this block
+            if (header.match(/Capital|Third Party|Clinical|SS,\s*SH|DA,\s*SS|Medication|Meal Prep/i)) continue;
+            if (header.match(/Management/i)) continue;
+            name = header.replace(/^HCP\s*-\s*/i, "").trim();
+            usedHeaders.add(h);
+            break;
+          }
+        }
       }
     }
 
