@@ -20,9 +20,10 @@ function normaliseCategory(name: string): ServiceCategory {
       lower.includes("allied health") || lower.includes("massage") || lower.includes("remedial")) return "clinical";
   if (lower.includes("domestic") || lower.includes("garden") || lower.includes("home mod") || lower.includes("home maint") ||
       lower.includes("ramp") || lower.includes("bathroom") || lower.includes("pressure clean") || lower.includes("handyman") ||
-      lower.includes("consumable") || lower.includes("capital")) return "everyday";
-  if (lower.includes("social") || lower.includes("personal care") || lower.includes("meal") || lower.includes("transport") ||
-      lower.includes("cab") || lower.includes("travel") || lower.includes("respite")) return "independence";
+      lower.includes("consumable") || lower.includes("capital") || lower.includes("transport") ||
+      lower.includes("cab") || lower.includes("travel") || lower.includes("meal deliver")) return "everyday";
+  if (lower.includes("social") || lower.includes("personal care") || lower.includes("meal") ||
+      lower.includes("respite") || lower.includes("medication") || lower.includes("med prom")) return "independence";
   return "independence";
 }
 
