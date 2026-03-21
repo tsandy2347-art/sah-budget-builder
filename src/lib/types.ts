@@ -39,6 +39,13 @@ export interface PartPensionerRates {
   everyday: number; // 0–1
 }
 
+export interface Supplement {
+  id: string;
+  label: string;
+  quarterlyAmount: number;
+  annualAmount: number;
+}
+
 export interface ClientBudget {
   id: string;
   clientName: string;
@@ -49,6 +56,7 @@ export interface ClientBudget {
   quarter: string; // e.g. "Jan–Mar 2026 (Q3)"
   careManagementPct: number; // 0–10
   partPensionerRates: PartPensionerRates;
+  supplements: string[]; // array of supplement IDs
   tabs: BudgetTab[];
   activeTab: BudgetType;
   createdAt: string;
@@ -72,6 +80,10 @@ export interface TabCalculations {
 export interface BudgetCalculations {
   quarterlyBudget: number;
   annualBudget: number;
+  supplementsQuarterly: number;
+  supplementsAnnual: number;
+  totalQuarterlyBudget: number;
+  totalAnnualBudget: number;
   careManagementAmount: number;
   availableForServices: number;
   tabCalcs: TabCalculations;

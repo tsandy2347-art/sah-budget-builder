@@ -332,6 +332,7 @@ function parseAlayaCare(text: string): ClientBudget | null {
     quarter: QUARTERS[2],
     careManagementPct: CARE_MANAGEMENT_DEFAULT_PCT,
     partPensionerRates: { independence: 0.25, everyday: 0.475 },
+    supplements: [],
     tabs,
     activeTab: "ongoing",
     createdAt: now,
@@ -502,12 +503,20 @@ function parseOwnFormat(text: string): ClientBudget | null {
     });
   }
 
+  // Detect supplements from text
+  const supplements: string[] = [];
+  const lowerText = text.toLowerCase();
+  if (lowerText.includes("dementia")) supplements.push("dementia");
+  if (lowerText.includes("veteran")) supplements.push("veterans");
+  if (lowerText.includes("oxygen")) supplements.push("oxygen");
+  if (lowerText.includes("enteral")) supplements.push("enteral_feeding");
+
   const now = new Date().toISOString();
   return {
     id: uuidv4(), clientName, macId, providerName: "Just Better Care Sunshine Coast PTY LTD",
     classificationId, pensionStatus, quarter, careManagementPct,
     partPensionerRates: { independence: 0.25, everyday: 0.475 },
-    tabs, activeTab: "ongoing", createdAt: now, updatedAt: now,
+    supplements, tabs, activeTab: "ongoing", createdAt: now, updatedAt: now,
   };
 }
 
@@ -552,6 +561,6 @@ export function parsePdfText(text: string): ClientBudget {
     classificationId: "4", pensionStatus: "full_pensioner", quarter: QUARTERS[2],
     careManagementPct: CARE_MANAGEMENT_DEFAULT_PCT,
     partPensionerRates: { independence: 0.25, everyday: 0.475 },
-    tabs, activeTab: "ongoing", createdAt: now, updatedAt: now,
+    supplements: [], tabs, activeTab: "ongoing", createdAt: now, updatedAt: now,
   };
 }

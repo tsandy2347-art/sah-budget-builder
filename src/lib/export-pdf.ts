@@ -8,7 +8,7 @@ import {
 } from "@react-pdf/renderer";
 import { createElement } from "react";
 import { calcBudget, calcServiceCost, calcClientContribution, getClassification } from "./calculations";
-import { BUDGET_TYPE_LABELS, PENSION_STATUS_LABELS } from "./constants";
+import { BUDGET_TYPE_LABELS, PENSION_STATUS_LABELS, SUPPLEMENTS } from "./constants";
 import type { ClientBudget, BudgetType } from "./types";
 
 const BUDGET_TYPES: BudgetType[] = ["ongoing", "restorative", "end_of_life", "at_hm"];
@@ -69,6 +69,9 @@ function BudgetPDF({ budget }: { budget: ClientBudget }) {
           ["Pension Status", PENSION_STATUS_LABELS[budget.pensionStatus]],
           ["Quarter", budget.quarter],
           ["Care Management", `${budget.careManagementPct}%`],
+          ...((budget.supplements ?? []).length > 0
+            ? [["Supplements", (budget.supplements ?? []).map((id) => SUPPLEMENTS.find((s) => s.id === id)?.label ?? id).join(", ")]]
+            : []),
         ].map(([label, value]) =>
           createElement(View, { style: styles.row, key: label },
             createElement(Text, { style: styles.label }, label),
@@ -82,8 +85,9 @@ function BudgetPDF({ budget }: { budget: ClientBudget }) {
         createElement(Text, { style: styles.sectionTitle }, "Funding Summary"),
         createElement(View, { style: styles.metricRow },
           ...[
-            ["Annual Budget", fmtCurrency(ongoingCalcs.annualBudget)],
-            ["Quarterly Budget", fmtCurrency(ongoingCalcs.quarterlyBudget)],
+            ["Annual Budget", fmtCurrency(ongoingCalcs.totalAnnualBudget)],
+            ["Quarterly Budget", fmtCurrency(ongoingCalcs.totalQuarterlyBudget)],
+            ...(ongoingCalcs.supplementsQuarterly > 0 ? [["Supplements (Quarterly)", fmtCurrency(ongoingCalcs.supplementsQuarterly)]] : []),
             ["Care Management", fmtCurrency(ongoingCalcs.careManagementAmount)],
             ["Available for Services", fmtCurrency(ongoingCalcs.availableForServices)],
           ].map(([lbl, val]) =>

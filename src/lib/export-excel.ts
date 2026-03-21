@@ -1,6 +1,6 @@
 import * as XLSX from "xlsx";
 import { calcBudget, calcServiceCost, calcClientContribution, getClassification } from "./calculations";
-import { BUDGET_TYPE_LABELS, PENSION_STATUS_LABELS } from "./constants";
+import { BUDGET_TYPE_LABELS, PENSION_STATUS_LABELS, SUPPLEMENTS } from "./constants";
 import type { ClientBudget, BudgetType } from "./types";
 
 const BUDGET_TYPES: BudgetType[] = ["ongoing", "restorative", "end_of_life", "at_hm"];
@@ -19,6 +19,9 @@ export function exportBudgetExcel(budget: ClientBudget): void {
     ["Pension Status", PENSION_STATUS_LABELS[budget.pensionStatus]],
     ["Quarter", budget.quarter],
     ["Care Management %", `${budget.careManagementPct}%`],
+    ...((budget.supplements ?? []).length > 0
+      ? [["Supplements", (budget.supplements ?? []).map((id: string) => SUPPLEMENTS.find((s) => s.id === id)?.label ?? id).join(", ")]]
+      : []),
     [],
     ["Generated", new Date().toLocaleDateString("en-AU")],
   ];
@@ -71,8 +74,11 @@ export function exportBudgetExcel(budget: ClientBudget): void {
   ];
 
   const ongoingCalcs = calcBudget(budget, "ongoing");
-  summaryRows.push(["Annual Budget", ongoingCalcs.annualBudget, "", "", ""]);
-  summaryRows.push(["Quarterly Budget", ongoingCalcs.quarterlyBudget, "", "", ""]);
+  summaryRows.push(["Annual Budget (incl. supplements)", ongoingCalcs.totalAnnualBudget, "", "", ""]);
+  summaryRows.push(["Quarterly Budget (incl. supplements)", ongoingCalcs.totalQuarterlyBudget, "", "", ""]);
+  if (ongoingCalcs.supplementsQuarterly > 0) {
+    summaryRows.push(["Supplements (Quarterly)", ongoingCalcs.supplementsQuarterly, "", "", ""]);
+  }
   summaryRows.push(["Care Management", ongoingCalcs.careManagementAmount, "", "", ""]);
   summaryRows.push(["Available for Services", ongoingCalcs.availableForServices, "", "", ""]);
   summaryRows.push([]);

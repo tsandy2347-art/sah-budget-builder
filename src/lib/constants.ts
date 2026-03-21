@@ -5,6 +5,7 @@ import type {
   DefaultService,
   BudgetType,
   ATHMTier,
+  Supplement,
 } from "./types";
 
 // ─── Funding Classifications ───────────────────────────────────────────────────
@@ -40,6 +41,15 @@ export const CONTRIBUTION_RATES: Record<PensionStatus, Record<ServiceCategory, n
   part_pensioner:  { clinical: 0,    independence: 0.25,  everyday: 0.475 }, // mid estimates
   self_funded:     { clinical: 0,    independence: 0.50,  everyday: 0.80  },
 };
+
+// ─── Supplements ──────────────────────────────────────────────────────────────
+
+export const SUPPLEMENTS: Supplement[] = [
+  { id: "dementia", label: "Dementia Supplement", quarterlyAmount: 1618.25, annualAmount: 6473.00 },
+  { id: "veterans", label: "Veterans' Supplement", quarterlyAmount: 1550.00, annualAmount: 6200.00 },
+  { id: "oxygen", label: "Oxygen Supplement", quarterlyAmount: 182.60, annualAmount: 730.40 },
+  { id: "enteral_feeding", label: "Enteral Feeding Supplement", quarterlyAmount: 434.35, annualAmount: 1737.40 },
+];
 
 // ─── Business Rules ────────────────────────────────────────────────────────────
 

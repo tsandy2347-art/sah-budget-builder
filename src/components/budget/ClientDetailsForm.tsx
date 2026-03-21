@@ -11,6 +11,7 @@ import {
   QUARTERS,
   PENSION_STATUS_LABELS,
   CARE_MANAGEMENT_DEFAULT_PCT,
+  SUPPLEMENTS,
 } from "@/lib/constants";
 import { calcBudget } from "@/lib/calculations";
 import type { ClientBudget, PensionStatus } from "@/lib/types";
@@ -116,6 +117,38 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
           <p className="text-xs text-muted-foreground">0–10%, default 10%</p>
         </div>
 
+        <div className="space-y-1.5 sm:col-span-2 lg:col-span-3">
+          <Label>Supplements</Label>
+          <div className="flex flex-wrap gap-4">
+            {SUPPLEMENTS.map((supp) => {
+              const isChecked = (budget.supplements ?? []).includes(supp.id);
+              return (
+                <label key={supp.id} className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={() => {
+                      const current = budget.supplements ?? [];
+                      const updated = isChecked
+                        ? current.filter((s) => s !== supp.id)
+                        : [...current, supp.id];
+                      onChange({ supplements: updated });
+                    }}
+                    className="rounded border-gray-300"
+                  />
+                  <span>{supp.label}</span>
+                  <span className="text-xs text-muted-foreground">
+                    (${supp.quarterlyAmount.toLocaleString("en-AU", { minimumFractionDigits: 2 })}/qtr)
+                  </span>
+                </label>
+              );
+            })}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Supplements are added to the base classification budget. Eligibility must be confirmed via My Aged Care.
+          </p>
+        </div>
+
         {budget.pensionStatus === "part_pensioner" && (
           <>
             <div className="space-y-1.5">
@@ -165,8 +198,18 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
       <Separator />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard label="Annual Budget" value={calcs.annualBudget} variant="blue" />
-        <MetricCard label="Quarterly Budget" value={calcs.quarterlyBudget} variant="blue" />
+        <MetricCard
+          label="Annual Budget"
+          value={calcs.totalAnnualBudget}
+          subLabel={calcs.supplementsAnnual > 0 ? `Incl. $${calcs.supplementsAnnual.toLocaleString("en-AU", { minimumFractionDigits: 2 })} supplements` : undefined}
+          variant="blue"
+        />
+        <MetricCard
+          label="Quarterly Budget"
+          value={calcs.totalQuarterlyBudget}
+          subLabel={calcs.supplementsQuarterly > 0 ? `Incl. $${calcs.supplementsQuarterly.toLocaleString("en-AU", { minimumFractionDigits: 2 })} supplements` : undefined}
+          variant="blue"
+        />
         <MetricCard
           label="Care Management"
           value={calcs.careManagementAmount}

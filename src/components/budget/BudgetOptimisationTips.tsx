@@ -18,7 +18,7 @@ import {
 import { useState } from "react";
 import type { BudgetCalculations, ClientBudget, BudgetType } from "@/lib/types";
 import { calcBudget } from "@/lib/calculations";
-import { ALL_CLASSIFICATIONS } from "@/lib/constants";
+import { ALL_CLASSIFICATIONS, SUPPLEMENTS } from "@/lib/constants";
 
 interface Tip {
   id: string;
@@ -220,7 +220,7 @@ function generateTips(
 
   // ── 7. Care management at less than 10% ──
   if (budget.careManagementPct < 10 && budgetType === "ongoing") {
-    const potential = calcs.quarterlyBudget * 0.1;
+    const potential = calcs.totalQuarterlyBudget * 0.1;
     const current = calcs.careManagementAmount;
     const missed = potential - current;
     tips.push({
@@ -247,7 +247,24 @@ function generateTips(
     });
   }
 
-  // ── 9. Third-party brokered services — markup opportunity ──
+  // ── 9. Supplements not applied ──
+  if (budgetType === "ongoing") {
+    const appliedSupps = budget.supplements ?? [];
+    const missingSupps = SUPPLEMENTS.filter((s) => !appliedSupps.includes(s.id));
+    if (missingSupps.length > 0) {
+      const suppList = missingSupps.map((s) => `${s.label} ($${s.quarterlyAmount.toLocaleString("en-AU", { minimumFractionDigits: 2 })}/qtr)`).join(", ");
+      tips.push({
+        id: "supplements-available",
+        icon: <TrendingUp className="h-4 w-4 text-cyan-600" />,
+        title: "Check supplement eligibility",
+        description: `Supplements increase the quarterly budget on top of the base classification. Available supplements: ${suppList}. Check if this client qualifies for any — particularly the Dementia Supplement for clients with a formal diagnosis. Enable them in the Client Details section above.`,
+        priority: "medium",
+        category: "funding",
+      });
+    }
+  }
+
+  // ── 10. Third-party brokered services — markup opportunity ──
   if (budgetType === "ongoing" && services.length > 0) {
     const hasEveryday = services.some((s) => s.category === "everyday");
     if (hasEveryday) {

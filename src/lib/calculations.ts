@@ -6,6 +6,7 @@ import {
   EOL_BUDGET,
   EOL_WEEKS,
   ATHM_BUDGETS,
+  SUPPLEMENTS,
 } from "./constants";
 import type {
   ServiceLineItem,
@@ -152,11 +153,34 @@ export function calcCarryover(remaining: number, quarterlyBudget: number): numbe
   return round2(Math.min(Math.max(remaining, 0), cap));
 }
 
+export function getSupplementsQuarterly(supplementIds: string[]): number {
+  let total = 0;
+  for (const id of supplementIds) {
+    const supp = SUPPLEMENTS.find((s) => s.id === id);
+    if (supp) total += supp.quarterlyAmount;
+  }
+  return round2(total);
+}
+
+export function getSupplementsAnnual(supplementIds: string[]): number {
+  let total = 0;
+  for (const id of supplementIds) {
+    const supp = SUPPLEMENTS.find((s) => s.id === id);
+    if (supp) total += supp.annualAmount;
+  }
+  return round2(total);
+}
+
 export function calcBudget(budget: ClientBudget, budgetType: BudgetType): BudgetCalculations {
   const quarterlyBudget = getQuarterlyBudget(budget.classificationId);
   const annualBudget = getAnnualBudget(budget.classificationId);
-  const careManagementAmount = getCareManagementAmount(quarterlyBudget, budget.careManagementPct);
-  const availableForServices = getAvailableForServices(quarterlyBudget, careManagementAmount);
+  const supplementIds = budget.supplements ?? [];
+  const supplementsQuarterly = getSupplementsQuarterly(supplementIds);
+  const supplementsAnnual = getSupplementsAnnual(supplementIds);
+  const totalQuarterlyBudget = round2(quarterlyBudget + supplementsQuarterly);
+  const totalAnnualBudget = round2(annualBudget + supplementsAnnual);
+  const careManagementAmount = getCareManagementAmount(totalQuarterlyBudget, budget.careManagementPct);
+  const availableForServices = getAvailableForServices(totalQuarterlyBudget, careManagementAmount);
 
   const tab = budget.tabs.find((t) => t.budgetType === budgetType);
   const services = tab?.services ?? [];
@@ -166,11 +190,15 @@ export function calcBudget(budget: ClientBudget, budgetType: BudgetType): Budget
   const budgetEnvelope = getBudgetEnvelope(budgetType, pathwayConfig, availableForServices);
   const utilisation = calcBudgetUtilisation(tabCalcs.totalCost, budgetEnvelope);
   const remaining = round2(budgetEnvelope - tabCalcs.totalCost);
-  const carryoverCap = calcCarryover(remaining, quarterlyBudget);
+  const carryoverCap = calcCarryover(remaining, totalQuarterlyBudget);
 
   return {
     quarterlyBudget,
     annualBudget,
+    supplementsQuarterly,
+    supplementsAnnual,
+    totalQuarterlyBudget,
+    totalAnnualBudget,
     careManagementAmount,
     availableForServices,
     tabCalcs,

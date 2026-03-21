@@ -28,6 +28,7 @@ export function createNewBudget(): ClientBudget {
     quarter: QUARTERS[2], // Jan–Mar 2026
     careManagementPct: CARE_MANAGEMENT_DEFAULT_PCT,
     partPensionerRates: { independence: 0.25, everyday: 0.475 },
+    supplements: [],
     tabs: (["ongoing", "restorative", "end_of_life", "at_hm"] as BudgetType[]).map(defaultTab),
     activeTab: "ongoing",
     createdAt: now,
