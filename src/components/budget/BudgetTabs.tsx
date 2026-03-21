@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ServiceTable } from "./ServiceTable";
 import { BudgetSummary } from "./BudgetSummary";
+import { BudgetOptimisationTips } from "./BudgetOptimisationTips";
 import { ProviderSummary } from "./ProviderSummary";
 import { MetricCard } from "./MetricCard";
 import { calcBudget, getPathwayWeeks } from "@/lib/calculations";
@@ -147,6 +148,9 @@ export function BudgetTabs({
 
             {/* Budget summary */}
             <BudgetSummary calcs={calcs} />
+
+            {/* Budget optimisation tips */}
+            <BudgetOptimisationTips budget={budget} calcs={calcs} budgetType={tabType} />
 
             {/* Provider summary (ongoing only) */}
             {tabType === "ongoing" && <ProviderSummary calcs={calcs} />}
