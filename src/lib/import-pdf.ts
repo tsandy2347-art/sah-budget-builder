@@ -321,6 +321,14 @@ function parseAlayaCare(text: string): ClientBudget | null {
     ongoingTab.services.push(service);
   }
 
+  // Detect supplements from AlayaCare text
+  const supplements: string[] = [];
+  const lowerText = text.toLowerCase();
+  if (lowerText.includes("dementia")) supplements.push("dementia");
+  if (lowerText.includes("veteran")) supplements.push("veterans");
+  if (lowerText.includes("oxygen") && lowerText.includes("supplement")) supplements.push("oxygen");
+  if (lowerText.includes("enteral")) supplements.push("enteral_feeding");
+
   const now = new Date().toISOString();
   return {
     id: uuidv4(),
@@ -332,7 +340,7 @@ function parseAlayaCare(text: string): ClientBudget | null {
     quarter: QUARTERS[2],
     careManagementPct: CARE_MANAGEMENT_DEFAULT_PCT,
     partPensionerRates: { independence: 0.25, everyday: 0.475 },
-    supplements: [],
+    supplements,
     tabs,
     activeTab: "ongoing",
     createdAt: now,
@@ -503,13 +511,24 @@ function parseOwnFormat(text: string): ClientBudget | null {
     });
   }
 
-  // Detect supplements from text
+  // Detect supplements — check for explicit "Supplements" line first, then keyword fallback
   const supplements: string[] = [];
   const lowerText = text.toLowerCase();
-  if (lowerText.includes("dementia")) supplements.push("dementia");
-  if (lowerText.includes("veteran")) supplements.push("veterans");
-  if (lowerText.includes("oxygen")) supplements.push("oxygen");
-  if (lowerText.includes("enteral")) supplements.push("enteral_feeding");
+  const suppLineMatch = fullText.match(/Supplements?\s+([\w\s,&']+?)(?:\s+Funding Summary|\s+Quarter|\s+\$)/i);
+  if (suppLineMatch) {
+    const suppText = suppLineMatch[1].toLowerCase();
+    if (suppText.includes("dementia")) supplements.push("dementia");
+    if (suppText.includes("veteran")) supplements.push("veterans");
+    if (suppText.includes("oxygen")) supplements.push("oxygen");
+    if (suppText.includes("enteral")) supplements.push("enteral_feeding");
+  }
+  // Keyword fallback (e.g. AlayaCare PDFs that mention it anywhere)
+  if (supplements.length === 0) {
+    if (lowerText.includes("dementia supplement") || lowerText.includes("dementia cognition")) supplements.push("dementia");
+    if (lowerText.includes("veteran") && lowerText.includes("supplement")) supplements.push("veterans");
+    if (lowerText.includes("oxygen supplement")) supplements.push("oxygen");
+    if (lowerText.includes("enteral") && lowerText.includes("supplement")) supplements.push("enteral_feeding");
+  }
 
   const now = new Date().toISOString();
   return {
