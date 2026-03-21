@@ -2,12 +2,21 @@ import type { ClientBudget } from "./types";
 
 // ─── Budget API client (replaces localStorage) ─────────────────────────────
 
+/** Backfill any fields added after initial release so old saved budgets don't break */
+function migrateBudget(data: any): ClientBudget {
+  return {
+    ...data,
+    supplements: data.supplements ?? [],
+    partPensionerRates: data.partPensionerRates ?? { independence: 0.25, everyday: 0.475 },
+  } as ClientBudget;
+}
+
 export async function apiFetchBudgets(): Promise<ClientBudget[]> {
   const res = await fetch("/api/budgets");
   if (!res.ok) throw new Error("Failed to fetch budgets");
   const rows = await res.json();
   return rows.map((r: any) => ({
-    ...r.data,
+    ...migrateBudget(r.data),
     _dbId: r.id,
     _owner: r.user?.name ?? "Unknown",
   }));
@@ -18,7 +27,7 @@ export async function apiFetchBudget(id: string): Promise<ClientBudget | null> {
   if (res.status === 404) return null;
   if (!res.ok) throw new Error("Failed to fetch budget");
   const row = await res.json();
-  return row.data as ClientBudget;
+  return migrateBudget(row.data);
 }
 
 export async function apiSaveBudget(budget: ClientBudget): Promise<void> {
