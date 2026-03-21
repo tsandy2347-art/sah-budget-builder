@@ -10,22 +10,23 @@ import type {
 
 // ─── Funding Classifications ───────────────────────────────────────────────────
 
+// Rates indexed 20 March 2026 — source: health.gov.au Schedule of Subsidies and Supplements
 export const SAH_CLASSIFICATIONS: FundingClassification[] = [
-  { id: "1", label: "Classification 1", quarterlyBudget: 2674.18, annualBudget: 10697.72 },
-  { id: "2", label: "Classification 2", quarterlyBudget: 3995.42, annualBudget: 15981.68 },
-  { id: "3", label: "Classification 3", quarterlyBudget: 5479.94, annualBudget: 21919.77 },
-  { id: "4", label: "Classification 4", quarterlyBudget: 7386.33, annualBudget: 29545.33 },
-  { id: "5", label: "Classification 5", quarterlyBudget: 9883.76, annualBudget: 39535.04 },
-  { id: "6", label: "Classification 6", quarterlyBudget: 11989.35, annualBudget: 47957.41 },
-  { id: "7", label: "Classification 7", quarterlyBudget: 14530.53, annualBudget: 58122.13 },
-  { id: "8", label: "Classification 8", quarterlyBudget: 19427.25, annualBudget: 77709.00 },
+  { id: "1", label: "Classification 1", quarterlyBudget: 2682.75, annualBudget: 10731.00 },
+  { id: "2", label: "Classification 2", quarterlyBudget: 4008.61, annualBudget: 16034.45 },
+  { id: "3", label: "Classification 3", quarterlyBudget: 5491.43, annualBudget: 21965.70 },
+  { id: "4", label: "Classification 4", quarterlyBudget: 7424.10, annualBudget: 29696.40 },
+  { id: "5", label: "Classification 5", quarterlyBudget: 9924.35, annualBudget: 39697.40 },
+  { id: "6", label: "Classification 6", quarterlyBudget: 12028.58, annualBudget: 48114.30 },
+  { id: "7", label: "Classification 7", quarterlyBudget: 14537.04, annualBudget: 58148.15 },
+  { id: "8", label: "Classification 8", quarterlyBudget: 19526.59, annualBudget: 78106.35 },
 ];
 
 export const TRANSITIONED_HCP_LEVELS: FundingClassification[] = [
-  { id: "t1", label: "Transitioned HCP Level 1", quarterlyBudget: 2731.61, annualBudget: 10926.44, isTransitioned: true },
-  { id: "t2", label: "Transitioned HCP Level 2", quarterlyBudget: 4808.52, annualBudget: 19234.08, isTransitioned: true },
-  { id: "t3", label: "Transitioned HCP Level 3", quarterlyBudget: 10452.12, annualBudget: 41808.48, isTransitioned: true },
-  { id: "t4", label: "Transitioned HCP Level 4", quarterlyBudget: 15859.97, annualBudget: 63439.88, isTransitioned: true },
+  { id: "t1", label: "Transitioned HCP Level 1", quarterlyBudget: 2746.63, annualBudget: 10986.50, isTransitioned: true },
+  { id: "t2", label: "Transitioned HCP Level 2", quarterlyBudget: 4829.86, annualBudget: 19319.45, isTransitioned: true },
+  { id: "t3", label: "Transitioned HCP Level 3", quarterlyBudget: 10513.83, annualBudget: 42055.30, isTransitioned: true },
+  { id: "t4", label: "Transitioned HCP Level 4", quarterlyBudget: 15939.55, annualBudget: 63758.20, isTransitioned: true },
 ];
 
 export const ALL_CLASSIFICATIONS: FundingClassification[] = [
@@ -44,8 +45,10 @@ export const CONTRIBUTION_RATES: Record<PensionStatus, Record<ServiceCategory, n
 
 // ─── Supplements ──────────────────────────────────────────────────────────────
 
+// Dementia supplement: $19.99/day (Level 4 rate, from 1 Jul 2025 — grandparented HCP only)
+// Other supplements: best-available rates as at March 2026
 export const SUPPLEMENTS: Supplement[] = [
-  { id: "dementia", label: "Dementia Supplement", quarterlyAmount: 1618.25, annualAmount: 6473.00 },
+  { id: "dementia", label: "Dementia & Cognition Supplement", quarterlyAmount: 1824.09, annualAmount: 7296.35 },
   { id: "veterans", label: "Veterans' Supplement", quarterlyAmount: 1550.00, annualAmount: 6200.00 },
   { id: "oxygen", label: "Oxygen Supplement", quarterlyAmount: 182.60, annualAmount: 730.40 },
   { id: "enteral_feeding", label: "Enteral Feeding Supplement", quarterlyAmount: 434.35, annualAmount: 1737.40 },
