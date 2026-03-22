@@ -14,16 +14,25 @@ function defaultTab(budgetType: BudgetType): BudgetTab {
 
 function normaliseCategory(name: string): ServiceCategory {
   const lower = name.toLowerCase();
+  // CC — Clinical Supports: Nursing Care, Allied Health, Nutrition, Care Management
   if (lower.includes("nurs") || lower.includes("rn") || lower.includes("physio") || lower.includes("therapy") ||
       lower.includes("speech") || lower.includes("podiat") || lower.includes("dietit") || lower.includes("psychol") ||
       lower.includes("occ") || lower.includes("continence") || lower.includes("exercise") || lower.includes("clinical") ||
-      lower.includes("allied health") || lower.includes("massage") || lower.includes("remedial")) return "clinical";
-  if (lower.includes("domestic") || lower.includes("garden") || lower.includes("home mod") || lower.includes("home maint") ||
-      lower.includes("ramp") || lower.includes("bathroom") || lower.includes("pressure clean") || lower.includes("handyman") ||
-      lower.includes("consumable") || lower.includes("capital") || lower.includes("transport") ||
-      lower.includes("cab") || lower.includes("travel") || lower.includes("meal deliver")) return "everyday";
-  if (lower.includes("social") || lower.includes("personal care") || lower.includes("meal") ||
-      lower.includes("respite") || lower.includes("medication") || lower.includes("med prom")) return "independence";
+      lower.includes("allied health") || lower.includes("massage") || lower.includes("remedial") ||
+      lower.includes("nutrition")) return "clinical";
+  // EL — Everyday Living: Domestic Assistance, Home Maintenance & Repairs, Meals
+  if (lower.includes("domestic") || lower.includes("garden") || lower.includes("home maint") ||
+      lower.includes("pressure clean") || lower.includes("handyman") ||
+      lower.includes("laundry") || lower.includes("cleaning") ||
+      lower.includes("meal")) return "everyday";
+  // IP — Independence: Personal Care, Social Support, Therapeutic Services, Respite,
+  //   Transport, Assistive Technology, Home Modification
+  if (lower.includes("personal care") || lower.includes("social") ||
+      lower.includes("respite") || lower.includes("medication") || lower.includes("med prom") ||
+      lower.includes("transport") || lower.includes("cab") || lower.includes("travel") ||
+      lower.includes("home mod") || lower.includes("ramp") || lower.includes("bathroom") ||
+      lower.includes("consumable") || lower.includes("capital") ||
+      lower.includes("assistive")) return "independence";
   return "independence";
 }
 
