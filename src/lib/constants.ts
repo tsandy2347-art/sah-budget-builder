@@ -98,16 +98,16 @@ export const DEFAULT_ONGOING_INDEPENDENCE: DefaultService[] = [
   { name: "Personal care", category: "independence", ratePerHour: 65, defaultHoursPerWeek: 2 },
   { name: "Social support — individual", category: "independence", ratePerHour: 65, defaultHoursPerWeek: 1 },
   { name: "Social support — group", category: "independence", ratePerHour: 45, defaultHoursPerWeek: 1 },
+  { name: "Meal preparation", category: "independence", ratePerHour: 65, defaultHoursPerWeek: 2 },
   { name: "Transport", category: "independence", ratePerHour: 55, defaultHoursPerWeek: 1 },
   { name: "Respite care", category: "independence", ratePerHour: 65, defaultHoursPerWeek: 1 },
   { name: "Assistive technology", category: "independence", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 500 },
-  { name: "Home modifications", category: "independence", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 1000 },
 ];
 
 export const DEFAULT_ONGOING_EVERYDAY: DefaultService[] = [
   { name: "Domestic assistance", category: "everyday", ratePerHour: 65, defaultHoursPerWeek: 2 },
   { name: "Gardening / home maintenance", category: "everyday", ratePerHour: 70, defaultHoursPerWeek: 1 },
-  { name: "Meal preparation", category: "everyday", ratePerHour: 65, defaultHoursPerWeek: 2 },
+  { name: "Home modifications", category: "everyday", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 1000 },
 ];
 
 export const DEFAULT_RESTORATIVE: DefaultService[] = [
