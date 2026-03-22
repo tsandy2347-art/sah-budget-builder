@@ -4,11 +4,12 @@ import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { Sun, Moon, Home, LogOut } from "lucide-react";
+import { Sun, Moon, Home, LogOut, Users } from "lucide-react";
 
 export function Navbar() {
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
+  const isAdmin = (session?.user as any)?.role === "ADMIN";
 
   return (
     <header className="border-b bg-background/95 backdrop-blur sticky top-0 z-50">
@@ -22,6 +23,13 @@ export function Navbar() {
             <span className="text-sm text-muted-foreground hidden sm:inline mr-2">
               {session.user.name}
             </span>
+          )}
+          {isAdmin && (
+            <Button variant="ghost" size="icon" asChild title="Manage Users">
+              <Link href="/admin/users">
+                <Users className="h-4 w-4" />
+              </Link>
+            </Button>
           )}
           <Button
             variant="ghost"

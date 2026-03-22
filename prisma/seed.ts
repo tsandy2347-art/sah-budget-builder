@@ -16,7 +16,7 @@ async function main() {
 
   const hash = await bcrypt.hash(password, 12);
   const user = await prisma.user.create({
-    data: { email, password: hash, name },
+    data: { email, password: hash, name, role: "ADMIN", approved: true },
   });
 
   console.log(`Created user: ${user.email} (${user.name})`);

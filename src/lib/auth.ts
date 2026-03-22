@@ -22,7 +22,11 @@ export const authOptions: NextAuthOptions = {
         const valid = await bcrypt.compare(credentials.password, user.password);
         if (!valid) return null;
 
-        return { id: user.id, email: user.email, name: user.name };
+        if (!user.approved) {
+          throw new Error("PENDING_APPROVAL");
+        }
+
+        return { id: user.id, email: user.email, name: user.name, role: user.role };
       },
     }),
   ],
@@ -34,12 +38,14 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.role = (user as any).role;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user && token.id) {
         (session.user as any).id = token.id as string;
+        (session.user as any).role = token.role as string;
       }
       return session;
     },

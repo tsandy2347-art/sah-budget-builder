@@ -32,7 +32,11 @@ export default function LoginPage() {
     setLoading(false);
 
     if (result?.error) {
-      setError("Invalid email or password.");
+      if (result.error.includes("PENDING_APPROVAL")) {
+        setError("Your account is awaiting admin approval. Please check back later.");
+      } else {
+        setError("Invalid email or password.");
+      }
     } else {
       router.push("/");
       router.refresh();
