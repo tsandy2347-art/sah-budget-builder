@@ -5,23 +5,27 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { StackedBar } from "./StackedBar";
 import { formatCurrency, formatPercent } from "@/lib/format";
 import { LIFETIME_CONTRIBUTION_CAP } from "@/lib/constants";
-import { AlertTriangle, CheckCircle2, TrendingUp, Info } from "lucide-react";
-import type { BudgetCalculations } from "@/lib/types";
+import { scaleAmount, VIEW_PERIOD_LABELS } from "@/lib/calculations";
+import { AlertTriangle, CheckCircle2, TrendingUp, Info, ArrowDownRight } from "lucide-react";
+import type { BudgetCalculations, ViewPeriod } from "@/lib/types";
 
 interface BudgetSummaryProps {
   calcs: BudgetCalculations;
+  viewPeriod: ViewPeriod;
 }
 
-export function BudgetSummary({ calcs }: BudgetSummaryProps) {
+export function BudgetSummary({ calcs, viewPeriod }: BudgetSummaryProps) {
   const isOverBudget = calcs.remaining < 0;
   const isUnderutilised = calcs.remaining > calcs.carryoverCap;
   const isWithinCarryover = !isOverBudget && !isUnderutilised;
+  const periodLabel = VIEW_PERIOD_LABELS[viewPeriod];
+  const s = (amount: number) => scaleAmount(amount, viewPeriod);
 
   return (
     <Card>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base">Budget Summary</CardTitle>
+          <CardTitle className="text-base">Budget Summary ({periodLabel})</CardTitle>
           <div className="flex items-center gap-2">
             <span
               className={`text-2xl font-bold tabular-nums ${
@@ -74,21 +78,35 @@ export function BudgetSummary({ calcs }: BudgetSummaryProps) {
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div className="flex justify-between">
             <span className="text-muted-foreground">Total service cost</span>
-            <span className="font-medium">{formatCurrency(calcs.tabCalcs.totalCost)}</span>
+            <span className="font-medium">{formatCurrency(s(calcs.tabCalcs.totalCost))}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Budget envelope</span>
-            <span className="font-medium">{formatCurrency(calcs.budgetEnvelope)}</span>
+            <span className="text-muted-foreground">Base budget envelope</span>
+            <span className="font-medium">{formatCurrency(s(calcs.budgetEnvelope))}</span>
           </div>
+          {calcs.effectiveCarryover > 0 && (
+            <>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground flex items-center gap-1">
+                  <ArrowDownRight className="h-3 w-3" /> Carryover applied
+                </span>
+                <span className="font-medium text-blue-600">+{formatCurrency(s(calcs.effectiveCarryover))}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Effective envelope</span>
+                <span className="font-medium">{formatCurrency(s(calcs.effectiveBudgetEnvelope))}</span>
+              </div>
+            </>
+          )}
           <div className="flex justify-between">
             <span className="text-muted-foreground">Remaining</span>
             <span className={`font-medium ${isOverBudget ? "text-red-600" : "text-green-600"}`}>
-              {formatCurrency(calcs.remaining)}
+              {formatCurrency(s(calcs.remaining))}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Carryover cap</span>
-            <span className="font-medium">{formatCurrency(calcs.carryoverCap)}</span>
+            <span className="font-medium">{formatCurrency(s(calcs.carryoverCap))}</span>
           </div>
         </div>
 

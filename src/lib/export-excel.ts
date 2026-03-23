@@ -48,7 +48,7 @@ export function exportBudgetExcel(budget: ClientBudget): void {
     if (!tab || tab.services.length === 0) continue;
     for (const item of tab.services) {
       const cost = calcServiceCost(item);
-      const contrib = calcClientContribution(item, budget.pensionStatus, budget.partPensionerRates);
+      const contrib = calcClientContribution(item, budget.pensionStatus, budget.partPensionerRates, budget.isGrandfathered);
       serviceRows.push([
         BUDGET_TYPE_LABELS[budgetType],
         item.name,

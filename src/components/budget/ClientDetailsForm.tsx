@@ -90,6 +90,17 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
             </SelectContent>
           </Select>
         </div>
+        <div className="space-y-1.5 flex items-end">
+          <label className="flex items-center gap-2 text-sm cursor-pointer pb-2">
+            <input
+              type="checkbox"
+              checked={budget.isGrandfathered ?? false}
+              onChange={() => onChange({ isGrandfathered: !(budget.isGrandfathered ?? false) })}
+              className="rounded border-gray-300"
+            />
+            <span>Grandfathered (0% contributions)</span>
+          </label>
+        </div>
         <div className="space-y-1.5">
           <Label>Quarter</Label>
           <Select value={budget.quarter} onValueChange={(v) => onChange({ quarter: v })}>
@@ -115,6 +126,20 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
             onChange={(e) => onChange({ careManagementPct: Math.min(10, Math.max(0, Number(e.target.value))) })}
           />
           <p className="text-xs text-muted-foreground">0–10%, default 10%</p>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="unspentFunds">Unspent Funds (Prior Quarter)</Label>
+          <Input
+            id="unspentFunds"
+            type="number"
+            min={0}
+            step={0.01}
+            value={budget.unspentPriorQuarter ?? 0}
+            onChange={(e) => onChange({ unspentPriorQuarter: Math.max(0, Number(e.target.value)) })}
+          />
+          <p className="text-xs text-muted-foreground">
+            Unspent SaH funds carried forward (capped at carryover limit)
+          </p>
         </div>
 
         <div className="space-y-1.5 sm:col-span-2 lg:col-span-3">
@@ -149,7 +174,7 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
           </p>
         </div>
 
-        {budget.pensionStatus === "part_pensioner" && (
+        {budget.pensionStatus === "part_pensioner" && !budget.isGrandfathered && (
           <>
             <div className="space-y-1.5">
               <Label htmlFor="indepRate">Independence Contribution Rate (%)</Label>
@@ -219,7 +244,7 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
         <MetricCard
           label="Available for Services"
           value={calcs.availableForServices}
-          subLabel="After care management"
+          subLabel={calcs.effectiveCarryover > 0 ? `+ ${calcs.effectiveCarryover.toLocaleString("en-AU", { minimumFractionDigits: 2, style: "currency", currency: "AUD" })} carryover` : "After care management"}
           variant="green"
         />
       </div>

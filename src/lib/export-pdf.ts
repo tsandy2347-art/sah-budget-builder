@@ -117,7 +117,7 @@ function BudgetPDF({ budget }: { budget: ClientBudget }) {
             ),
             ...tab.services.map((item, idx) => {
               const cost = calcServiceCost(item);
-              const contrib = calcClientContribution(item, budget.pensionStatus, budget.partPensionerRates);
+              const contrib = calcClientContribution(item, budget.pensionStatus, budget.partPensionerRates, budget.isGrandfathered);
               return createElement(View, { style: idx % 2 === 0 ? styles.tr : styles.trAlt, key: item.id },
                 createElement(Text, { style: [styles.td, { flex: 3 }] }, item.name),
                 createElement(View, { style: [styles.td, { flex: 1.2, justifyContent: "center" }] },

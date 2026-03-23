@@ -3,6 +3,7 @@ export type PensionStatus = "full_pensioner" | "part_pensioner" | "self_funded";
 export type BudgetType = "ongoing" | "restorative" | "end_of_life" | "at_hm";
 export type ATHMTier = "low" | "medium" | "high";
 export type RestorativeTier = "standard" | "extended";
+export type ViewPeriod = "quarterly" | "monthly" | "fortnightly";
 
 export interface FundingClassification {
   id: string;
@@ -57,6 +58,8 @@ export interface ClientBudget {
   careManagementPct: number; // 0–10
   partPensionerRates: PartPensionerRates;
   supplements: string[]; // array of supplement IDs
+  unspentPriorQuarter: number; // $ unspent from previous quarter (user-entered)
+  isGrandfathered: boolean; // pre-existing arrangement: 0% contributions
   tabs: BudgetTab[];
   activeTab: BudgetType;
   createdAt: string;
@@ -91,6 +94,9 @@ export interface BudgetCalculations {
   utilisation: number;
   remaining: number;
   carryoverCap: number;
+  unspentPriorQuarter: number;
+  effectiveCarryover: number; // min(unspent, carryoverCap)
+  effectiveBudgetEnvelope: number; // budgetEnvelope + effectiveCarryover
 }
 
 export interface DefaultService {

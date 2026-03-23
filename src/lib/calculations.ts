@@ -19,6 +19,7 @@ import type {
   PathwayConfig,
   PartPensionerRates,
   ClientBudget,
+  ViewPeriod,
 } from "./types";
 
 export function getClassification(classificationId: string) {
@@ -41,11 +42,35 @@ export function getAvailableForServices(quarterlyBudget: number, careManagementA
   return round2(quarterlyBudget - careManagementAmount);
 }
 
+// ─── View Period Scaling ──────────────────────────────────────────────────────
+
+export function getViewPeriodDivisor(period: ViewPeriod): number {
+  switch (period) {
+    case "quarterly": return 1;
+    case "monthly": return 3;
+    case "fortnightly": return 6.5;
+  }
+}
+
+export function scaleAmount(amount: number, period: ViewPeriod): number {
+  return round2(amount / getViewPeriodDivisor(period));
+}
+
+export const VIEW_PERIOD_LABELS: Record<ViewPeriod, string> = {
+  quarterly: "Quarterly",
+  monthly: "Monthly",
+  fortnightly: "Fortnightly",
+};
+
+// ─── Contribution Rates ──────────────────────────────────────────────────────
+
 export function getContributionRate(
   category: ServiceCategory,
   pensionStatus: PensionStatus,
-  partPensionerRates?: PartPensionerRates
+  partPensionerRates?: PartPensionerRates,
+  isGrandfathered?: boolean
 ): number {
+  if (isGrandfathered) return 0;
   if (pensionStatus === "part_pensioner" && partPensionerRates) {
     if (category === "independence") return partPensionerRates.independence;
     if (category === "everyday") return partPensionerRates.everyday;
@@ -62,25 +87,28 @@ export function calcServiceCost(item: ServiceLineItem): number {
 export function calcClientContribution(
   item: ServiceLineItem,
   pensionStatus: PensionStatus,
-  partPensionerRates?: PartPensionerRates
+  partPensionerRates?: PartPensionerRates,
+  isGrandfathered?: boolean
 ): number {
   const cost = calcServiceCost(item);
-  const rate = getContributionRate(item.category, pensionStatus, partPensionerRates);
+  const rate = getContributionRate(item.category, pensionStatus, partPensionerRates, isGrandfathered);
   return round2(cost * rate);
 }
 
 export function calcGovtSubsidy(
   item: ServiceLineItem,
   pensionStatus: PensionStatus,
-  partPensionerRates?: PartPensionerRates
+  partPensionerRates?: PartPensionerRates,
+  isGrandfathered?: boolean
 ): number {
-  return round2(calcServiceCost(item) - calcClientContribution(item, pensionStatus, partPensionerRates));
+  return round2(calcServiceCost(item) - calcClientContribution(item, pensionStatus, partPensionerRates, isGrandfathered));
 }
 
 export function calcTabTotals(
   services: ServiceLineItem[],
   pensionStatus: PensionStatus,
-  partPensionerRates?: PartPensionerRates
+  partPensionerRates?: PartPensionerRates,
+  isGrandfathered?: boolean
 ): TabCalculations {
   const byCategory: CategoryTotals = { clinical: 0, independence: 0, everyday: 0 };
   const byCategoryContribution: CategoryTotals = { clinical: 0, independence: 0, everyday: 0 };
@@ -89,7 +117,7 @@ export function calcTabTotals(
 
   for (const item of services) {
     const cost = calcServiceCost(item);
-    const contrib = calcClientContribution(item, pensionStatus, partPensionerRates);
+    const contrib = calcClientContribution(item, pensionStatus, partPensionerRates, isGrandfathered);
     byCategory[item.category] += cost;
     byCategoryContribution[item.category] += contrib;
     totalCost += cost;
@@ -186,11 +214,17 @@ export function calcBudget(budget: ClientBudget, budgetType: BudgetType): Budget
   const services = tab?.services ?? [];
   const pathwayConfig = tab?.pathwayConfig ?? { restorativeTier: "standard", athmTier: "low" };
 
-  const tabCalcs = calcTabTotals(services, budget.pensionStatus, budget.partPensionerRates);
+  const tabCalcs = calcTabTotals(services, budget.pensionStatus, budget.partPensionerRates, budget.isGrandfathered);
   const budgetEnvelope = getBudgetEnvelope(budgetType, pathwayConfig, availableForServices);
-  const utilisation = calcBudgetUtilisation(tabCalcs.totalCost, budgetEnvelope);
-  const remaining = round2(budgetEnvelope - tabCalcs.totalCost);
-  const carryoverCap = calcCarryover(remaining, totalQuarterlyBudget);
+
+  // Unspent funds / carryover from prior quarter
+  const unspentPriorQuarter = budget.unspentPriorQuarter ?? 0;
+  const carryoverCap = calcCarryover(totalQuarterlyBudget, totalQuarterlyBudget); // max carryover allowed
+  const effectiveCarryover = round2(Math.min(Math.max(unspentPriorQuarter, 0), carryoverCap));
+  const effectiveBudgetEnvelope = round2(budgetEnvelope + effectiveCarryover);
+
+  const utilisation = calcBudgetUtilisation(tabCalcs.totalCost, effectiveBudgetEnvelope);
+  const remaining = round2(effectiveBudgetEnvelope - tabCalcs.totalCost);
 
   return {
     quarterlyBudget,
@@ -206,6 +240,9 @@ export function calcBudget(budget: ClientBudget, budgetType: BudgetType): Budget
     utilisation,
     remaining,
     carryoverCap,
+    unspentPriorQuarter,
+    effectiveCarryover,
+    effectiveBudgetEnvelope,
   };
 }
 

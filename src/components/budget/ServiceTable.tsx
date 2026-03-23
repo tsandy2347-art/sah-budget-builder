@@ -5,17 +5,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CategoryBadge } from "./CategoryBadge";
 import { AddServiceModal } from "./AddServiceModal";
-import { calcServiceCost, calcClientContribution } from "@/lib/calculations";
+import { calcServiceCost, calcClientContribution, scaleAmount, VIEW_PERIOD_LABELS } from "@/lib/calculations";
 import { formatCurrency } from "@/lib/format";
 import { Plus, Trash2, AlertCircle } from "lucide-react";
-import type { ServiceLineItem, BudgetType, PensionStatus, PartPensionerRates } from "@/lib/types";
+import type { ServiceLineItem, BudgetType, PensionStatus, PartPensionerRates, ViewPeriod } from "@/lib/types";
 
 interface ServiceTableProps {
   services: ServiceLineItem[];
   budgetType: BudgetType;
   pensionStatus: PensionStatus;
   partPensionerRates: PartPensionerRates;
+  isGrandfathered?: boolean;
   defaultWeeks: number;
+  viewPeriod: ViewPeriod;
   onAdd: (item: Omit<ServiceLineItem, "id">) => void;
   onUpdate: (id: string, updates: Partial<ServiceLineItem>) => void;
   onRemove: (id: string) => void;
@@ -26,7 +28,9 @@ export function ServiceTable({
   budgetType,
   pensionStatus,
   partPensionerRates,
+  isGrandfathered,
   defaultWeeks,
+  viewPeriod,
   onAdd,
   onUpdate,
   onRemove,
@@ -46,9 +50,11 @@ export function ServiceTable({
     return null;
   }
 
+  const costLabel = viewPeriod === "quarterly" ? "Qtr Cost" : viewPeriod === "monthly" ? "Monthly Cost" : "F/N Cost";
+
   const totals = {
     cost: services.reduce((sum, s) => sum + calcServiceCost(s), 0),
-    contrib: services.reduce((sum, s) => sum + calcClientContribution(s, pensionStatus, partPensionerRates), 0),
+    contrib: services.reduce((sum, s) => sum + calcClientContribution(s, pensionStatus, partPensionerRates, isGrandfathered), 0),
   };
 
   return (
@@ -71,7 +77,7 @@ export function ServiceTable({
                   <th className="text-right px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">Rate/hr</th>
                   <th className="text-right px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">Hrs/wk</th>
                   <th className="text-right px-2 py-2.5 font-medium text-muted-foreground">Wks</th>
-                  <th className="text-right px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">Qtr Cost</th>
+                  <th className="text-right px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">{costLabel}</th>
                   <th className="text-right px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">Client Contrib</th>
                   <th className="px-2 py-2.5"></th>
                 </tr>
@@ -79,7 +85,7 @@ export function ServiceTable({
               <tbody>
                 {services.map((item, idx) => {
                   const cost = calcServiceCost(item);
-                  const contrib = calcClientContribution(item, pensionStatus, partPensionerRates);
+                  const contrib = calcClientContribution(item, pensionStatus, partPensionerRates, isGrandfathered);
                   const warning = validate(item);
                   return (
                     <tr key={item.id} className={`border-b last:border-b-0 ${idx % 2 === 0 ? "" : "bg-muted/20"}`}>
@@ -147,8 +153,8 @@ export function ServiceTable({
                           </td>
                         </>
                       )}
-                      <td className="px-2 py-2 text-right font-medium whitespace-nowrap">{formatCurrency(cost)}</td>
-                      <td className="px-2 py-2 text-right text-muted-foreground whitespace-nowrap">{formatCurrency(contrib)}</td>
+                      <td className="px-2 py-2 text-right font-medium whitespace-nowrap">{formatCurrency(scaleAmount(cost, viewPeriod))}</td>
+                      <td className="px-2 py-2 text-right text-muted-foreground whitespace-nowrap">{formatCurrency(scaleAmount(contrib, viewPeriod))}</td>
                       <td className="px-2 py-2">
                         <Button
                           variant="ghost"
@@ -165,9 +171,9 @@ export function ServiceTable({
               </tbody>
               <tfoot>
                 <tr className="border-t bg-muted/40 font-semibold">
-                  <td colSpan={5} className="px-3 py-2.5 text-right text-sm">Total</td>
-                  <td className="px-2 py-2.5 text-right whitespace-nowrap">{formatCurrency(totals.cost)}</td>
-                  <td className="px-2 py-2.5 text-right text-muted-foreground whitespace-nowrap">{formatCurrency(totals.contrib)}</td>
+                  <td colSpan={5} className="px-3 py-2.5 text-right text-sm">Total ({VIEW_PERIOD_LABELS[viewPeriod]})</td>
+                  <td className="px-2 py-2.5 text-right whitespace-nowrap">{formatCurrency(scaleAmount(totals.cost, viewPeriod))}</td>
+                  <td className="px-2 py-2.5 text-right text-muted-foreground whitespace-nowrap">{formatCurrency(scaleAmount(totals.contrib, viewPeriod))}</td>
                   <td />
                 </tr>
               </tfoot>

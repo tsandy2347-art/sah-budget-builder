@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,10 +10,10 @@ import { BudgetSummary } from "./BudgetSummary";
 import { BudgetOptimisationTips } from "./BudgetOptimisationTips";
 import { ProviderSummary } from "./ProviderSummary";
 import { MetricCard } from "./MetricCard";
-import { calcBudget, getPathwayWeeks } from "@/lib/calculations";
+import { calcBudget, getPathwayWeeks, scaleAmount, VIEW_PERIOD_LABELS } from "@/lib/calculations";
 import { BUDGET_TYPE_LABELS, RESTORATIVE_BUDGETS, ATHM_BUDGETS, EOL_BUDGET, EOL_WEEKS } from "@/lib/constants";
 import { formatCurrency } from "@/lib/format";
-import type { ClientBudget, BudgetType, ServiceLineItem, PathwayConfig } from "@/lib/types";
+import type { ClientBudget, BudgetType, ServiceLineItem, PathwayConfig, ViewPeriod } from "@/lib/types";
 
 interface BudgetTabsProps {
   budget: ClientBudget;
@@ -33,9 +34,12 @@ export function BudgetTabs({
   onUpdatePathway,
   onTabChange,
 }: BudgetTabsProps) {
+  const [viewPeriod, setViewPeriod] = useState<ViewPeriod>("quarterly");
+
   return (
     <Tabs value={budget.activeTab} onValueChange={(v) => onTabChange(v as BudgetType)}>
-      <TabsList className="grid w-full grid-cols-4">
+      <div className="flex items-center justify-between gap-4 mb-2">
+        <TabsList className="grid w-full grid-cols-4">
         {TABS.map((t) => {
           const calcs = calcBudget(budget, t);
           const isOver = calcs.utilisation > 100;
@@ -47,7 +51,23 @@ export function BudgetTabs({
             </TabsTrigger>
           );
         })}
-      </TabsList>
+        </TabsList>
+        <div className="flex items-center gap-1 rounded-lg border bg-muted/40 p-0.5 flex-shrink-0">
+          {(["quarterly", "monthly", "fortnightly"] as ViewPeriod[]).map((period) => (
+            <button
+              key={period}
+              onClick={() => setViewPeriod(period)}
+              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                viewPeriod === period
+                  ? "bg-background shadow-sm text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {VIEW_PERIOD_LABELS[period]}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {TABS.map((tabType) => {
         const tab = budget.tabs.find((t) => t.budgetType === tabType)!;
@@ -124,11 +144,11 @@ export function BudgetTabs({
             {/* Metric summary for this tab's envelope */}
             {tabType !== "ongoing" && (
               <div className="grid gap-4 sm:grid-cols-3">
-                <MetricCard label="Pathway Envelope" value={calcs.budgetEnvelope} variant="blue" />
-                <MetricCard label="Services Planned" value={calcs.tabCalcs.totalCost} variant="default" />
+                <MetricCard label={`Pathway Envelope (${VIEW_PERIOD_LABELS[viewPeriod]})`} value={scaleAmount(calcs.budgetEnvelope, viewPeriod)} variant="blue" />
+                <MetricCard label={`Services Planned (${VIEW_PERIOD_LABELS[viewPeriod]})`} value={scaleAmount(calcs.tabCalcs.totalCost, viewPeriod)} variant="default" />
                 <MetricCard
-                  label="Remaining"
-                  value={calcs.remaining}
+                  label={`Remaining (${VIEW_PERIOD_LABELS[viewPeriod]})`}
+                  value={scaleAmount(calcs.remaining, viewPeriod)}
                   variant={calcs.remaining < 0 ? "amber" : "green"}
                 />
               </div>
@@ -140,20 +160,22 @@ export function BudgetTabs({
               budgetType={tabType}
               pensionStatus={budget.pensionStatus}
               partPensionerRates={budget.partPensionerRates}
+              isGrandfathered={budget.isGrandfathered}
               defaultWeeks={defaultWeeks}
+              viewPeriod={viewPeriod}
               onAdd={(item) => onAddService(tabType, item)}
               onUpdate={(id, updates) => onUpdateService(tabType, id, updates)}
               onRemove={(id) => onRemoveService(tabType, id)}
             />
 
             {/* Budget summary */}
-            <BudgetSummary calcs={calcs} />
+            <BudgetSummary calcs={calcs} viewPeriod={viewPeriod} />
 
             {/* Budget optimisation tips */}
             <BudgetOptimisationTips budget={budget} calcs={calcs} budgetType={tabType} />
 
             {/* Provider summary (ongoing only) */}
-            {tabType === "ongoing" && <ProviderSummary calcs={calcs} />}
+            {tabType === "ongoing" && <ProviderSummary calcs={calcs} viewPeriod={viewPeriod} />}
           </TabsContent>
         );
       })}
