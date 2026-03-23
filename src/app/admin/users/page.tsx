@@ -25,7 +25,10 @@ import {
   Users,
   Clock,
   AlertTriangle,
+  KeyRound,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface UserRow {
   id: string;
@@ -44,6 +47,32 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [resetTarget, setResetTarget] = useState<{ id: string; name: string; email: string } | null>(null);
+  const [resetPassword, setResetPassword] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetMessage, setResetMessage] = useState("");
+
+  async function handleResetPassword() {
+    if (!resetTarget || resetPassword.length < 6) return;
+    setResetLoading(true);
+    setResetMessage("");
+    try {
+      const res = await fetch("/api/admin/reset-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: resetTarget.id, password: resetPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed");
+      setResetMessage(data.message);
+      setResetPassword("");
+      setTimeout(() => { setResetTarget(null); setResetMessage(""); }, 2000);
+    } catch (err: any) {
+      setError(err.message || "Failed to reset password.");
+    } finally {
+      setResetLoading(false);
+    }
+  }
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -206,6 +235,47 @@ export default function AdminUsersPage() {
         </Card>
       )}
 
+      {/* Reset Password Dialog */}
+      {resetTarget && (
+        <Card className="border-blue-200 dark:border-blue-800">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <KeyRound className="h-5 w-5 text-blue-500" />
+              Reset Password for {resetTarget.name}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {resetMessage ? (
+              <Alert className="border-green-200 bg-green-50 dark:bg-green-950/20 dark:border-green-800">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-green-800 dark:text-green-300">{resetMessage}</AlertDescription>
+              </Alert>
+            ) : (
+              <div className="flex items-end gap-3">
+                <div className="flex-1 space-y-1.5">
+                  <Label htmlFor="adminResetPw">New password for {resetTarget.email}</Label>
+                  <Input
+                    id="adminResetPw"
+                    type="password"
+                    value={resetPassword}
+                    onChange={(e) => setResetPassword(e.target.value)}
+                    placeholder="Min 6 characters"
+                    minLength={6}
+                  />
+                </div>
+                <Button onClick={handleResetPassword} disabled={resetLoading || resetPassword.length < 6}>
+                  {resetLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <KeyRound className="h-4 w-4 mr-2" />}
+                  Reset
+                </Button>
+                <Button variant="outline" onClick={() => setResetTarget(null)}>
+                  Cancel
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Approved Users */}
       <Card>
         <CardHeader className="pb-3">
@@ -261,6 +331,15 @@ export default function AdminUsersPage() {
                       <TableCell className="text-right space-x-1">
                         {!isMe && (
                           <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => { setResetTarget({ id: user.id, name: user.name, email: user.email }); setResetPassword(""); setResetMessage(""); }}
+                              disabled={!!actionLoading}
+                              title="Reset password"
+                            >
+                              <KeyRound className="h-3.5 w-3.5" />
+                            </Button>
                             {user.role === "USER" ? (
                               <Button
                                 size="sm"

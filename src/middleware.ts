@@ -6,7 +6,7 @@ export default withAuth({
 
 export const config = {
   matcher: [
-    // Protect everything except login, register, api/auth, api/register, static files
-    "/((?!login|register|api/auth|api/register|_next/static|_next/image|favicon.ico).*)",
+    // Protect everything except login, register, password reset, api/auth, api/register, api password routes, static files
+    "/((?!login|register|forgot-password|reset-password|api/auth|api/register|api/forgot-password|api/reset-password|_next/static|_next/image|favicon.ico).*)",
   ],
 };
