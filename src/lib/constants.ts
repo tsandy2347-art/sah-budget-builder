@@ -5,6 +5,7 @@ import type {
   DefaultService,
   BudgetType,
   ATHMTier,
+  ServiceFrequency,
   Supplement,
 } from "./types";
 
@@ -84,51 +85,51 @@ export const QUARTERS = [
 // ─── Default Services ──────────────────────────────────────────────────────────
 
 export const DEFAULT_ONGOING_CLINICAL: DefaultService[] = [
-  { name: "Nursing care", category: "clinical", ratePerHour: 210, defaultHoursPerWeek: 1 },
-  { name: "Physiotherapy", category: "clinical", ratePerHour: 190, defaultHoursPerWeek: 1 },
-  { name: "Occupational therapy", category: "clinical", ratePerHour: 190, defaultHoursPerWeek: 1 },
-  { name: "Speech pathology", category: "clinical", ratePerHour: 190, defaultHoursPerWeek: 1 },
-  { name: "Podiatry", category: "clinical", ratePerHour: 180, defaultHoursPerWeek: 1 },
-  { name: "Dietitian", category: "clinical", ratePerHour: 180, defaultHoursPerWeek: 1 },
-  { name: "Continence assessment", category: "clinical", ratePerHour: 190, defaultHoursPerWeek: 1 },
-  { name: "Psychology", category: "clinical", ratePerHour: 220, defaultHoursPerWeek: 1 },
+  { name: "Nursing care", category: "clinical", ratePerHour: 210, defaultHrsPerSession: 1 },
+  { name: "Physiotherapy", category: "clinical", ratePerHour: 190, defaultHrsPerSession: 1 },
+  { name: "Occupational therapy", category: "clinical", ratePerHour: 190, defaultHrsPerSession: 1 },
+  { name: "Speech pathology", category: "clinical", ratePerHour: 190, defaultHrsPerSession: 1 },
+  { name: "Podiatry", category: "clinical", ratePerHour: 180, defaultHrsPerSession: 1 },
+  { name: "Dietitian", category: "clinical", ratePerHour: 180, defaultHrsPerSession: 1 },
+  { name: "Continence assessment", category: "clinical", ratePerHour: 190, defaultHrsPerSession: 1 },
+  { name: "Psychology", category: "clinical", ratePerHour: 220, defaultHrsPerSession: 1 },
 ];
 
 export const DEFAULT_ONGOING_INDEPENDENCE: DefaultService[] = [
-  { name: "Personal care", category: "independence", ratePerHour: 65, defaultHoursPerWeek: 2 },
-  { name: "Social support — individual", category: "independence", ratePerHour: 65, defaultHoursPerWeek: 1 },
-  { name: "Social support — group", category: "independence", ratePerHour: 45, defaultHoursPerWeek: 1 },
-  { name: "Transport", category: "independence", ratePerHour: 55, defaultHoursPerWeek: 1 },
-  { name: "Respite care", category: "independence", ratePerHour: 65, defaultHoursPerWeek: 1 },
+  { name: "Personal care", category: "independence", ratePerHour: 65, defaultHrsPerSession: 2 },
+  { name: "Social support — individual", category: "independence", ratePerHour: 65, defaultHrsPerSession: 1 },
+  { name: "Social support — group", category: "independence", ratePerHour: 45, defaultHrsPerSession: 1 },
+  { name: "Transport", category: "independence", ratePerHour: 55, defaultHrsPerSession: 1 },
+  { name: "Respite care", category: "independence", ratePerHour: 65, defaultHrsPerSession: 1 },
   { name: "Assistive technology", category: "independence", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 500 },
   { name: "Home modifications", category: "independence", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 1000 },
 ];
 
 export const DEFAULT_ONGOING_EVERYDAY: DefaultService[] = [
-  { name: "Domestic assistance", category: "everyday", ratePerHour: 65, defaultHoursPerWeek: 2 },
-  { name: "Gardening / home maintenance", category: "everyday", ratePerHour: 70, defaultHoursPerWeek: 1 },
-  { name: "Meal preparation", category: "everyday", ratePerHour: 65, defaultHoursPerWeek: 2 },
+  { name: "Domestic assistance", category: "everyday", ratePerHour: 65, defaultHrsPerSession: 2 },
+  { name: "Gardening / home maintenance", category: "everyday", ratePerHour: 70, defaultHrsPerSession: 1 },
+  { name: "Meal preparation", category: "everyday", ratePerHour: 65, defaultHrsPerSession: 2 },
   { name: "Meal delivery", category: "everyday", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 200 },
 ];
 
 export const DEFAULT_RESTORATIVE: DefaultService[] = [
-  { name: "Physiotherapy", category: "clinical", ratePerHour: 190, defaultHoursPerWeek: 1 },
-  { name: "Occupational therapy", category: "clinical", ratePerHour: 190, defaultHoursPerWeek: 1 },
-  { name: "Exercise physiology", category: "clinical", ratePerHour: 170, defaultHoursPerWeek: 1 },
-  { name: "Speech pathology", category: "clinical", ratePerHour: 190, defaultHoursPerWeek: 1 },
-  { name: "Nursing support", category: "clinical", ratePerHour: 210, defaultHoursPerWeek: 1 },
+  { name: "Physiotherapy", category: "clinical", ratePerHour: 190, defaultHrsPerSession: 1 },
+  { name: "Occupational therapy", category: "clinical", ratePerHour: 190, defaultHrsPerSession: 1 },
+  { name: "Exercise physiology", category: "clinical", ratePerHour: 170, defaultHrsPerSession: 1 },
+  { name: "Speech pathology", category: "clinical", ratePerHour: 190, defaultHrsPerSession: 1 },
+  { name: "Nursing support", category: "clinical", ratePerHour: 210, defaultHrsPerSession: 1 },
 ];
 
 export const DEFAULT_EOL: DefaultService[] = [
-  { name: "Palliative nursing care", category: "clinical", ratePerHour: 210, defaultHoursPerWeek: 2 },
-  { name: "Personal care", category: "independence", ratePerHour: 65, defaultHoursPerWeek: 3 },
-  { name: "Respite for carer", category: "independence", ratePerHour: 65, defaultHoursPerWeek: 2 },
-  { name: "Allied health", category: "clinical", ratePerHour: 190, defaultHoursPerWeek: 1 },
-  { name: "Domestic support", category: "everyday", ratePerHour: 65, defaultHoursPerWeek: 2 },
+  { name: "Palliative nursing care", category: "clinical", ratePerHour: 210, defaultHrsPerSession: 2 },
+  { name: "Personal care", category: "independence", ratePerHour: 65, defaultHrsPerSession: 3 },
+  { name: "Respite for carer", category: "independence", ratePerHour: 65, defaultHrsPerSession: 2 },
+  { name: "Allied health", category: "clinical", ratePerHour: 190, defaultHrsPerSession: 1 },
+  { name: "Domestic support", category: "everyday", ratePerHour: 65, defaultHrsPerSession: 2 },
 ];
 
 export const DEFAULT_ATHM: DefaultService[] = [
-  { name: "OT assessment", category: "clinical", ratePerHour: 190, defaultHoursPerWeek: 1 },
+  { name: "OT assessment", category: "clinical", ratePerHour: 190, defaultHrsPerSession: 1 },
   { name: "Grab rails / bathroom rails", category: "everyday", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 400 },
   { name: "Ramp installation", category: "everyday", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 1500 },
   { name: "Shower chair / commode", category: "everyday", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 250 },
@@ -151,6 +152,16 @@ export const PENSION_STATUS_LABELS: Record<PensionStatus, string> = {
   full_pensioner: "Full Pensioner",
   part_pensioner: "Part Pensioner / CSHC Holder",
   self_funded: "Self-Funded Retiree",
+};
+
+export const SERVICE_FREQUENCIES: ServiceFrequency[] = ["weekly", "fortnightly", "monthly", "quarterly", "adhoc"];
+
+export const FREQUENCY_LABELS: Record<ServiceFrequency, string> = {
+  weekly: "Weekly",
+  fortnightly: "Fortnightly",
+  monthly: "Monthly",
+  quarterly: "Quarterly",
+  adhoc: "Adhoc",
 };
 
 export const BUDGET_TYPE_LABELS: Record<BudgetType, string> = {

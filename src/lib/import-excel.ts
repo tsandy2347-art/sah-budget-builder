@@ -135,8 +135,10 @@ function parseOwnFormat(wb: XLSX.WorkBook): ClientBudget | null {
       name,
       category,
       ratePerHour,
-      hoursPerWeek: isLumpSum ? 0 : hoursPerWeek,
-      weeksInQuarter: isLumpSum ? 1 : weeks,
+      frequency: "weekly" as const,
+      hrsPerSession: isLumpSum ? 0 : hoursPerWeek,
+      daysPerFrequency: 1,
+      
       isLumpSum,
       lumpSumAmount: isLumpSum ? lumpSum : 0,
     };
@@ -219,8 +221,10 @@ function parseGenericFormat(wb: XLSX.WorkBook): ClientBudget | null {
       name,
       category,
       ratePerHour: rate,
-      hoursPerWeek: isLumpSum ? 0 : (hours || 1),
-      weeksInQuarter: isLumpSum ? 1 : weeks,
+      frequency: "weekly" as const,
+      hrsPerSession: isLumpSum ? 0 : (hours || 1),
+      daysPerFrequency: 1,
+      
       isLumpSum,
       lumpSumAmount: isLumpSum ? amount : 0,
     };

@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { CategoryBadge } from "./CategoryBadge";
 import { AddServiceModal } from "./AddServiceModal";
 import { calcServiceCost, calcClientContribution, scaleAmount, VIEW_PERIOD_LABELS } from "@/lib/calculations";
+import { FREQUENCY_LABELS, SERVICE_FREQUENCIES } from "@/lib/constants";
 import { formatCurrency } from "@/lib/format";
 import { Plus, Trash2, AlertCircle } from "lucide-react";
-import type { ServiceLineItem, BudgetType, PensionStatus, PartPensionerRates, ViewPeriod } from "@/lib/types";
+import type { ServiceLineItem, BudgetType, PensionStatus, PartPensionerRates, ViewPeriod, ServiceFrequency } from "@/lib/types";
 
 interface ServiceTableProps {
   services: ServiceLineItem[];
@@ -40,10 +41,9 @@ export function ServiceTable({
   function validate(item: ServiceLineItem): string | null {
     if (!item.isLumpSum) {
       if (item.ratePerHour <= 0) return "Rate must be > 0";
-      if (item.hoursPerWeek <= 0) return "Hours must be > 0";
-      if (item.weeksInQuarter <= 0) return "Weeks must be > 0";
+      if (item.hrsPerSession <= 0) return "Hrs/session must be > 0";
+      if (item.daysPerFrequency <= 0) return "Days must be > 0";
       if (item.ratePerHour > 1000) return "Rate seems high (>$1,000/hr)";
-      if (item.hoursPerWeek > 168) return "Hours exceed 168/week";
     } else {
       if (item.lumpSumAmount < 0) return "Amount must be ≥ 0";
     }
@@ -74,9 +74,10 @@ export function ServiceTable({
                 <tr className="border-b bg-muted/40">
                   <th className="text-left px-3 py-2.5 font-medium text-muted-foreground min-w-[160px]">Service</th>
                   <th className="text-left px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">Category</th>
-                  <th className="text-right px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">Rate/hr</th>
-                  <th className="text-right px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">Hrs/wk</th>
-                  <th className="text-right px-2 py-2.5 font-medium text-muted-foreground">Wks</th>
+                  <th className="text-left px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">Frequency</th>
+                  <th className="text-right px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">Rate/Hr</th>
+                  <th className="text-right px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">Hrs/Session</th>
+                  <th className="text-right px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">Days/Freq</th>
                   <th className="text-right px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">{costLabel}</th>
                   <th className="text-right px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">Client Contrib</th>
                   <th className="px-2 py-2.5"></th>
@@ -106,7 +107,7 @@ export function ServiceTable({
                       </td>
                       {item.isLumpSum ? (
                         <>
-                          <td colSpan={3} className="px-2 py-2 text-right">
+                          <td colSpan={4} className="px-2 py-2 text-right">
                             <div className="flex items-center justify-end gap-1">
                               <span className="text-xs text-muted-foreground">$</span>
                               <Input
@@ -137,8 +138,8 @@ export function ServiceTable({
                               type="number"
                               min={0}
                               step={0.5}
-                              value={item.hoursPerWeek}
-                              onChange={(e) => onUpdate(item.id, { hoursPerWeek: Number(e.target.value) })}
+                              value={item.hrsPerSession}
+                              onChange={(e) => onUpdate(item.id, { hrsPerSession: Number(e.target.value) })}
                             />
                           </td>
                           <td className="px-2 py-2 text-right">
@@ -147,8 +148,8 @@ export function ServiceTable({
                               type="number"
                               min={1}
                               max={52}
-                              value={item.weeksInQuarter}
-                              onChange={(e) => onUpdate(item.id, { weeksInQuarter: Number(e.target.value) })}
+                              value={item.daysPerFrequency}
+                              onChange={(e) => onUpdate(item.id, { daysPerFrequency: Number(e.target.value) })}
                             />
                           </td>
                         </>
@@ -171,7 +172,7 @@ export function ServiceTable({
               </tbody>
               <tfoot>
                 <tr className="border-t bg-muted/40 font-semibold">
-                  <td colSpan={5} className="px-3 py-2.5 text-right text-sm">Total ({VIEW_PERIOD_LABELS[viewPeriod]})</td>
+                  <td colSpan={6} className="px-3 py-2.5 text-right text-sm">Total ({VIEW_PERIOD_LABELS[viewPeriod]})</td>
                   <td className="px-2 py-2.5 text-right whitespace-nowrap">{formatCurrency(scaleAmount(totals.cost, viewPeriod))}</td>
                   <td className="px-2 py-2.5 text-right text-muted-foreground whitespace-nowrap">{formatCurrency(scaleAmount(totals.contrib, viewPeriod))}</td>
                   <td />

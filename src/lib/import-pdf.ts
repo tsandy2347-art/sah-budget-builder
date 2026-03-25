@@ -58,7 +58,7 @@ interface ParsedBlock {
   serviceName: string;
   sectionName: string;
   ratePerHour: number;
-  hoursPerWeek: number;
+  hrsPerSession: number;
   total: number;
   notes: string;
   blockType: "service" | "fee" | "premium";
@@ -314,15 +314,16 @@ function parseAlayaCare(text: string): ClientBudget | null {
     const quarterlyTotal = Math.round((block.total / 4) * 100) / 100;
 
     // Use actual rate if we have it, otherwise lump sum
-    const hasRate = block.ratePerHour > 0 && block.hoursPerWeek > 0;
+    const hasRate = block.ratePerHour > 0 && block.hrsPerSession > 0;
 
     const service: ServiceLineItem = {
       id: uuidv4(),
       name,
       category,
       ratePerHour: hasRate ? block.ratePerHour : 0,
-      hoursPerWeek: hasRate ? block.hoursPerWeek : 0,
-      weeksInQuarter: hasRate ? 13 : 1,
+      hrsPerSession: hasRate ? block.hrsPerSession : 0,
+      daysPerFrequency: hasRate ? 1 : 1,
+      frequency: "weekly" as const,
       isLumpSum: !hasRate,
       lumpSumAmount: hasRate ? 0 : quarterlyTotal,
     };
@@ -369,7 +370,7 @@ function parseBlock(
   sectionName: string
 ): ParsedBlock | null {
   let ratePerHour = 0;
-  let hoursPerWeek = 0;
+  let hrsPerSession = 0;
   let total = 0;
   let notes = "";
 
@@ -404,11 +405,11 @@ function parseBlock(
         const hrs = parseFloat(hoursMatch[1]);
         const period = hoursMatch[2]?.toLowerCase();
         if (period === "month") {
-          hoursPerWeek = Math.round((hrs / 4.33) * 100) / 100;
+          hrsPerSession = Math.round((hrs / 4.33) * 100) / 100;
         } else if (period === "week") {
-          hoursPerWeek = hrs;
+          hrsPerSession = hrs;
         }
-        // "total" means it's not recurring — leave hoursPerWeek as 0
+        // "total" means it's not recurring — leave hrsPerSession as 0
       }
     }
 
@@ -451,7 +452,7 @@ function parseBlock(
     if (line.startsWith("Fee") && !line.startsWith("Fee Total") && !line.startsWith("Fees Total") && j > startIdx + 1) break;
   }
 
-  return { serviceName, sectionName, ratePerHour, hoursPerWeek, total, notes, blockType };
+  return { serviceName, sectionName, ratePerHour, hrsPerSession, total, notes, blockType };
 }
 
 // ─── Our own PDF format ───────────────────────────────────────────────────────
@@ -518,7 +519,7 @@ function parseOwnFormat(text: string): ClientBudget | null {
     const tab = tabs.find(t => t.budgetType === currentSection);
     if (tab) tab.services.push({
       id: uuidv4(), name: servicePart, category: normaliseCategory(servicePart),
-      ratePerHour: 0, hoursPerWeek: 0, weeksInQuarter: 1, isLumpSum: true, lumpSumAmount: cost,
+      ratePerHour: 0, hrsPerSession: 0, daysPerFrequency: 1, frequency: "weekly" as const, isLumpSum: true, lumpSumAmount: cost,
     });
   }
 
@@ -582,7 +583,7 @@ export function parsePdfText(text: string): ClientBudget {
     if (cost <= 0) continue;
     ongoingTab.services.push({
       id: uuidv4(), name: servicePart, category: normaliseCategory(servicePart),
-      ratePerHour: 0, hoursPerWeek: 0, weeksInQuarter: 1, isLumpSum: true, lumpSumAmount: cost,
+      ratePerHour: 0, hrsPerSession: 0, daysPerFrequency: 1, frequency: "weekly" as const, isLumpSum: true, lumpSumAmount: cost,
     });
   }
 

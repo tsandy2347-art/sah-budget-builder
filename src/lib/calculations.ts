@@ -10,6 +10,7 @@ import {
 } from "./constants";
 import type {
   ServiceLineItem,
+  ServiceFrequency,
   PensionStatus,
   ServiceCategory,
   BudgetType,
@@ -62,6 +63,18 @@ export const VIEW_PERIOD_LABELS: Record<ViewPeriod, string> = {
   fortnightly: "Fortnightly",
 };
 
+// ─── Service Frequency ─────────────────────────────────────────────────────
+
+export function getPeriodsInQuarter(frequency: ServiceFrequency): number {
+  switch (frequency) {
+    case "weekly": return 13;
+    case "fortnightly": return 6.5;
+    case "monthly": return 3;
+    case "quarterly": return 1;
+    case "adhoc": return 1;
+  }
+}
+
 // ─── Contribution Rates ──────────────────────────────────────────────────────
 
 export function getContributionRate(
@@ -81,7 +94,8 @@ export function getContributionRate(
 
 export function calcServiceCost(item: ServiceLineItem): number {
   if (item.isLumpSum) return round2(item.lumpSumAmount);
-  return round2(item.ratePerHour * item.hoursPerWeek * item.weeksInQuarter);
+  const periods = getPeriodsInQuarter(item.frequency ?? "weekly");
+  return round2(item.ratePerHour * item.hrsPerSession * item.daysPerFrequency * periods);
 }
 
 export function calcClientContribution(

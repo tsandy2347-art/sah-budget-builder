@@ -4,6 +4,7 @@ export type BudgetType = "ongoing" | "restorative" | "end_of_life" | "at_hm";
 export type ATHMTier = "low" | "medium" | "high";
 export type RestorativeTier = "standard" | "extended";
 export type ViewPeriod = "quarterly" | "monthly" | "fortnightly";
+export type ServiceFrequency = "weekly" | "fortnightly" | "monthly" | "quarterly" | "adhoc";
 
 export interface FundingClassification {
   id: string;
@@ -17,9 +18,10 @@ export interface ServiceLineItem {
   id: string;
   name: string;
   category: ServiceCategory;
+  frequency: ServiceFrequency;
   ratePerHour: number;
-  hoursPerWeek: number;
-  weeksInQuarter: number;
+  hrsPerSession: number;
+  daysPerFrequency: number;
   isLumpSum: boolean;
   lumpSumAmount: number;
 }
@@ -106,6 +108,8 @@ export interface DefaultService {
   category: ServiceCategory;
   ratePerHour: number;
   isLumpSum?: boolean;
-  defaultHoursPerWeek?: number;
+  defaultFrequency?: ServiceFrequency;
+  defaultHrsPerSession?: number;
+  defaultDaysPerFrequency?: number;
   defaultLumpSumAmount?: number;
 }

@@ -1,6 +1,6 @@
 import * as XLSX from "xlsx";
 import { calcBudget, calcServiceCost, calcClientContribution, getClassification } from "./calculations";
-import { BUDGET_TYPE_LABELS, PENSION_STATUS_LABELS, SUPPLEMENTS } from "./constants";
+import { BUDGET_TYPE_LABELS, PENSION_STATUS_LABELS, SUPPLEMENTS, FREQUENCY_LABELS } from "./constants";
 import type { ClientBudget, BudgetType } from "./types";
 
 const BUDGET_TYPES: BudgetType[] = ["ongoing", "restorative", "end_of_life", "at_hm"];
@@ -54,8 +54,8 @@ export function exportBudgetExcel(budget: ClientBudget): void {
         item.name,
         item.category.charAt(0).toUpperCase() + item.category.slice(1),
         item.isLumpSum ? "" : item.ratePerHour,
-        item.isLumpSum ? "" : item.hoursPerWeek,
-        item.isLumpSum ? "" : item.weeksInQuarter,
+        item.isLumpSum ? "" : item.hrsPerSession,
+        item.isLumpSum ? "" : item.daysPerFrequency,
         item.isLumpSum ? item.lumpSumAmount : "",
         cost,
         contrib,

@@ -92,8 +92,9 @@ export function addDefaultServices(budget: ClientBudget, budgetType: BudgetType)
       name: d.name,
       category: d.category,
       ratePerHour: d.ratePerHour,
-      hoursPerWeek: d.defaultHoursPerWeek ?? 1,
-      weeksInQuarter: weeks,
+      hrsPerSession: d.defaultHrsPerSession ?? 1,
+      daysPerFrequency: d.defaultDaysPerFrequency ?? 1,
+      frequency: d.defaultFrequency ?? "weekly" as const,
       isLumpSum: d.isLumpSum ?? false,
       lumpSumAmount: d.defaultLumpSumAmount ?? 0,
     }));
@@ -101,4 +102,24 @@ export function addDefaultServices(budget: ClientBudget, budgetType: BudgetType)
   });
 
   return { ...budget, tabs: updatedTabs };
+}
+
+
+// Migrate old budgets that use hoursPerWeek/weeksInQuarter to new frequency model
+export function migrateServiceFrequency(budget: ClientBudget): ClientBudget {
+  let changed = false;
+  const tabs = budget.tabs.map((tab) => {
+    const services = tab.services.map((s: any) => {
+      if (s.frequency && s.hrsPerSession != null && s.daysPerFrequency != null) return s;
+      changed = true;
+      return {
+        ...s,
+        frequency: "weekly" as const,
+        hrsPerSession: s.hoursPerWeek ?? s.hrsPerSession ?? 1,
+        daysPerFrequency: s.daysPerFrequency ?? 1,
+      };
+    });
+    return { ...tab, services };
+  });
+  return changed ? { ...budget, tabs } : budget;
 }

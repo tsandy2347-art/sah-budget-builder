@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { CategoryBadge } from "./CategoryBadge";
-import { DEFAULT_SERVICES_BY_TYPE } from "@/lib/constants";
-import type { ServiceLineItem, ServiceCategory, BudgetType } from "@/lib/types";
+import { DEFAULT_SERVICES_BY_TYPE, FREQUENCY_LABELS, SERVICE_FREQUENCIES } from "@/lib/constants";
+import type { ServiceLineItem, ServiceCategory, ServiceFrequency, BudgetType } from "@/lib/types";
 
 interface AddServiceModalProps {
   open: boolean;
@@ -23,14 +23,15 @@ const EMPTY_FORM = {
   name: "",
   category: "clinical" as ServiceCategory,
   ratePerHour: 0,
-  hoursPerWeek: 1,
-  weeksInQuarter: 13,
+  hrsPerSession: 1,
+  daysPerFrequency: 1,
+  frequency: "weekly" as ServiceFrequency,
   isLumpSum: false,
   lumpSumAmount: 0,
 };
 
 export function AddServiceModal({ open, onClose, onAdd, budgetType, defaultWeeks }: AddServiceModalProps) {
-  const [form, setForm] = useState({ ...EMPTY_FORM, weeksInQuarter: defaultWeeks });
+  const [form, setForm] = useState({ ...EMPTY_FORM });
   const [mode, setMode] = useState<"quick" | "custom">("quick");
 
   const defaults = DEFAULT_SERVICES_BY_TYPE[budgetType];
@@ -40,8 +41,9 @@ export function AddServiceModal({ open, onClose, onAdd, budgetType, defaultWeeks
       name: d.name,
       category: d.category,
       ratePerHour: d.ratePerHour,
-      hoursPerWeek: d.defaultHoursPerWeek ?? 1,
-      weeksInQuarter: defaultWeeks,
+      frequency: d.defaultFrequency ?? "weekly",
+      hrsPerSession: d.defaultHrsPerSession ?? 1,
+      daysPerFrequency: d.defaultDaysPerFrequency ?? 1,
       isLumpSum: d.isLumpSum ?? false,
       lumpSumAmount: d.defaultLumpSumAmount ?? 0,
     });
@@ -51,7 +53,7 @@ export function AddServiceModal({ open, onClose, onAdd, budgetType, defaultWeeks
   function handleCustomAdd() {
     if (!form.name.trim()) return;
     onAdd(form);
-    setForm({ ...EMPTY_FORM, weeksInQuarter: defaultWeeks });
+    setForm({ ...EMPTY_FORM });
     onClose();
   }
 
@@ -131,10 +133,21 @@ export function AddServiceModal({ open, onClose, onAdd, budgetType, defaultWeeks
                   onChange={(e) => setForm((f) => ({ ...f, lumpSumAmount: Number(e.target.value) }))}
                 />
               </div>
-            ) : (
+            ) : (<>
+              <div className="space-y-1.5">
+                <Label>Frequency</Label>
+                <Select value={form.frequency} onValueChange={(v) => setForm((f) => ({ ...f, frequency: v as ServiceFrequency }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {SERVICE_FREQUENCIES.map((freq) => (
+                      <SelectItem key={freq} value={freq}>{FREQUENCY_LABELS[freq]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-1.5">
-                  <Label>Rate/hr ($)</Label>
+                  <Label>Rate/Hr ($)</Label>
                   <Input
                     type="number"
                     min={0}
@@ -143,26 +156,27 @@ export function AddServiceModal({ open, onClose, onAdd, budgetType, defaultWeeks
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Hrs/week</Label>
+                  <Label>Hrs/Session</Label>
                   <Input
                     type="number"
                     min={0}
                     step={0.5}
-                    value={form.hoursPerWeek}
-                    onChange={(e) => setForm((f) => ({ ...f, hoursPerWeek: Number(e.target.value) }))}
+                    value={form.hrsPerSession}
+                    onChange={(e) => setForm((f) => ({ ...f, hrsPerSession: Number(e.target.value) }))}
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Weeks</Label>
+                  <Label>Days/Freq</Label>
                   <Input
                     type="number"
                     min={1}
-                    max={52}
-                    value={form.weeksInQuarter}
-                    onChange={(e) => setForm((f) => ({ ...f, weeksInQuarter: Number(e.target.value) }))}
+                    max={7}
+                    value={form.daysPerFrequency}
+                    onChange={(e) => setForm((f) => ({ ...f, daysPerFrequency: Number(e.target.value) }))}
                   />
                 </div>
               </div>
+              </>
             )}
           </div>
         )}
