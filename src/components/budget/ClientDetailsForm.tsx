@@ -255,7 +255,6 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <MetricCard
-        <MetricCard
           label="Quarterly Budget"
           value={calcs.totalQuarterlyBudget}
           subLabel={calcs.supplementsQuarterly > 0 ? `Incl. $${calcs.supplementsQuarterly.toLocaleString("en-AU", { minimumFractionDigits: 2 })} supplements` : undefined}
