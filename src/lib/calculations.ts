@@ -191,7 +191,7 @@ export function calcBudgetUtilisation(totalCost: number, envelope: number): numb
 }
 
 export function calcCarryover(remaining: number, quarterlyBudget: number): number {
-  const cap = Math.max(1000, quarterlyBudget * 0.1);
+  const cap = 1000;
   return round2(Math.min(Math.max(remaining, 0), cap));
 }
 
