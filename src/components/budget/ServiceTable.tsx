@@ -123,6 +123,17 @@ export function ServiceTable({
                         </>
                       ) : (
                         <>
+                          <td className="px-2 py-2">
+                            <select
+                              className="h-7 text-sm border rounded px-1 bg-background w-full min-w-[90px]"
+                              value={item.frequency ?? "weekly"}
+                              onChange={(e) => onUpdate(item.id, { frequency: e.target.value as ServiceFrequency })}
+                            >
+                              {SERVICE_FREQUENCIES.map((f) => (
+                                <option key={f} value={f}>{FREQUENCY_LABELS[f]}</option>
+                              ))}
+                            </select>
+                          </td>
                           <td className="px-2 py-2 text-right">
                             <Input
                               className="h-7 w-20 text-sm text-right pr-1 ml-auto [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
