@@ -108,6 +108,7 @@ export const DEFAULT_ONGOING_EVERYDAY: DefaultService[] = [
   { name: "Domestic assistance", category: "everyday", ratePerHour: 65, defaultHoursPerWeek: 2 },
   { name: "Gardening / home maintenance", category: "everyday", ratePerHour: 70, defaultHoursPerWeek: 1 },
   { name: "Meal preparation", category: "everyday", ratePerHour: 65, defaultHoursPerWeek: 2 },
+  { name: "Meal delivery", category: "everyday", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 200 },
 ];
 
 export const DEFAULT_RESTORATIVE: DefaultService[] = [
