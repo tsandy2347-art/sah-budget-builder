@@ -18,7 +18,7 @@ function fmtCurrency(n: number) {
 }
 
 const styles = StyleSheet.create({
-  page:         { padding: 40, fontSize: 9, fontFamily: "Helvetica", color: "#1a1a1a" },
+  page:         { padding: 40, paddingBottom: 65, fontSize: 9, fontFamily: "Helvetica", color: "#1a1a1a" },
   header:       { marginBottom: 20, borderBottomWidth: 1.5, borderBottomColor: "#2563eb", paddingBottom: 10 },
   title:        { fontSize: 18, fontFamily: "Helvetica-Bold", color: "#1d4ed8", marginBottom: 4 },
   subtitle:     { fontSize: 10, color: "#64748b" },
@@ -32,12 +32,13 @@ const styles = StyleSheet.create({
   td:           { padding: "3 6", fontSize: 8, borderBottomWidth: 0.3, borderBottomColor: "#e2e8f0" },
   tr:           { flexDirection: "row" },
   trAlt:        { flexDirection: "row", backgroundColor: "#f8fafc" },
-  footer:       { position: "absolute", bottom: 30, left: 40, right: 40, fontSize: 7, color: "#94a3b8", borderTopWidth: 0.5, borderTopColor: "#e2e8f0", paddingTop: 6 },
+  footer:       { position: "absolute", bottom: 20, left: 40, right: 40, fontSize: 7, color: "#94a3b8", borderTopWidth: 0.5, borderTopColor: "#e2e8f0", paddingTop: 6 },
   badge:        { borderRadius: 3, paddingHorizontal: 4, paddingVertical: 1, fontSize: 7 },
   metricRow:    { flexDirection: "row", gap: 10, marginBottom: 12 },
   metricCard:   { flex: 1, backgroundColor: "#eff6ff", borderRadius: 4, padding: 8 },
   metricLabel:  { fontSize: 7, color: "#64748b", marginBottom: 2, textTransform: "uppercase" },
   metricValue:  { fontSize: 13, fontFamily: "Helvetica-Bold", color: "#1d4ed8" },
+  pageNumber:   { position: "absolute", bottom: 10, right: 40, fontSize: 7, color: "#94a3b8" },
 });
 
 function categoryColor(cat: string) {
@@ -52,7 +53,7 @@ function BudgetPDF({ budget }: { budget: ClientBudget }) {
   const today = new Date().toLocaleDateString("en-AU");
 
   return createElement(Document, null,
-    createElement(Page, { size: "A4", style: styles.page },
+    createElement(Page, { size: "A4", style: styles.page, wrap: true },
       // Header
       createElement(View, { style: styles.header },
         createElement(Text, { style: styles.title }, "Support at Home — Budget Plan"),
@@ -145,12 +146,19 @@ function BudgetPDF({ budget }: { budget: ClientBudget }) {
       }).filter(Boolean),
 
       // Footer
-      createElement(View, { style: styles.footer },
+      createElement(View, { style: styles.footer, fixed: true },
         createElement(Text, null,
           "This document is a planning tool only and does not constitute financial advice. Actual funding amounts are subject to indexation. " +
           "Verify current rates via the Schedule of Subsidies and Supplements on the Department of Health, Disability and Ageing website."
         )
-      )
+      ),
+
+      // Page numbers on every page
+      createElement(Text, {
+        style: styles.pageNumber,
+        fixed: true,
+        render: ({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`,
+      })
     )
   );
 }
