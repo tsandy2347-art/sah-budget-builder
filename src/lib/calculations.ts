@@ -200,8 +200,10 @@ export function getSupplementsAnnual(supplementIds: string[]): number {
 }
 
 export function calcBudget(budget: ClientBudget, budgetType: BudgetType): BudgetCalculations {
-  const quarterlyBudget = getQuarterlyBudget(budget.classificationId);
-  const annualBudget = getAnnualBudget(budget.classificationId);
+  const classificationQuarterly = getQuarterlyBudget(budget.classificationId);
+  const quarterlyBudget = (budget.isPartiallyFunded && budget.customQuarterlyBudget != null) ? budget.customQuarterlyBudget : classificationQuarterly;
+  const classificationAnnual = getAnnualBudget(budget.classificationId);
+  const annualBudget = (budget.isPartiallyFunded && budget.customQuarterlyBudget != null) ? round2(budget.customQuarterlyBudget * 4) : classificationAnnual;
   const supplementIds = budget.supplements ?? [];
   const supplementsQuarterly = getSupplementsQuarterly(supplementIds);
   const supplementsAnnual = getSupplementsAnnual(supplementIds);

@@ -102,6 +102,37 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
           </label>
         </div>
         <div className="space-y-1.5">
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <input
+              type="checkbox"
+              checked={budget.isPartiallyFunded ?? false}
+              onChange={() => {
+                const toggled = !(budget.isPartiallyFunded ?? false);
+                onChange({
+                  isPartiallyFunded: toggled,
+                  customQuarterlyBudget: toggled ? calcs.quarterlyBudget : undefined,
+                });
+              }}
+              className="rounded border-gray-300"
+            />
+            <span>Partially Funded</span>
+          </label>
+          {budget.isPartiallyFunded && (
+            <div className="mt-1.5">
+              <Label htmlFor="customQuarterlyBudget">Quarterly Budget ($)</Label>
+              <Input
+                id="customQuarterlyBudget"
+                type="number"
+                min={0}
+                step={0.01}
+                value={budget.customQuarterlyBudget ?? 0}
+                onChange={(e) => onChange({ customQuarterlyBudget: Math.max(0, Number(e.target.value)) })}
+              />
+              <p className="text-xs text-muted-foreground">Override the standard classification budget</p>
+            </div>
+          )}
+        </div>
+        <div className="space-y-1.5">
           <Label>Quarter</Label>
           <Select value={budget.quarter} onValueChange={(v) => onChange({ quarter: v })}>
             <SelectTrigger>
