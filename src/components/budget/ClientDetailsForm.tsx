@@ -183,8 +183,8 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
                 type="number"
                 min={5}
                 max={50}
-                step={0.1}
-                value={Math.round(budget.partPensionerRates.independence * 1000) / 10}
+                step={0.01}
+                value={Math.round(budget.partPensionerRates.independence * 10000) / 100}
                 onChange={(e) =>
                   onChange({
                     partPensionerRates: {
@@ -203,8 +203,8 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
                 type="number"
                 min={17.5}
                 max={80}
-                step={0.1}
-                value={Math.round(budget.partPensionerRates.everyday * 1000) / 10}
+                step={0.01}
+                value={Math.round(budget.partPensionerRates.everyday * 10000) / 100}
                 onChange={(e) =>
                   onChange({
                     partPensionerRates: {
