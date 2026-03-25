@@ -71,7 +71,7 @@ export function getContributionRate(
   isGrandfathered?: boolean
 ): number {
   if (isGrandfathered) return 0;
-  if (pensionStatus === "part_pensioner" && partPensionerRates) {
+  if (partPensionerRates) {
     if (category === "independence") return partPensionerRates.independence;
     if (category === "everyday") return partPensionerRates.everyday;
     if (category === "clinical") return 0;

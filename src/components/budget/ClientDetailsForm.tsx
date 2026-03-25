@@ -174,7 +174,7 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
           </p>
         </div>
 
-        {budget.pensionStatus === "part_pensioner" && !budget.isGrandfathered && (
+        {!budget.isGrandfathered && (
           <>
             <div className="space-y-1.5">
               <Label htmlFor="indepRate">Independence Contribution Rate (%)</Label>
