@@ -138,7 +138,7 @@ export function ServiceTable({
                               type="number"
                               min={0}
                               step={0.5}
-                              value={item.hrsPerSession}
+                              value={item.hrsPerSession ?? 0}
                               onChange={(e) => onUpdate(item.id, { hrsPerSession: Number(e.target.value) })}
                             />
                           </td>
@@ -148,7 +148,7 @@ export function ServiceTable({
                               type="number"
                               min={1}
                               max={52}
-                              value={item.daysPerFrequency}
+                              value={item.daysPerFrequency ?? 1}
                               onChange={(e) => onUpdate(item.id, { daysPerFrequency: Number(e.target.value) })}
                             />
                           </td>

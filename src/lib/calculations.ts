@@ -95,7 +95,9 @@ export function getContributionRate(
 export function calcServiceCost(item: ServiceLineItem): number {
   if (item.isLumpSum) return round2(item.lumpSumAmount);
   const periods = getPeriodsInQuarter(item.frequency ?? "weekly");
-  return round2(item.ratePerHour * item.hrsPerSession * item.daysPerFrequency * periods);
+  const hrs = item.hrsPerSession ?? 0;
+  const days = item.daysPerFrequency ?? 1;
+  return round2(item.ratePerHour * hrs * days * periods);
 }
 
 export function calcClientContribution(
