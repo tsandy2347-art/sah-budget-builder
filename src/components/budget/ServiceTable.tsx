@@ -73,6 +73,7 @@ export function ServiceTable({
               <thead>
                 <tr className="border-b bg-muted/40">
                   <th className="text-left px-3 py-2.5 font-medium text-muted-foreground min-w-[160px]">Service</th>
+                  <th className="text-left px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">Provider</th>
                   <th className="text-left px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">Category</th>
                   <th className="text-left px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">Frequency</th>
                   <th className="text-right px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">Rate/Hr</th>
@@ -104,10 +105,20 @@ export function ServiceTable({
                       </td>
                       <td className="px-2 py-2">
                         <CategoryBadge category={item.category} size="sm" />
+                      <td className="px-2 py-2">
+                        <select
+                          className="h-7 text-sm border rounded px-1 bg-background w-full min-w-[90px]"
+                          value={item.staffType ?? "jbc"}
+                          onChange={(e) => onUpdate(item.id, { staffType: e.target.value as "jbc" | "third_party" })}
+                        >
+                          <option value="jbc">JBC Staff</option>
+                          <option value="third_party">Third Party</option>
+                        </select>
+                      </td>
                       </td>
                       {item.isLumpSum ? (
                         <>
-                          <td colSpan={4} className="px-2 py-2 text-right">
+                          <td colSpan={5} className="px-2 py-2 text-right">
                             <div className="flex items-center justify-end gap-1">
                               <span className="text-xs text-muted-foreground">$</span>
                               <Input
@@ -183,7 +194,7 @@ export function ServiceTable({
               </tbody>
               <tfoot>
                 <tr className="border-t bg-muted/40 font-semibold">
-                  <td colSpan={6} className="px-3 py-2.5 text-right text-sm">Total ({VIEW_PERIOD_LABELS[viewPeriod]})</td>
+                  <td colSpan={7} className="px-3 py-2.5 text-right text-sm">Total ({VIEW_PERIOD_LABELS[viewPeriod]})</td>
                   <td className="px-2 py-2.5 text-right whitespace-nowrap">{formatCurrency(scaleAmount(totals.cost, viewPeriod))}</td>
                   <td className="px-2 py-2.5 text-right text-muted-foreground whitespace-nowrap">{formatCurrency(scaleAmount(totals.contrib, viewPeriod))}</td>
                   <td />

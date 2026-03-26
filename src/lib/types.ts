@@ -24,6 +24,7 @@ export interface ServiceLineItem {
   daysPerFrequency: number;
   isLumpSum: boolean;
   lumpSumAmount: number;
+  staffType?: "jbc" | "third_party";
 }
 
 export interface PathwayConfig {
