@@ -118,7 +118,7 @@ export function ServiceTable({
                       </td>
                       {item.isLumpSum ? (
                         <>
-                          <td colSpan={5} className="px-2 py-2 text-right">
+                          <td colSpan={4} className="px-2 py-2 text-right">
                             <div className="flex items-center justify-end gap-1">
                               <span className="text-xs text-muted-foreground">$</span>
                               <Input
