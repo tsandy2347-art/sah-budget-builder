@@ -62,6 +62,7 @@ export interface ClientBudget {
   supplements: string[]; // array of supplement IDs
   unspentPriorQuarter: number; // $ unspent from previous quarter (user-entered)
   isGrandfathered: boolean; // pre-existing arrangement: 0% contributions
+  isGrandfatheredContributions?: boolean; // grandfathered contribution rates (can be 0%)
   isPartiallyFunded?: boolean; // true when client receives less than full funding
   customQuarterlyBudget?: number; // override quarterly budget when partially funded
   tabs: BudgetTab[];

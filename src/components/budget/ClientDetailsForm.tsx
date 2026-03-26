@@ -101,6 +101,17 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
             <span>Grandfathered (0% contributions)</span>
           </label>
         </div>
+        <div className="space-y-1.5 flex items-end">
+          <label className="flex items-center gap-2 text-sm cursor-pointer pb-2">
+            <input
+              type="checkbox"
+              checked={budget.isGrandfatheredContributions ?? false}
+              onChange={() => onChange({ isGrandfatheredContributions: !(budget.isGrandfatheredContributions ?? false) })}
+              className="rounded border-gray-300"
+            />
+            <span>Grandfathered Contributions</span>
+          </label>
+        </div>
         <div className="space-y-1.5">
           <label className="flex items-center gap-2 text-sm cursor-pointer">
             <input
@@ -205,14 +216,14 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
           </p>
         </div>
 
-        {!budget.isGrandfathered && (
+        {(!budget.isGrandfathered || budget.isGrandfatheredContributions) && (
           <>
             <div className="space-y-1.5">
               <Label htmlFor="indepRate">Independence Contribution Rate (%)</Label>
               <Input
                 id="indepRate"
                 type="number"
-                min={5}
+                min={budget.isGrandfatheredContributions ? 0 : 5}
                 max={50}
                 step={0.01}
                 value={Math.round(budget.partPensionerRates.independence * 10000) / 100}
@@ -220,19 +231,19 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
                   onChange({
                     partPensionerRates: {
                       ...budget.partPensionerRates,
-                      independence: Math.min(0.5, Math.max(0.05, Number(e.target.value) / 100)),
+                      independence: Math.min(0.5, Math.max(budget.isGrandfatheredContributions ? 0 : 0.05, Number(e.target.value) / 100)),
                     },
                   })
                 }
               />
-              <p className="text-xs text-muted-foreground">5%–50% (means-tested)</p>
+              <p className="text-xs text-muted-foreground">{budget.isGrandfatheredContributions ? '0%–50% (grandfathered)' : '5%–50% (means-tested)'}</p>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="everydayRate">Everyday Living Contribution Rate (%)</Label>
               <Input
                 id="everydayRate"
                 type="number"
-                min={17.5}
+                min={budget.isGrandfatheredContributions ? 0 : 17.5}
                 max={80}
                 step={0.01}
                 value={Math.round(budget.partPensionerRates.everyday * 10000) / 100}
@@ -240,12 +251,12 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
                   onChange({
                     partPensionerRates: {
                       ...budget.partPensionerRates,
-                      everyday: Math.min(0.8, Math.max(0.175, Number(e.target.value) / 100)),
+                      everyday: Math.min(0.8, Math.max(budget.isGrandfatheredContributions ? 0 : 0.175, Number(e.target.value) / 100)),
                     },
                   })
                 }
               />
-              <p className="text-xs text-muted-foreground">17.5%–80% (means-tested)</p>
+              <p className="text-xs text-muted-foreground">{budget.isGrandfatheredContributions ? '0%–80% (grandfathered)' : '17.5%–80% (means-tested)'}</p>
             </div>
           </>
         )}
