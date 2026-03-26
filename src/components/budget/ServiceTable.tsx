@@ -104,8 +104,6 @@ export function ServiceTable({
                         </div>
                       </td>
                       <td className="px-2 py-2">
-                        <CategoryBadge category={item.category} size="sm" />
-                      <td className="px-2 py-2">
                         <select
                           className="h-7 text-sm border rounded px-1 bg-background w-full min-w-[90px]"
                           value={item.staffType ?? "jbc"}
@@ -115,6 +113,8 @@ export function ServiceTable({
                           <option value="third_party">Third Party</option>
                         </select>
                       </td>
+                      <td className="px-2 py-2">
+                        <CategoryBadge category={item.category} size="sm" />
                       </td>
                       {item.isLumpSum ? (
                         <>
