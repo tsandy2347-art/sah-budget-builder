@@ -90,8 +90,8 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
             </SelectContent>
           </Select>
         </div>
-        <div className="space-y-1.5 flex items-end">
-          <label className="flex items-center gap-2 text-sm cursor-pointer pb-2">
+        <div className="space-y-1.5">
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
             <input
               type="checkbox"
               checked={budget.isGrandfathered ?? false}
@@ -100,9 +100,7 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
             />
             <span>Grandfathered (0% contributions)</span>
           </label>
-        </div>
-        <div className="space-y-1.5 flex items-end">
-          <label className="flex items-center gap-2 text-sm cursor-pointer pb-2">
+          <label className="flex items-center gap-2 text-sm cursor-pointer ml-5">
             <input
               type="checkbox"
               checked={budget.isGrandfatheredContributions ?? false}
@@ -112,6 +110,7 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
             <span>Grandfathered Contributions</span>
           </label>
         </div>
+
         <div className="space-y-1.5">
           <label className="flex items-center gap-2 text-sm cursor-pointer">
             <input
