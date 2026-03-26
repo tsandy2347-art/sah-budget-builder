@@ -62,6 +62,7 @@ export interface ClientBudget {
   partPensionerRates: PartPensionerRates;
   supplements: string[]; // array of supplement IDs
   unspentPriorQuarter: number; // $ unspent from previous quarter (user-entered)
+  grandfatheredUnspentFunds?: number; // display-only: grandfathered unspent funds
   isGrandfathered: boolean; // pre-existing arrangement: 0% contributions
   isGrandfatheredContributions?: boolean; // grandfathered contribution rates (can be 0%)
   isPartiallyFunded?: boolean; // true when client receives less than full funding
@@ -101,6 +102,7 @@ export interface BudgetCalculations {
   remaining: number;
   carryoverCap: number;
   unspentPriorQuarter: number;
+  grandfatheredUnspentFunds?: number; // display-only: grandfathered unspent funds
   effectiveCarryover: number; // min(unspent, carryoverCap)
   effectiveBudgetEnvelope: number; // budgetEnvelope + effectiveCarryover
 }

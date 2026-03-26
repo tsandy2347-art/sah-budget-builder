@@ -168,6 +168,20 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
           />
           <p className="text-xs text-muted-foreground">0–10%, default 10%</p>
         </div>
+        {(budget.isGrandfathered || budget.isGrandfatheredContributions) && (
+          <div className="space-y-1.5">
+            <Label htmlFor="gfUnspentFunds">Grandfathered Unspent Funds</Label>
+            <Input
+              id="gfUnspentFunds"
+              type="number"
+              min={0}
+              step={0.01}
+              value={budget.grandfatheredUnspentFunds ?? 0}
+              onChange={(e) => onChange({ grandfatheredUnspentFunds: Math.max(0, Number(e.target.value)) })}
+            />
+            <p className="text-xs text-muted-foreground">Grandfathered unspent funds (for reference only)</p>
+          </div>
+        )}
         <div className="space-y-1.5">
           <Label htmlFor="unspentFunds">Unspent Funds (Prior Quarter)</Label>
           <Input
