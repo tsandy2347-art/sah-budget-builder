@@ -251,7 +251,7 @@ export function calcBudget(budget: ClientBudget, budgetType: BudgetType): Budget
   const effectiveCarryover = round2(Math.min(Math.max(unspentPriorQuarter, 0), carryoverCap));
   const effectiveBudgetEnvelope = round2(budgetEnvelope + effectiveCarryover);
 
-  const rawExcess = round2(Math.max(0, tabCalcs.totalCost - tabCalcs.totalClientContribution - effectiveBudgetEnvelope));
+  const rawExcess = round2(Math.max(0, tabCalcs.totalCost - effectiveBudgetEnvelope));
   const gfFunds = (budget.isGrandfathered || budget.isGrandfatheredContributions) ? (budget.grandfatheredUnspentFunds ?? 0) : 0;
   const grandfatheredFundsUsed = round2(Math.min(gfFunds, rawExcess));
   const clientExcess = round2(rawExcess - grandfatheredFundsUsed);
