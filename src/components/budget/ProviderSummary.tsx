@@ -10,7 +10,7 @@ interface ProviderSummaryProps {
 }
 
 export function ProviderSummary({ calcs, viewPeriod }: ProviderSummaryProps) {
-  const unspentGovt = Math.max(0, calcs.availableForServices - calcs.tabCalcs.totalGovtSubsidy);
+  const unspentGovt = Math.max(0, calcs.availableForServices - calcs.govtSubsidy);
   const periodLabel = VIEW_PERIOD_LABELS[viewPeriod];
   const s = (amount: number) => scaleAmount(amount, viewPeriod);
 
@@ -31,7 +31,7 @@ export function ProviderSummary({ calcs, viewPeriod }: ProviderSummaryProps) {
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Government subsidy (services)</span>
-            <span className="font-medium">{formatCurrency(s(calcs.tabCalcs.totalGovtSubsidy))}</span>
+            <span className="font-medium">{formatCurrency(s(calcs.govtSubsidy))}</span>
           </div>
           <Separator />
           <div className="flex justify-between">
@@ -50,7 +50,7 @@ export function ProviderSummary({ calcs, viewPeriod }: ProviderSummaryProps) {
           <Separator />
           <div className="flex justify-between font-semibold">
             <span>Total govt funding used</span>
-            <span>{formatCurrency(s(calcs.tabCalcs.totalGovtSubsidy + calcs.careManagementAmount))}</span>
+            <span>{formatCurrency(s(calcs.govtSubsidy + calcs.careManagementAmount))}</span>
           </div>
           <div className="flex justify-between text-muted-foreground">
             <span>Unspent govt budget</span>

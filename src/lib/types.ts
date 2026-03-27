@@ -107,6 +107,8 @@ export interface BudgetCalculations {
   grandfatheredUnspentFunds?: number; // display-only: grandfathered unspent funds
   effectiveCarryover: number; // min(unspent, carryoverCap)
   effectiveBudgetEnvelope: number; // budgetEnvelope + effectiveCarryover
+  govtSubsidy: number; // govt pays up to availableForServices
+  clientExcess: number; // client pays overspend above budget
 }
 
 export interface DefaultService {

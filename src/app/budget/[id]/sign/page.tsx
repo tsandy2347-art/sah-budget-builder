@@ -52,7 +52,8 @@ export default function BudgetSignPage() {
 
   const grandTotalCost = allCalcs.reduce((sum, t) => sum + t.calcs.tabCalcs.totalCost, 0);
   const grandTotalContribution = allCalcs.reduce((sum, t) => sum + t.calcs.tabCalcs.totalClientContribution, 0);
-  const grandTotalSubsidy = allCalcs.reduce((sum, t) => sum + t.calcs.tabCalcs.totalGovtSubsidy, 0);
+  const grandTotalSubsidy = allCalcs.reduce((sum, t) => sum + t.calcs.govtSubsidy, 0);
+  const grandTotalExcess = allCalcs.reduce((sum, t) => sum + t.calcs.clientExcess, 0);
 
   const ongoingCalcs = calcBudget(budget, "ongoing");
 
@@ -165,6 +166,12 @@ export default function BudgetSignPage() {
                   <p className="text-xs text-muted-foreground uppercase tracking-wide">Government Subsidy</p>
                   <p className="text-xl font-bold mt-1">{formatCurrency(grandTotalSubsidy)}</p>
                 </div>
+                {grandTotalExcess > 0 && (
+                  <div>
+                    <p className="text-xs text-red-600 uppercase tracking-wide">Client Excess (Over Budget)</p>
+                    <p className="text-xl font-bold mt-1 text-red-600">{formatCurrency(grandTotalExcess)}</p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
