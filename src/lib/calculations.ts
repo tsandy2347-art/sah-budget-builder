@@ -40,7 +40,12 @@ export function getAnnualBudget(classificationId: string): number {
 }
 
 export function getCareManagementAmount(quarterlyBudget: number, pct: number): number {
-  return round2(quarterlyBudget * (Math.min(pct, 10) / 100));
+  // Care management % is applied to the available-for-services portion, not the total.
+  // Total budget = available + careMgmt, where careMgmt = pct% of available.
+  // So: total = available * (1 + pct/100), available = total / (1 + pct/100)
+  const rate = Math.min(pct, 10) / 100;
+  const available = quarterlyBudget / (1 + rate);
+  return round2(quarterlyBudget - available);
 }
 
 export function getAvailableForServices(quarterlyBudget: number, careManagementAmount: number): number {
