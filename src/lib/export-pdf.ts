@@ -86,7 +86,6 @@ function BudgetPDF({ budget }: { budget: ClientBudget }) {
         createElement(Text, { style: styles.sectionTitle }, "Funding Summary"),
         createElement(View, { style: styles.metricRow },
           ...[
-            ["Annual Budget", fmtCurrency(ongoingCalcs.totalAnnualBudget)],
             ["Quarterly Budget", fmtCurrency(ongoingCalcs.totalQuarterlyBudget)],
             ...(ongoingCalcs.supplementsQuarterly > 0 ? [["Supplements (Quarterly)", fmtCurrency(ongoingCalcs.supplementsQuarterly)]] : []),
             ["Care Management", fmtCurrency(ongoingCalcs.careManagementAmount)],
