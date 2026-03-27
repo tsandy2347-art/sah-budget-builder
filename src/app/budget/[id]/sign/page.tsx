@@ -111,7 +111,7 @@ export default function BudgetSignPage() {
           nav, header, .no-print, .no-print-element { display: none !important; }
           @page { margin: 1.5cm 2cm; }
           .print-only { display: block !important; }
-          .sig-print-img { display: block !important; max-height: 70px; margin-top: 4px; }
+          .sig-print-img { display: block !important; max-height: 70px; margin-top: 4px; border-bottom: 1px solid #333; padding-bottom: 2px; width: 200px; }
           /* Remove all card styling */
           [class*="rounded"], [class*="border"], [class*="shadow"] {
             border: none !important; box-shadow: none !important;
@@ -121,9 +121,20 @@ export default function BudgetSignPage() {
           #print-area > div > div { border-bottom: 1px solid #ddd; padding-bottom: 12px; margin-bottom: 12px; }
           #print-area > div > div:last-child { border-bottom: none; }
           /* Tighten spacing */
-          .space-y-8 > * + * { margin-top: 0.75rem !important; }
-          .space-y-4 > * + * { margin-top: 0.5rem !important; }
-          h1 { font-size: 1.25rem !important; }
+          .space-y-8 > * + * { margin-top: 0.5rem !important; }
+          .space-y-4 > * + * { margin-top: 0.25rem !important; }
+          .space-y-3 > * + * { margin-top: 0.2rem !important; }
+          h1 { font-size: 1.25rem !important; margin-bottom: 0 !important; }
+          h2, h3, [class*="text-lg"] { font-size: 1rem !important; margin-bottom: 0.25rem !important; }
+          p { margin-bottom: 0.15rem !important; }
+          /* Card content padding */
+          [class*="CardContent"], [class*="card-content"] { padding: 0.25rem 0 !important; }
+          [class*="CardHeader"], [class*="card-header"] { padding: 0.25rem 0 !important; }
+          /* Grid gaps */
+          .gap-4 { gap: 0.5rem !important; }
+          .gap-6 { gap: 0.5rem !important; }
+          /* Keep sections together */
+          .print-keep-together { page-break-inside: avoid; }
           /* Remove background colors */
           [class*="bg-blue"], [class*="bg-gray"], [class*="bg-amber"], [class*="bg-red"] {
             background-color: transparent !important;
@@ -298,27 +309,18 @@ export default function BudgetSignPage() {
             </Card>
           ))}
 
-                    {/* Acknowledgement of Consent - Budget */}
+                    {/* Acknowledgement of Consent */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Acknowledgement of Consent - Budget</CardTitle>
+              <CardTitle className="text-lg">Acknowledgement of Consent</CardTitle>
             </CardHeader>
             <CardContent className="text-sm leading-relaxed space-y-3">
               <p>
                 This form acknowledges consent to the content of this Budget and the related service delivery considerations.
               </p>
               <p>
-                This form assumes the content and considerations regarding this Budget have been discussed, agreed to, and understood, so that the customer (or the person signing on their behalf) has provided informed consent.
+                This form assumes the content and considerations regarding this Budget have been discussed, agreed to, and understood, so that the participant (or the person signing on their behalf) has provided informed consent.
               </p>
-            </CardContent>
-          </Card>
-
-          {/* Acknowledgement of Consent */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Acknowledgement of Consent</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm leading-relaxed space-y-3">
               <p>
                 I acknowledge that I have reviewed the above budget and service schedule for the
                 quarter <strong>{budget.quarter}</strong>.
