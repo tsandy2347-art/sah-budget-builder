@@ -54,6 +54,8 @@ export default function BudgetSignPage() {
   const grandTotalContribution = allCalcs.reduce((sum, t) => sum + t.calcs.tabCalcs.totalClientContribution, 0);
   const grandTotalSubsidy = allCalcs.reduce((sum, t) => sum + t.calcs.tabCalcs.totalGovtSubsidy, 0);
 
+  const ongoingCalcs = calcBudget(budget, "ongoing");
+
   const isSigned =
     signatureDataUrl !== null &&
     clientPrintName.trim().length > 0 &&
@@ -136,7 +138,21 @@ export default function BudgetSignPage() {
               <CardTitle className="text-lg">Funding Summary</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-3 gap-6 text-center">
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="bg-blue-50 rounded p-3">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Quarterly Budget</p>
+                  <p className="text-xl font-bold mt-1 text-blue-700">{formatCurrency(ongoingCalcs.totalQuarterlyBudget)}</p>
+                </div>
+                <div className="bg-blue-50 rounded p-3">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Care Management</p>
+                  <p className="text-xl font-bold mt-1 text-blue-700">{formatCurrency(ongoingCalcs.careManagementAmount)}</p>
+                </div>
+                <div className="bg-blue-50 rounded p-3">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Available for Services</p>
+                  <p className="text-xl font-bold mt-1 text-blue-700">{formatCurrency(ongoingCalcs.availableForServices)}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4 text-center mt-4">
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wide">Total Service Cost</p>
                   <p className="text-xl font-bold mt-1">{formatCurrency(grandTotalCost)}</p>
