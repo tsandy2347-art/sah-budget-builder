@@ -19,16 +19,18 @@ interface BudgetListProps {
 export function BudgetList({ onExportPDF }: BudgetListProps) {
   const router = useRouter();
   const { status } = useSession();
-  const [budgets, setBudgets] = useState<ClientBudget[]>([]);
+  const [myBudgets, setMyBudgets] = useState<ClientBudget[]>([]);
+  const [searchResults, setSearchResults] = useState<ClientBudget[] | null>(null);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [searching, setSearching] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
       const data = await apiFetchBudgets();
-      setBudgets(data);
+      setMyBudgets(data);
     } catch {
-      setBudgets([]);
+      setMyBudgets([]);
     }
     setLoading(false);
   }, []);
@@ -38,18 +40,36 @@ export function BudgetList({ onExportPDF }: BudgetListProps) {
     if (status === "unauthenticated") router.push("/login");
   }, [status, refresh, router]);
 
+  useEffect(() => {
+    if (!search.trim()) {
+      setSearchResults(null);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const data = await apiFetchBudgets(search);
+        const filtered = data.filter((b) =>
+          b.clientName.toLowerCase().includes(search.toLowerCase()) ||
+          b.macId.toLowerCase().includes(search.toLowerCase())
+        );
+        setSearchResults(filtered);
+      } catch {
+        setSearchResults([]);
+      }
+      setSearching(false);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
   async function handleCreate() {
     const budget = createNewBudget();
     await apiSaveBudget(budget);
     router.push(`/budget/${budget.id}`);
   }
 
-  const filtered = search
-    ? budgets.filter((b) =>
-        b.clientName.toLowerCase().includes(search.toLowerCase()) ||
-        b.macId.toLowerCase().includes(search.toLowerCase())
-      )
-    : budgets;
+  const budgets = searchResults !== null ? searchResults : myBudgets;
+  const isSearching = search.trim().length > 0;
 
   if (loading || status === "loading") {
     return (
@@ -66,7 +86,7 @@ export function BudgetList({ onExportPDF }: BudgetListProps) {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             className="pl-9"
-            placeholder="Search by participant name or MAC ID..."
+            placeholder="Search all participants by name or MAC ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -80,7 +100,13 @@ export function BudgetList({ onExportPDF }: BudgetListProps) {
         </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {!isSearching && budgets.length > 0 && (
+        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">My Participants</h2>
+      )}
+      {isSearching && budgets.length > 0 && (
+        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Search Results {searching ? "(searching...)" : ""}</h2>
+      )}
+      {budgets.length === 0 ? (
         <div className="text-center py-20 space-y-4">
           <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto">
             <FileSpreadsheet className="h-8 w-8 text-muted-foreground" />
@@ -105,7 +131,7 @@ export function BudgetList({ onExportPDF }: BudgetListProps) {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((budget) => (
+          {budgets.map((budget) => (
             <BudgetCard
               key={budget.id}
               budget={budget}

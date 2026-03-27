@@ -11,8 +11,9 @@ function migrateBudget(data: any): ClientBudget {
   } as ClientBudget;
 }
 
-export async function apiFetchBudgets(): Promise<ClientBudget[]> {
-  const res = await fetch("/api/budgets");
+export async function apiFetchBudgets(search?: string): Promise<ClientBudget[]> {
+  const url = search ? "/api/budgets?search=" + encodeURIComponent(search) : "/api/budgets";
+  const res = await fetch(url);
   if (!res.ok) throw new Error("Failed to fetch budgets");
   const rows = await res.json();
   return rows.map((r: any) => ({
