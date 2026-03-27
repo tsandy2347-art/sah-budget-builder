@@ -53,6 +53,7 @@ export default function AdminUsersPage() {
   const [resetLoading, setResetLoading] = useState(false);
   const [resetMessage, setResetMessage] = useState("");
   const [orgs, setOrgs] = useState<{ id: string; name: string }[]>([]);
+  const [selectedOrgId, setSelectedOrgId] = useState<string>("");
 
   async function handleResetPassword() {
     if (!resetTarget || resetPassword.length < 6) return;
@@ -117,7 +118,7 @@ export default function AdminUsersPage() {
       return;
     }
     fetchUsers();
-    fetch('/api/organisations').then(r => r.json()).then(d => setOrgs(d)).catch(() => {});
+    fetch('/api/organisations').then(r => r.json()).then(d => { setOrgs(d); if (d.length > 0) setSelectedOrgId(d[0].id); }).catch(() => {});
   }, [session, status, router, fetchUsers]);
 
   async function handleAction(userId: string, action: "approve" | "reject" | "delete" | "make-admin" | "remove-admin") {
@@ -156,8 +157,10 @@ export default function AdminUsersPage() {
     }
   }
 
-  const pendingUsers = users.filter((u) => !u.approved);
-  const approvedUsers = users.filter((u) => u.approved);
+  const orgUsers = selectedOrgId ? users.filter((u) => u.organisation?.id === selectedOrgId) : users;
+  const pendingUsers = orgUsers.filter((u) => !u.approved);
+  const approvedUsers = orgUsers.filter((u) => u.approved);
+  const selectedOrgName = orgs.find((o) => o.id === selectedOrgId)?.name || "All";
 
   if (status === "loading" || loading) {
     return (
@@ -181,6 +184,20 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
+      {/* Organisation Toggle */}
+      <div className="flex gap-2">
+        {orgs.map((org) => (
+          <Button
+            key={org.id}
+            variant={selectedOrgId === org.id ? "default" : "outline"}
+            onClick={() => setSelectedOrgId(org.id)}
+            className="gap-2"
+          >
+            {org.name}
+          </Button>
+        ))}
+      </div>
+
       {error && (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
@@ -194,7 +211,7 @@ export default function AdminUsersPage() {
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <Clock className="h-5 w-5 text-amber-500" />
-              Pending Approval ({pendingUsers.length})
+              {selectedOrgName} — Pending Approval ({pendingUsers.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -301,7 +318,7 @@ export default function AdminUsersPage() {
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-green-500" />
-            Active Users ({approvedUsers.length})
+            {selectedOrgName} — Active Users ({approvedUsers.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -341,19 +358,7 @@ export default function AdminUsersPage() {
                           <Badge variant="secondary">User</Badge>
                         )}
                       </TableCell>
-                      <TableCell>
-                        <select
-                          className="text-sm border rounded px-2 py-1 bg-background"
-                          value={user.organisation?.id || ""}
-                          onChange={(e) => handleChangeOrg(user.id, e.target.value)}
-                          disabled={!!actionLoading}
-                        >
-                          <option value="">No org</option>
-                          {orgs.map((o) => (
-                            <option key={o.id} value={o.id}>{o.name}</option>
-                          ))}
-                        </select>
-                      </TableCell>
+                      <TableCell className="text-muted-foreground">{user.organisation?.name || "—"}</TableCell>
                       <TableCell className="text-muted-foreground">{user._count.budgets}</TableCell>
                       <TableCell className="text-muted-foreground">
                         {new Date(user.createdAt).toLocaleDateString("en-AU", {
