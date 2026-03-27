@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/get-user";
 
 // GET /api/budgets — list budgets
-// ?search=term — search all participants by name/MAC ID
+// ?search=term — search all participants by name/MAC ID within the same organisation
 // default — only the current user's budgets
 export async function GET(req: Request) {
   const user = await getSessionUser();
@@ -14,8 +14,13 @@ export async function GET(req: Request) {
 
   let budgets;
   if (search) {
-    // Search across ALL users' budgets
+    // Search across budgets within the same organisation
+    const where: Record<string, unknown> = {};
+    if (user.organisationId) {
+      where.user = { organisationId: user.organisationId };
+    }
     budgets = await prisma.budget.findMany({
+      where,
       orderBy: { updatedAt: "desc" },
       include: { user: { select: { name: true, email: true } } },
     });
@@ -41,6 +46,17 @@ export async function POST(req: Request) {
 
   if (!id || !data) {
     return NextResponse.json({ error: "id and data are required" }, { status: 400 });
+  }
+
+  // If creating a new budget and providerName is not set, use the org's providerName
+  if (data && !data.providerName && user.organisationId) {
+    const org = await prisma.organisation.findUnique({
+      where: { id: user.organisationId },
+      select: { providerName: true },
+    });
+    if (org) {
+      data.providerName = org.providerName;
+    }
   }
 
   const budget = await prisma.budget.upsert({

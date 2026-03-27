@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,13 +9,30 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, AlertTriangle, Clock } from "lucide-react";
 
+interface Organisation {
+  id: string;
+  name: string;
+  providerName: string;
+}
+
 export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [organisationId, setOrganisationId] = useState("");
+  const [organisations, setOrganisations] = useState<Organisation[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/organisations")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setOrganisations(data);
+      })
+      .catch(() => {});
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -31,7 +48,12 @@ export default function RegisterPage() {
     const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email: email.toLowerCase().trim(), password }),
+      body: JSON.stringify({
+        name,
+        email: email.toLowerCase().trim(),
+        password,
+        organisationId: organisationId || undefined,
+      }),
     });
 
     setLoading(false);
@@ -122,6 +144,24 @@ export default function RegisterPage() {
                 minLength={6}
               />
             </div>
+            {organisations.length > 0 && (
+              <div className="space-y-1.5">
+                <Label htmlFor="organisation">Organisation</Label>
+                <select
+                  id="organisation"
+                  value={organisationId}
+                  onChange={(e) => setOrganisationId(e.target.value)}
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                >
+                  <option value="">Select organisation...</option>
+                  {organisations.map((org) => (
+                    <option key={org.id} value={org.id}>
+                      {org.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
               Create account

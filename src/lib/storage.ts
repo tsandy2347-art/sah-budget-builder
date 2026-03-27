@@ -16,13 +16,13 @@ function defaultTab(budgetType: BudgetType): BudgetTab {
   };
 }
 
-export function createNewBudget(): ClientBudget {
+export function createNewBudget(providerName?: string): ClientBudget {
   const now = new Date().toISOString();
   return {
     id: uuidv4(),
     clientName: "",
     macId: "",
-    providerName: "Just Better Care Sunshine Coast PTY LTD",
+    providerName: providerName ?? "",
     classificationId: "4",
     pensionStatus: "full_pensioner",
     quarter: QUARTERS[2], // Jan–Mar 2026

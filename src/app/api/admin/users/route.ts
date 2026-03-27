@@ -25,6 +25,7 @@ export async function GET() {
       role: true,
       approved: true,
       createdAt: true,
+      organisation: { select: { name: true } },
       _count: { select: { budgets: true } },
     },
     orderBy: [{ approved: "asc" }, { createdAt: "desc" }],

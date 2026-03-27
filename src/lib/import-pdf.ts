@@ -344,7 +344,7 @@ function parseAlayaCare(text: string): ClientBudget | null {
     id: uuidv4(),
     clientName,
     macId: "",
-    providerName: "Just Better Care Sunshine Coast PTY LTD",
+    providerName: "",
     classificationId,
     pensionStatus: "full_pensioner",
     quarter: QUARTERS[2],
@@ -544,7 +544,7 @@ function parseOwnFormat(text: string): ClientBudget | null {
 
   const now = new Date().toISOString();
   return {
-    id: uuidv4(), clientName, macId, providerName: "Just Better Care Sunshine Coast PTY LTD",
+    id: uuidv4(), clientName, macId, providerName: "",
     classificationId, pensionStatus, quarter, careManagementPct,
     partPensionerRates: { independence: 0.25, everyday: 0.475 },
     supplements, unspentPriorQuarter: 0, isGrandfathered: false,
@@ -589,7 +589,7 @@ export function parsePdfText(text: string): ClientBudget {
 
   const now = new Date().toISOString();
   return {
-    id: uuidv4(), clientName, macId: "", providerName: "Just Better Care Sunshine Coast PTY LTD",
+    id: uuidv4(), clientName, macId: "", providerName: "",
     classificationId: "4", pensionStatus: "full_pensioner", quarter: QUARTERS[2],
     careManagementPct: CARE_MANAGEMENT_DEFAULT_PCT,
     partPensionerRates: { independence: 0.25, everyday: 0.475 },

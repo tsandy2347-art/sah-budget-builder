@@ -12,17 +12,27 @@ enum Role {
   ADMIN
 }
 
+model Organisation {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  providerName String
+  createdAt    DateTime @default(now())
+  users        User[]
+}
+
 model User {
-  id                String    @id @default(cuid())
-  email             String    @unique
+  id                String        @id @default(cuid())
+  email             String        @unique
   name              String
   password          String
-  role              Role      @default(USER)
-  approved          Boolean   @default(false)
-  resetToken        String?   @unique
+  role              Role          @default(USER)
+  approved          Boolean       @default(false)
+  resetToken        String?       @unique
   resetTokenExpires DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  organisationId    String?
+  organisation      Organisation? @relation(fields: [organisationId], references: [id])
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
   budgets           Budget[]
 }
 
