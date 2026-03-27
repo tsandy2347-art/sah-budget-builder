@@ -155,7 +155,7 @@ export default function BudgetSignPage() {
                   <p className="text-xl font-bold mt-1 text-blue-700">{formatCurrency(ongoingCalcs.availableForServices)}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4 text-center mt-4">
+              <div className="grid grid-cols-2 gap-4 text-center mt-4">
                 <div>
                   <p className="text-xs text-muted-foreground uppercase tracking-wide">Total Service Cost</p>
                   <p className="text-xl font-bold mt-1">{formatCurrency(grandTotalCost)}</p>
@@ -164,10 +164,7 @@ export default function BudgetSignPage() {
                   <p className="text-xs text-muted-foreground uppercase tracking-wide">Client Contribution</p>
                   <p className="text-xl font-bold mt-1">{formatCurrency(grandTotalContribution)}</p>
                 </div>
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Government Subsidy</p>
-                  <p className="text-xl font-bold mt-1">{formatCurrency(grandTotalSubsidy)}</p>
-                </div>
+
                 {grandTotalGfUsed > 0 && (
                   <div>
                     <p className="text-xs text-amber-600 uppercase tracking-wide">HCP Funds Used (Grandfathered)</p>
