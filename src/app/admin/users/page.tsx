@@ -37,6 +37,7 @@ interface UserRow {
   role: "ADMIN" | "USER";
   approved: boolean;
   createdAt: string;
+  organisation?: { name: string } | null;
   _count: { budgets: number };
 }
 
@@ -294,6 +295,7 @@ export default function AdminUsersPage() {
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Role</TableHead>
+                  <TableHead>Org</TableHead>
                   <TableHead>Budgets</TableHead>
                   <TableHead>Joined</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -320,6 +322,7 @@ export default function AdminUsersPage() {
                           <Badge variant="secondary">User</Badge>
                         )}
                       </TableCell>
+                      <TableCell className="text-muted-foreground">{user.organisation?.name || <em>None</em>}</TableCell>
                       <TableCell className="text-muted-foreground">{user._count.budgets}</TableCell>
                       <TableCell className="text-muted-foreground">
                         {new Date(user.createdAt).toLocaleDateString("en-AU", {

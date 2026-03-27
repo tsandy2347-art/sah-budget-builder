@@ -24,6 +24,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
   if (typeof body.approved === "boolean") data.approved = body.approved;
   if (body.role === "ADMIN" || body.role === "USER") data.role = body.role;
+  if (typeof body.organisationId === "string") data.organisationId = body.organisationId || null;
 
   if (Object.keys(data).length === 0) {
     return NextResponse.json({ error: "No valid fields to update." }, { status: 400 });
