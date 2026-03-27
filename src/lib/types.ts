@@ -10,6 +10,7 @@ export interface FundingClassification {
   id: string;
   label: string;
   quarterlyBudget: number;
+  dailyRate: number;
   annualBudget: number;
   isTransitioned?: boolean;
 }
@@ -46,6 +47,7 @@ export interface PartPensionerRates {
 export interface Supplement {
   id: string;
   label: string;
+  dailyRate: number;
   quarterlyAmount: number;
   annualAmount: number;
 }

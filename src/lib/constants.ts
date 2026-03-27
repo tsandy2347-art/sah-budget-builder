@@ -13,21 +13,21 @@ import type {
 
 // Rates indexed 20 March 2026 — source: health.gov.au Schedule of Subsidies and Supplements
 export const SAH_CLASSIFICATIONS: FundingClassification[] = [
-  { id: "1", label: "Classification 1", quarterlyBudget: 2682.75, annualBudget: 10731.00 },
-  { id: "2", label: "Classification 2", quarterlyBudget: 4008.61, annualBudget: 16034.45 },
-  { id: "3", label: "Classification 3", quarterlyBudget: 5491.43, annualBudget: 21965.70 },
-  { id: "4", label: "Classification 4", quarterlyBudget: 7424.10, annualBudget: 29696.40 },
-  { id: "5", label: "Classification 5", quarterlyBudget: 9924.35, annualBudget: 39697.40 },
-  { id: "6", label: "Classification 6", quarterlyBudget: 12028.58, annualBudget: 48114.30 },
-  { id: "7", label: "Classification 7", quarterlyBudget: 14537.04, annualBudget: 58148.15 },
-  { id: "8", label: "Classification 8", quarterlyBudget: 19526.59, annualBudget: 78106.35 },
+  { id: "1", label: "Classification 1", dailyRate: 29.4000, quarterlyBudget: 2682.75, annualBudget: 10731.00 },
+  { id: "2", label: "Classification 2", dailyRate: 43.9300, quarterlyBudget: 4008.61, annualBudget: 16034.45 },
+  { id: "3", label: "Classification 3", dailyRate: 60.1800, quarterlyBudget: 5491.43, annualBudget: 21965.70 },
+  { id: "4", label: "Classification 4", dailyRate: 81.3600, quarterlyBudget: 7424.10, annualBudget: 29696.40 },
+  { id: "5", label: "Classification 5", dailyRate: 108.7600, quarterlyBudget: 9924.35, annualBudget: 39697.40 },
+  { id: "6", label: "Classification 6", dailyRate: 131.8200, quarterlyBudget: 12028.58, annualBudget: 48114.30 },
+  { id: "7", label: "Classification 7", dailyRate: 159.3100, quarterlyBudget: 14537.04, annualBudget: 58148.15 },
+  { id: "8", label: "Classification 8", dailyRate: 213.9900, quarterlyBudget: 19526.59, annualBudget: 78106.35 },
 ];
 
 export const TRANSITIONED_HCP_LEVELS: FundingClassification[] = [
-  { id: "t1", label: "Transitioned HCP Level 1", quarterlyBudget: 2746.63, annualBudget: 10986.50, isTransitioned: true },
-  { id: "t2", label: "Transitioned HCP Level 2", quarterlyBudget: 4829.86, annualBudget: 19319.45, isTransitioned: true },
-  { id: "t3", label: "Transitioned HCP Level 3", quarterlyBudget: 10332.82, annualBudget: 41331.28, isTransitioned: true },
-  { id: "t4", label: "Transitioned HCP Level 4", quarterlyBudget: 15939.55, annualBudget: 63758.20, isTransitioned: true },
+  { id: "t1", label: "Transitioned HCP Level 1", dailyRate: 30.1000, quarterlyBudget: 2746.63, annualBudget: 10986.50, isTransitioned: true },
+  { id: "t2", label: "Transitioned HCP Level 2", dailyRate: 52.9300, quarterlyBudget: 4829.86, annualBudget: 19319.45, isTransitioned: true },
+  { id: "t3", label: "Transitioned HCP Level 3", dailyRate: 113.2364, quarterlyBudget: 10332.82, annualBudget: 41331.28, isTransitioned: true },
+  { id: "t4", label: "Transitioned HCP Level 4", dailyRate: 174.6800, quarterlyBudget: 15939.55, annualBudget: 63758.20, isTransitioned: true },
 ];
 
 export const ALL_CLASSIFICATIONS: FundingClassification[] = [
@@ -49,10 +49,10 @@ export const CONTRIBUTION_RATES: Record<PensionStatus, Record<ServiceCategory, n
 // Dementia supplement: $19.99/day (Level 4 rate, from 1 Jul 2025 — grandparented HCP only)
 // Other supplements: best-available rates as at March 2026
 export const SUPPLEMENTS: Supplement[] = [
-  { id: "dementia", label: "Dementia & Cognition Supplement", quarterlyAmount: 1824.09, annualAmount: 7296.35 },
-  { id: "veterans", label: "Veterans' Supplement", quarterlyAmount: 1550.00, annualAmount: 6200.00 },
-  { id: "oxygen", label: "Oxygen Supplement", quarterlyAmount: 182.60, annualAmount: 730.40 },
-  { id: "enteral_feeding", label: "Enteral Feeding Supplement", quarterlyAmount: 434.35, annualAmount: 1737.40 },
+  { id: "dementia", label: "Dementia & Cognition Supplement", dailyRate: 19.99, quarterlyAmount: 1824.09, annualAmount: 7296.35 },
+  { id: "veterans", label: "Veterans' Supplement", dailyRate: 4.2466, quarterlyAmount: 1550.00, annualAmount: 6200.00 },
+  { id: "oxygen", label: "Oxygen Supplement", dailyRate: 0.5003, quarterlyAmount: 182.60, annualAmount: 730.40 },
+  { id: "enteral_feeding", label: "Enteral Feeding Supplement", dailyRate: 1.1901, quarterlyAmount: 434.35, annualAmount: 1737.40 },
 ];
 
 // ─── Business Rules ────────────────────────────────────────────────────────────
@@ -81,6 +81,19 @@ export const QUARTERS = [
   "Jan–Mar 2027 (Q3)",
   "Apr–Jun 2027 (Q4)",
 ];
+
+// ─── Quarter Days ─────────────────────────────────────────────────────────────────
+
+export const QUARTER_DAYS: Record<string, number> = {
+  "Jul–Sep 2025 (Q1)": 92,
+  "Oct–Dec 2025 (Q2)": 92,
+  "Jan–Mar 2026 (Q3)": 90,
+  "Apr–Jun 2026 (Q4)": 91,
+  "Jul–Sep 2026 (Q1)": 92,
+  "Oct–Dec 2026 (Q2)": 92,
+  "Jan–Mar 2027 (Q3)": 90,
+  "Apr–Jun 2027 (Q4)": 91,
+};
 
 // ─── Default Services ──────────────────────────────────────────────────────────
 

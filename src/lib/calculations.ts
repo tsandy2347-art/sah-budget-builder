@@ -7,6 +7,7 @@ import {
   EOL_WEEKS,
   ATHM_BUDGETS,
   SUPPLEMENTS,
+  QUARTER_DAYS,
 } from "./constants";
 import type {
   ServiceLineItem,
@@ -27,8 +28,11 @@ export function getClassification(classificationId: string) {
   return ALL_CLASSIFICATIONS.find((c) => c.id === classificationId) ?? null;
 }
 
-export function getQuarterlyBudget(classificationId: string): number {
-  return getClassification(classificationId)?.quarterlyBudget ?? 0;
+export function getQuarterlyBudget(classificationId: string, quarter: string): number {
+  const classification = getClassification(classificationId);
+  if (!classification) return 0;
+  const days = QUARTER_DAYS[quarter] ?? 91;
+  return Math.round(classification.dailyRate * days * 100) / 100;
 }
 
 export function getAnnualBudget(classificationId: string): number {
@@ -197,11 +201,12 @@ export function calcCarryover(remaining: number, quarterlyBudget: number): numbe
   return round2(Math.min(Math.max(remaining, 0), cap));
 }
 
-export function getSupplementsQuarterly(supplementIds: string[]): number {
+export function getSupplementsQuarterly(supplementIds: string[], quarter: string): number {
+  const days = QUARTER_DAYS[quarter] ?? 91;
   let total = 0;
   for (const id of supplementIds) {
     const supp = SUPPLEMENTS.find((s) => s.id === id);
-    if (supp) total += supp.quarterlyAmount;
+    if (supp) total += supp.dailyRate * days;
   }
   return round2(total);
 }
@@ -216,12 +221,12 @@ export function getSupplementsAnnual(supplementIds: string[]): number {
 }
 
 export function calcBudget(budget: ClientBudget, budgetType: BudgetType): BudgetCalculations {
-  const classificationQuarterly = getQuarterlyBudget(budget.classificationId);
+  const classificationQuarterly = getQuarterlyBudget(budget.classificationId, budget.quarter);
   const quarterlyBudget = (budget.isPartiallyFunded && budget.customQuarterlyBudget != null) ? budget.customQuarterlyBudget : classificationQuarterly;
   const classificationAnnual = getAnnualBudget(budget.classificationId);
   const annualBudget = (budget.isPartiallyFunded && budget.customQuarterlyBudget != null) ? round2(budget.customQuarterlyBudget * 4) : classificationAnnual;
   const supplementIds = budget.supplements ?? [];
-  const supplementsQuarterly = getSupplementsQuarterly(supplementIds);
+  const supplementsQuarterly = getSupplementsQuarterly(supplementIds, budget.quarter);
   const supplementsAnnual = getSupplementsAnnual(supplementIds);
   const totalQuarterlyBudget = round2(quarterlyBudget + supplementsQuarterly);
   const totalAnnualBudget = round2(annualBudget + supplementsAnnual);

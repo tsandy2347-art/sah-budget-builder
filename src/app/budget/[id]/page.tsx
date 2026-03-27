@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClientDetailsForm } from "@/components/budget/ClientDetailsForm";
 import { BudgetTabs } from "@/components/budget/BudgetTabs";
 import { useBudget } from "@/hooks/useBudget";
-import { ChevronLeft, FileDown, Sheet, Loader2 } from "lucide-react";
+import { ChevronLeft, FileDown, Sheet, Loader2, PenLine } from "lucide-react";
 import type { ClientBudget } from "@/lib/types";
 
 export default function BudgetPage() {
@@ -72,6 +72,12 @@ export default function BudgetPage() {
           <Button variant="outline" size="sm" className="gap-2" onClick={handleExportPDF}>
             <FileDown className="h-4 w-4" />
             Export PDF
+          </Button>
+          <Button size="sm" className="gap-2" asChild>
+            <Link href={`/budget/${id}/sign`}>
+              <PenLine className="h-4 w-4" />
+              Client Sign
+            </Link>
           </Button>
         </div>
       </div>
