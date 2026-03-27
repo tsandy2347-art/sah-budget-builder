@@ -300,7 +300,7 @@ export default function BudgetSignPage() {
                 </li>
                 <li>
                   The Australian Government subsidy of{" "}
-                  <strong>{formatCurrency(grandTotalSubsidy)}</strong> is paid directly to my
+                  <strong>{formatCurrency(ongoingCalcs.totalQuarterlyBudget)}</strong> is paid directly to my
                   approved provider.
                 </li>
                 <li>
