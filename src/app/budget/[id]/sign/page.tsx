@@ -299,7 +299,7 @@ export default function BudgetSignPage() {
                   with the Support at Home contribution framework based on my pension status.
                 </li>
                 <li>
-                  I have the right to change providers at any time with reasonable notice as set out
+                  I have the right to change providers at any time with 14 days written notice as set out
                   in my Home Care Agreement.
                 </li>
               </ul>
