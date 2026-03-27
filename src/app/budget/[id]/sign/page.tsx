@@ -25,6 +25,29 @@ export default function BudgetSignPage() {
   const [jbcRepRole, setJbcRepRole] = useState("");
   const [jbcSignatureDataUrl, setJbcSignatureDataUrl] = useState<string | null>(null);
 
+  useEffect(() => {
+    async function fetchCarePartner() {
+      try {
+        const res = await fetch("/api/budgets/" + id);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.user?.name) setCarePartnerName(data.user.name);
+        }
+      } catch {}
+    }
+    if (id) fetchCarePartner();
+  }, [id]);
+
+  useEffect(() => {
+    if (budget) {
+      setClientPrintName(budget.clientName || "");
+    }
+  }, [budget]);
+
+  useEffect(() => {
+    if (carePartnerName) setJbcRepName(carePartnerName);
+  }, [carePartnerName]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -40,29 +63,6 @@ export default function BudgetSignPage() {
       </div>
     );
   }
-
-  useEffect(() => {
-    if (carePartnerName) setJbcRepName(carePartnerName);
-  }, [carePartnerName]);
-
-  useEffect(() => {
-    if (budget) {
-      setClientPrintName(budget.clientName || "");
-    }
-  }, [budget]);
-
-  useEffect(() => {
-    async function fetchCarePartner() {
-      try {
-        const res = await fetch("/api/budgets/" + id);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.user?.name) setCarePartnerName(data.user.name);
-        }
-      } catch {}
-    }
-    fetchCarePartner();
-  }, [id]);
 
   const classification = getClassification(budget.classificationId);
 
