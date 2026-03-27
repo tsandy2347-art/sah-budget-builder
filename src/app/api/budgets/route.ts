@@ -2,15 +2,31 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSessionUser } from "@/lib/get-user";
 
-// GET /api/budgets — list all budgets (everyone sees everything)
-export async function GET() {
+// GET /api/budgets — list budgets
+// ?search=term — search all participants by name/MAC ID
+// default — only the current user's budgets
+export async function GET(req: Request) {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const budgets = await prisma.budget.findMany({
-    orderBy: { updatedAt: "desc" },
-    include: { user: { select: { name: true, email: true } } },
-  });
+  const url = new URL(req.url);
+  const search = url.searchParams.get("search");
+
+  let budgets;
+  if (search) {
+    // Search across ALL users' budgets
+    budgets = await prisma.budget.findMany({
+      orderBy: { updatedAt: "desc" },
+      include: { user: { select: { name: true, email: true } } },
+    });
+  } else {
+    // Default: only current user's budgets
+    budgets = await prisma.budget.findMany({
+      where: { userId: user.id },
+      orderBy: { updatedAt: "desc" },
+      include: { user: { select: { name: true, email: true } } },
+    });
+  }
 
   return NextResponse.json(budgets);
 }
