@@ -11,6 +11,7 @@ import { SignaturePad } from "@/components/budget/SignaturePad";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { BudgetType } from "@/lib/types";
 
 export default function BudgetSignPage() {
@@ -18,6 +19,10 @@ export default function BudgetSignPage() {
   const { budget, loading } = useBudget(id);
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
   const [clientPrintName, setClientPrintName] = useState("");
+  const [relationshipToClient, setRelationshipToClient] = useState("self");
+  const [jbcRepName, setJbcRepName] = useState("");
+  const [jbcRepRole, setJbcRepRole] = useState("");
+  const [jbcSignatureDataUrl, setJbcSignatureDataUrl] = useState<string | null>(null);
 
   if (loading) {
     return (
@@ -49,7 +54,11 @@ export default function BudgetSignPage() {
   const grandTotalContribution = allCalcs.reduce((sum, t) => sum + t.calcs.tabCalcs.totalClientContribution, 0);
   const grandTotalSubsidy = allCalcs.reduce((sum, t) => sum + t.calcs.tabCalcs.totalGovtSubsidy, 0);
 
-  const isSigned = signatureDataUrl !== null && clientPrintName.trim().length > 0;
+  const isSigned =
+    signatureDataUrl !== null &&
+    clientPrintName.trim().length > 0 &&
+    jbcSignatureDataUrl !== null &&
+    jbcRepName.trim().length > 0;
 
   function handlePrint() {
     window.print();
@@ -196,10 +205,25 @@ export default function BudgetSignPage() {
             </Card>
           ))}
 
-          {/* Client Agreement */}
+                    {/* Acknowledgement of Consent - Budget */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Client Agreement</CardTitle>
+              <CardTitle className="text-lg">Acknowledgement of Consent - Budget</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm leading-relaxed space-y-3">
+              <p>
+                This form acknowledges consent to the content of this Budget and the related service delivery considerations.
+              </p>
+              <p>
+                This form assumes the content and considerations regarding this Budget have been discussed, agreed to, and understood, so that the customer (or the person signing on their behalf) has provided informed consent.
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Acknowledgement of Consent */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Acknowledgement of Consent</CardTitle>
             </CardHeader>
             <CardContent className="text-sm leading-relaxed space-y-3">
               <p>
@@ -234,10 +258,10 @@ export default function BudgetSignPage() {
             </CardContent>
           </Card>
 
-          {/* Signature Section */}
+          {/* Person Acknowledging Consent */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Client Signature</CardTitle>
+              <CardTitle className="text-lg">Person Acknowledging Consent</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
@@ -250,6 +274,21 @@ export default function BudgetSignPage() {
                 />
               </div>
               <div>
+                <label className="block text-sm font-medium mb-1">Relationship to Client</label>
+                <Select value={relationshipToClient} onValueChange={setRelationshipToClient}>
+                  <SelectTrigger className="max-w-sm">
+                    <SelectValue placeholder="Select relationship" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="self">Self</SelectItem>
+                    <SelectItem value="family_member">Family Member</SelectItem>
+                    <SelectItem value="legal_guardian">Legal Guardian</SelectItem>
+                    <SelectItem value="authorised_representative">Authorised Representative</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
                 <label className="block text-sm font-medium mb-1">Signature</label>
                 <SignaturePad onSignatureChange={setSignatureDataUrl} />
               </div>
@@ -259,31 +298,36 @@ export default function BudgetSignPage() {
             </CardContent>
           </Card>
 
-          {/* Provider Representative */}
+          {/* Authorised Person from Just Better Care */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Provider Representative</CardTitle>
+              <CardTitle className="text-lg">Authorised Person from Just Better Care</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6 text-sm">
-              <div className="grid grid-cols-2 gap-8">
-                <div>
-                  <p className="font-medium mb-8">Name:</p>
-                  <div className="border-b border-gray-400 w-full" />
-                </div>
-                <div>
-                  <p className="font-medium mb-8">Position:</p>
-                  <div className="border-b border-gray-400 w-full" />
-                </div>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Name of authorised person from Just Better Care</label>
+                <Input
+                  value={jbcRepName}
+                  onChange={(e) => setJbcRepName(e.target.value)}
+                  placeholder="Enter name"
+                  className="max-w-sm"
+                />
               </div>
-              <div className="grid grid-cols-2 gap-8">
-                <div>
-                  <p className="font-medium mb-8">Signature:</p>
-                  <div className="border-b border-gray-400 w-full" />
-                </div>
-                <div>
-                  <p className="font-medium mb-8">Date:</p>
-                  <div className="border-b border-gray-400 w-full" />
-                </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Role</label>
+                <Input
+                  value={jbcRepRole}
+                  onChange={(e) => setJbcRepRole(e.target.value)}
+                  placeholder="Enter role"
+                  className="max-w-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Signature</label>
+                <SignaturePad onSignatureChange={setJbcSignatureDataUrl} />
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Date: {new Date().toLocaleDateString("en-AU")}
               </div>
             </CardContent>
           </Card>
