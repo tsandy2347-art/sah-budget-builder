@@ -8,7 +8,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { id } = await params;
-  const budget = await prisma.budget.findUnique({ where: { id } });
+  const budget = await prisma.budget.findUnique({ where: { id }, include: { user: { select: { name: true } } } });
   if (!budget) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   return NextResponse.json(budget);

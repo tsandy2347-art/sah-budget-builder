@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useBudget } from "@/hooks/useBudget";
 import { calcBudget, calcServiceCost, calcClientContribution, getClassification } from "@/lib/calculations";
@@ -18,6 +18,7 @@ export default function BudgetSignPage() {
   const { id } = useParams<{ id: string }>();
   const { budget, loading } = useBudget(id);
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
+  const [carePartnerName, setCarePartnerName] = useState("");
   const [clientPrintName, setClientPrintName] = useState("");
   const [relationshipToClient, setRelationshipToClient] = useState("self");
   const [jbcRepName, setJbcRepName] = useState("");
@@ -39,6 +40,29 @@ export default function BudgetSignPage() {
       </div>
     );
   }
+
+  useEffect(() => {
+    if (carePartnerName) setJbcRepName(carePartnerName);
+  }, [carePartnerName]);
+
+  useEffect(() => {
+    if (budget) {
+      setClientPrintName(budget.clientName || "");
+    }
+  }, [budget]);
+
+  useEffect(() => {
+    async function fetchCarePartner() {
+      try {
+        const res = await fetch("/api/budgets/" + id);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.user?.name) setCarePartnerName(data.user.name);
+        }
+      } catch {}
+    }
+    fetchCarePartner();
+  }, [id]);
 
   const classification = getClassification(budget.classificationId);
 
@@ -304,7 +328,7 @@ export default function BudgetSignPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Relationship to Client</label>
-                <Select value={relationshipToClient} onValueChange={setRelationshipToClient}>
+                <Select value={relationshipToClient} onValueChange={(val) => { setRelationshipToClient(val); if (val === "self" && budget) setClientPrintName(budget.clientName || ""); else if (val !== "self") setClientPrintName(""); }}>
                   <SelectTrigger className="max-w-sm">
                     <SelectValue placeholder="Select relationship" />
                   </SelectTrigger>
