@@ -246,8 +246,12 @@ export function calcBudget(budget: ClientBudget, budgetType: BudgetType): Budget
   const effectiveCarryover = round2(Math.min(Math.max(unspentPriorQuarter, 0), carryoverCap));
   const effectiveBudgetEnvelope = round2(budgetEnvelope + effectiveCarryover);
 
+  const rawExcess = round2(Math.max(0, tabCalcs.totalCost - tabCalcs.totalClientContribution - effectiveBudgetEnvelope));
+  const gfFunds = (budget.isGrandfathered || budget.isGrandfatheredContributions) ? (budget.grandfatheredUnspentFunds ?? 0) : 0;
+  const grandfatheredFundsUsed = round2(Math.min(gfFunds, rawExcess));
+  const clientExcess = round2(rawExcess - grandfatheredFundsUsed);
+  const grandfatheredFundsRemaining = round2(gfFunds - grandfatheredFundsUsed);
   const govtSubsidy = round2(Math.min(tabCalcs.totalGovtSubsidy, effectiveBudgetEnvelope));
-  const clientExcess = round2(Math.max(0, tabCalcs.totalCost - tabCalcs.totalClientContribution - effectiveBudgetEnvelope));
   const utilisation = calcBudgetUtilisation(tabCalcs.totalCost, effectiveBudgetEnvelope);
   const remaining = round2(effectiveBudgetEnvelope - tabCalcs.totalCost);
 
@@ -270,6 +274,8 @@ export function calcBudget(budget: ClientBudget, budgetType: BudgetType): Budget
     effectiveBudgetEnvelope,
     govtSubsidy,
     clientExcess,
+    grandfatheredFundsUsed,
+    grandfatheredFundsRemaining,
   };
 }
 

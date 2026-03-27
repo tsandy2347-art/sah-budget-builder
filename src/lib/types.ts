@@ -109,6 +109,8 @@ export interface BudgetCalculations {
   effectiveBudgetEnvelope: number; // budgetEnvelope + effectiveCarryover
   govtSubsidy: number; // govt pays up to availableForServices
   clientExcess: number; // client pays overspend above budget
+  grandfatheredFundsUsed: number; // HCP funds used to cover excess
+  grandfatheredFundsRemaining: number; // remaining HCP funds after covering excess
 }
 
 export interface DefaultService {

@@ -54,6 +54,8 @@ export default function BudgetSignPage() {
   const grandTotalContribution = allCalcs.reduce((sum, t) => sum + t.calcs.tabCalcs.totalClientContribution, 0);
   const grandTotalSubsidy = allCalcs.reduce((sum, t) => sum + t.calcs.govtSubsidy, 0);
   const grandTotalExcess = allCalcs.reduce((sum, t) => sum + t.calcs.clientExcess, 0);
+  const grandTotalGfUsed = allCalcs.reduce((sum, t) => sum + t.calcs.grandfatheredFundsUsed, 0);
+  const grandTotalGfRemaining = allCalcs.reduce((sum, t) => sum + t.calcs.grandfatheredFundsRemaining, 0);
 
   const ongoingCalcs = calcBudget(budget, "ongoing");
 
@@ -166,9 +168,16 @@ export default function BudgetSignPage() {
                   <p className="text-xs text-muted-foreground uppercase tracking-wide">Government Subsidy</p>
                   <p className="text-xl font-bold mt-1">{formatCurrency(grandTotalSubsidy)}</p>
                 </div>
+                {grandTotalGfUsed > 0 && (
+                  <div>
+                    <p className="text-xs text-amber-600 uppercase tracking-wide">HCP Funds Used (Grandfathered)</p>
+                    <p className="text-xl font-bold mt-1 text-amber-600">{formatCurrency(grandTotalGfUsed)}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Remaining: {formatCurrency(grandTotalGfRemaining)}</p>
+                  </div>
+                )}
                 {grandTotalExcess > 0 && (
                   <div>
-                    <p className="text-xs text-red-600 uppercase tracking-wide">Client Excess (Over Budget)</p>
+                    <p className="text-xs text-red-600 uppercase tracking-wide">Client Excess (Out of Pocket)</p>
                     <p className="text-xl font-bold mt-1 text-red-600">{formatCurrency(grandTotalExcess)}</p>
                   </div>
                 )}
