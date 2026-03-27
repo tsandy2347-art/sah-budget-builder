@@ -75,7 +75,7 @@ export function BudgetList({ onExportPDF }: BudgetListProps) {
           <ImportBudgetButton onImported={refresh} />
           <Button onClick={handleCreate} className="gap-2">
             <Plus className="h-4 w-4" />
-            New Budget
+            New Forecast Budget
           </Button>
         </div>
       </div>
@@ -87,18 +87,18 @@ export function BudgetList({ onExportPDF }: BudgetListProps) {
           </div>
           {search ? (
             <div>
-              <p className="font-medium">No budgets match &ldquo;{search}&rdquo;</p>
+              <p className="font-medium">No forecast budgets match &ldquo;{search}&rdquo;</p>
               <p className="text-sm text-muted-foreground mt-1">Try a different search term.</p>
             </div>
           ) : (
             <div>
-              <p className="font-medium text-lg">No budgets yet</p>
+              <p className="font-medium text-lg">No forecast budgets yet</p>
               <p className="text-sm text-muted-foreground mt-1">
-                Create a new budget to get started with a participant&apos;s Support at Home plan.
+                Create a new forecast budget to get started with a participant&apos;s Support at Home plan.
               </p>
               <Button className="mt-4 gap-2" onClick={handleCreate}>
                 <Plus className="h-4 w-4" />
-                Create your first budget
+                Create your first forecast budget
               </Button>
             </div>
           )}

@@ -56,7 +56,7 @@ function BudgetPDF({ budget }: { budget: ClientBudget }) {
     createElement(Page, { size: "A4", style: styles.page, wrap: true },
       // Header
       createElement(View, { style: styles.header },
-        createElement(Text, { style: styles.title }, "Support at Home — Budget Plan"),
+        createElement(Text, { style: styles.title }, "Support at Home — Forecast Budget Plan"),
         createElement(Text, { style: styles.subtitle }, `${budget.providerName || "Provider"} · Generated ${today}`)
       ),
 

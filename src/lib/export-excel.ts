@@ -10,7 +10,7 @@ export function exportBudgetExcel(budget: ClientBudget): void {
 
   // Sheet 1: Client Details
   const clientRows = [
-    ["Support at Home — Budget Plan"],
+    ["Support at Home — Forecast Budget Plan"],
     [],
     ["Client Name", budget.clientName],
     ["My Aged Care ID", budget.macId],

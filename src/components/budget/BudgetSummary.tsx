@@ -25,7 +25,7 @@ export function BudgetSummary({ calcs, viewPeriod }: BudgetSummaryProps) {
     <Card>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-base">Budget Summary ({periodLabel})</CardTitle>
+          <CardTitle className="text-base">Forecast Budget Summary ({periodLabel})</CardTitle>
           <div className="flex items-center gap-2">
             <span
               className={`text-2xl font-bold tabular-nums ${
@@ -49,7 +49,7 @@ export function BudgetSummary({ calcs, viewPeriod }: BudgetSummaryProps) {
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              <strong>Over budget by {formatCurrency(Math.abs(calcs.remaining))}</strong>. Consider reducing service
+              <strong>Over forecast budget by {formatCurrency(Math.abs(calcs.remaining))}</strong>. Consider reducing service
               hours, removing services, or requesting a reassessment for a higher classification.
             </AlertDescription>
           </Alert>
@@ -69,7 +69,7 @@ export function BudgetSummary({ calcs, viewPeriod }: BudgetSummaryProps) {
           <Alert className="border-green-200 bg-green-50 dark:bg-green-950/20 dark:border-green-800">
             <CheckCircle2 className="h-4 w-4 text-green-600" />
             <AlertDescription className="text-green-800 dark:text-green-300">
-              Budget is well utilised. {formatCurrency(calcs.remaining)} remaining — within the carryover cap of{" "}
+              Forecast budget is well utilised. {formatCurrency(calcs.remaining)} remaining — within the carryover cap of{" "}
               {formatCurrency(calcs.carryoverCap)}.
             </AlertDescription>
           </Alert>

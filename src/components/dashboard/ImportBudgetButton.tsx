@@ -90,7 +90,7 @@ export function ImportBudgetButton({ onImported }: ImportBudgetButtonProps) {
         ) : (
           <Upload className="h-4 w-4" />
         )}
-        Import Budget
+        Import Forecast Budget
       </Button>
 
       {/* Error dialog */}
@@ -122,7 +122,7 @@ export function ImportBudgetButton({ onImported }: ImportBudgetButtonProps) {
           </DialogHeader>
           <div className="space-y-2 text-sm text-muted-foreground">
             <p>
-              Budget imported for <span className="font-medium text-foreground">{success?.name}</span>
+              Forecast budget imported for <span className="font-medium text-foreground">{success?.name}</span>
             </p>
             <p>
               <span className="font-medium text-foreground">{success?.services}</span> services loaded across all tabs
@@ -143,7 +143,7 @@ export function ImportBudgetButton({ onImported }: ImportBudgetButtonProps) {
                 setSuccess(null);
               }}
             >
-              Open Budget
+              Open Forecast Budget
             </Button>
           </DialogFooter>
         </DialogContent>

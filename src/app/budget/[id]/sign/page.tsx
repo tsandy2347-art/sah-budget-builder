@@ -59,7 +59,7 @@ export default function BudgetSignPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-muted-foreground">Loading budget&#8230;</p>
+        <p className="text-muted-foreground">Loading forecast budget&#8230;</p>
       </div>
     );
   }
@@ -67,7 +67,7 @@ export default function BudgetSignPage() {
   if (!budget) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-muted-foreground">Budget not found.</p>
+        <p className="text-muted-foreground">Forecast budget not found.</p>
       </div>
     );
   }
@@ -145,7 +145,7 @@ export default function BudgetSignPage() {
       <div className="min-h-screen bg-gray-50">
         <div className="no-print border-b bg-white px-6 py-3 flex items-center justify-between">
           <Link href={`/budget/${id}`} className="text-sm text-blue-600 hover:underline">
-            &larr; Back to Budget
+            &larr; Back to Forecast Budget
           </Link>
           <Button onClick={handlePrint} disabled={!isSigned}>
             Print / Save PDF
@@ -155,7 +155,7 @@ export default function BudgetSignPage() {
         <div id="print-area" className="max-w-4xl mx-auto p-6 space-y-8 print:space-y-2 print:p-0">
           {/* Header */}
           <div className="text-center space-y-1">
-            <h1 className="text-2xl font-bold">Support at Home Budget Agreement</h1>
+            <h1 className="text-2xl font-bold">Support at Home Forecast Budget Agreement</h1>
             <p className="text-sm text-muted-foreground">
               {budget.quarter} &#8212; {budget.providerName || "Provider"}
             </p>
@@ -300,19 +300,20 @@ export default function BudgetSignPage() {
           ))}
 
                     {/* Acknowledgement of Consent */}
+          <div style={{ pageBreakBefore: "always" }} />
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Acknowledgement of Consent</CardTitle>
             </CardHeader>
             <CardContent className="text-sm leading-relaxed space-y-3">
               <p>
-                This form acknowledges consent to the content of this Budget and the related service delivery considerations.
+                This form acknowledges consent to the content of this Forecast Budget and the related service delivery considerations.
               </p>
               <p>
-                This form assumes the content and considerations regarding this Budget have been discussed, agreed to, and understood, so that the participant (or the person signing on their behalf) has provided informed consent.
+                This form assumes the content and considerations regarding this Forecast Budget have been discussed, agreed to, and understood, so that the participant (or the person signing on their behalf) has provided informed consent.
               </p>
               <p>
-                I acknowledge that I have reviewed the above budget and service schedule for the
+                I acknowledge that I have reviewed the above forecast budget and service schedule for the
                 quarter <strong>{budget.quarter}</strong>.
               </p>
               <p>I understand and agree to the following:</p>
@@ -443,7 +444,7 @@ export default function BudgetSignPage() {
           {/* Footer */}
           <div className="text-center text-xs text-muted-foreground pt-4 border-t">
             <p>
-              Support at Home Budget Agreement &#183; Generated on{" "}
+              Support at Home Forecast Budget Agreement &#183; Generated on{" "}
               {new Date().toLocaleDateString("en-AU")} &#183;{" "}
               {budget.providerName || "Provider"}
             </p>

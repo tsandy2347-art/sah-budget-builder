@@ -54,7 +54,7 @@ export function BudgetOptimisationTips({ budget, calcs, budgetType }: BudgetOpti
           <div className="flex items-center gap-2">
             <Lightbulb className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             <CardTitle className="text-base text-blue-900 dark:text-blue-200">
-              Budget Optimisation Tips
+              Forecast Budget Optimisation Tips
             </CardTitle>
             <Badge variant="secondary" className="text-xs">
               {tips.length} {tips.length === 1 ? "tip" : "tips"}
@@ -126,7 +126,7 @@ function generateTips(
     tips.push({
       id: "underutilised",
       icon: <TrendingUp className="h-4 w-4 text-amber-600" />,
-      title: "Budget under-utilised",
+      title: "Forecast budget under-utilised",
       description: `${formatCurrency(calcs.remaining)} remaining exceeds the carryover cap of ${formatCurrency(calcs.carryoverCap)}. Up to ${formatCurrency(excess)} could be lost at quarter end. Consider adding more services to maximise the funding envelope.`,
       priority: "high",
       category: "efficiency",
@@ -285,8 +285,8 @@ function generateTips(
     tips.push({
       id: "over-budget",
       icon: <TrendingUp className="h-4 w-4 text-red-600" />,
-      title: "Budget is over-allocated",
-      description: `This budget is ${formatCurrency(Math.abs(calcs.remaining))} over the envelope. Either reduce hours/services, check if the participant qualifies for a higher classification via reassessment, or consider moving some services to a separate pathway (Restorative, AT-HM) if clinically appropriate.`,
+      title: "Forecast budget is over-allocated",
+      description: `This forecast budget is ${formatCurrency(Math.abs(calcs.remaining))} over the envelope. Either reduce hours/services, check if the participant qualifies for a higher classification via reassessment, or consider moving some services to a separate pathway (Restorative, AT-HM) if clinically appropriate.`,
       priority: "high",
       category: "compliance",
     });

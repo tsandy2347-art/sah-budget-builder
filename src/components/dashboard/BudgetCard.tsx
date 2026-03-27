@@ -34,7 +34,7 @@ export function BudgetCard({ budget, onRefresh, onExportPDF }: BudgetCardProps) 
   }
 
   async function handleDelete() {
-    if (confirm(`Delete budget for "${budget.clientName || "Unnamed participant"}"?`)) {
+    if (confirm(`Delete forecast budget for "${budget.clientName || "Unnamed participant"}"?`)) {
       await apiDeleteBudget(budget.id);
       onRefresh();
     }
@@ -92,7 +92,7 @@ export function BudgetCard({ budget, onRefresh, onExportPDF }: BudgetCardProps) 
         </div>
         <div className="space-y-1">
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Budget utilisation</span>
+            <span className="text-muted-foreground">Forecast budget utilisation</span>
             <span className={`font-medium ${utilisationColor}`}>{utilisation.toFixed(1)}%</span>
           </div>
           <Progress value={Math.min(utilisation, 100)} className="h-2" />
