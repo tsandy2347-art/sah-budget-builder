@@ -105,7 +105,6 @@ export default function BudgetSignPage() {
     <>
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
-          * { margin: 0; }
           body * { visibility: hidden; }
           #print-area, #print-area * { visibility: visible; }
           #print-area { position: absolute; left: 0; top: 0; width: 100%; padding: 0 !important; font-size: 11px !important; }
@@ -113,30 +112,22 @@ export default function BudgetSignPage() {
           @page { margin: 1.5cm 2cm; }
           .print-only { display: block !important; }
           .sig-print-img { display: block !important; max-height: 60px; border-bottom: 1px solid #333; padding-bottom: 2px; width: 180px; }
-          /* Kill ALL card styling */
           div[class*="rounded"], div[class*="border"], div[class*="shadow"] {
             border: none !important; box-shadow: none !important;
             border-radius: 0 !important; padding: 0 !important;
           }
-          /* Force tight spacing on everything */
           #print-area > div { margin-top: 8px !important; margin-bottom: 0 !important; padding: 0 !important; }
-          #print-area > div > div { margin-bottom: 4px !important; padding: 2px 0 !important; }
+          #print-area > div > div { margin-bottom: 4px !important; padding: 2px 0 !important; page-break-inside: avoid; }
           #print-area .space-y-8 > * + * { margin-top: 8px !important; }
           #print-area .space-y-4 > * + * { margin-top: 4px !important; }
           #print-area .space-y-3 > * + * { margin-top: 3px !important; }
-          #print-area .space-y-1 > * + * { margin-top: 1px !important; }
-          /* Headers */
           h1 { font-size: 16px !important; margin: 0 0 2px 0 !important; }
           h2, h3, [class*="text-lg"] { font-size: 13px !important; font-weight: bold !important; margin: 4px 0 2px 0 !important; padding: 0 !important; }
-          /* Paragraphs */
           p { margin: 2px 0 !important; line-height: 1.4 !important; }
-          /* Grid gaps */
           .gap-4, .gap-6 { gap: 4px !important; }
           .mt-4 { margin-top: 6px !important; }
-          /* Table */
           table { page-break-inside: avoid; font-size: 11px !important; }
           th, td { padding: 3px 6px !important; }
-          /* Remove backgrounds */
           [class*="bg-blue"], [class*="bg-gray"], [class*="bg-amber"], [class*="bg-red"], [class*="bg-green"] {
             background-color: transparent !important;
           }
@@ -144,61 +135,10 @@ export default function BudgetSignPage() {
           .text-red-600 { color: #dc2626 !important; }
           .text-amber-600 { color: #d97706 !important; }
           .text-green-600 { color: #16a34a !important; }
-          /* Funding summary values */
           .text-xl { font-size: 15px !important; }
           .text-xs { font-size: 9px !important; }
-          /* Prevent page break between header and content */
-          #print-area > div > div { page-break-inside: avoid; }
-          /* Bullet points */
           ul { margin: 2px 0 !important; padding-left: 20px !important; }
           li { margin: 1px 0 !important; }
-          /* Text center grids (funding summary) */
-          .text-center .rounded { padding: 4px !important; }
-          .text-center p { margin: 1px 0 !important; }
-        }
-          #print-area, #print-area * { visibility: visible; }
-          #print-area { position: absolute; left: 0; top: 0; width: 100%; padding: 0; }
-          nav, header, .no-print, .no-print-element { display: none !important; }
-          @page { margin: 1.5cm 2cm; }
-          .print-only { display: block !important; }
-          .sig-print-img { display: block !important; max-height: 70px; margin-top: 4px; border-bottom: 1px solid #333; padding-bottom: 2px; width: 200px; }
-          /* Remove all card styling */
-          [class*="rounded"], [class*="border"], [class*="shadow"] {
-            border: none !important; box-shadow: none !important;
-            border-radius: 0 !important; padding-left: 0 !important; padding-right: 0 !important;
-          }
-          /* Add subtle separators between sections */
-          #print-area > div > div { border-bottom: 1px solid #ddd; padding-bottom: 12px; margin-bottom: 12px; }
-          #print-area > div > div:last-child { border-bottom: none; }
-          /* Tighten spacing */
-          .space-y-8 > * + * { margin-top: 0.5rem !important; }
-          .space-y-4 > * + * { margin-top: 0.25rem !important; }
-          .space-y-3 > * + * { margin-top: 0.2rem !important; }
-          h1 { font-size: 1.25rem !important; margin-bottom: 0 !important; }
-          h2, h3, [class*="text-lg"] { font-size: 1rem !important; margin-bottom: 0.25rem !important; }
-          p { margin-bottom: 0.15rem !important; }
-          /* Card content padding */
-          [class*="CardContent"], [class*="card-content"] { padding: 0.25rem 0 !important; }
-          [class*="CardHeader"], [class*="card-header"] { padding: 0.25rem 0 !important; }
-          /* Grid gaps */
-          .gap-4 { gap: 0.5rem !important; }
-          .gap-6 { gap: 0.5rem !important; }
-          /* Keep sections together */
-          .print-keep-together { page-break-inside: avoid; }
-          /* Remove background colors */
-          [class*="bg-blue"], [class*="bg-gray"], [class*="bg-amber"], [class*="bg-red"] {
-            background-color: transparent !important;
-          }
-          /* Keep text colors */
-          .text-blue-700 { color: #1d4ed8 !important; }
-          .text-red-600 { color: #dc2626 !important; }
-          .text-amber-600 { color: #d97706 !important; }
-          .text-green-600 { color: #16a34a !important; }
-          /* Table styling */
-          table { page-break-inside: avoid; }
-          tr { page-break-inside: avoid; }
-          /* Signature clean look */
-          .sig-print-img + div { display: none !important; }
         }
       ` }} />
 
