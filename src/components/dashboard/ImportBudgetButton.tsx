@@ -51,7 +51,7 @@ export function ImportBudgetButton({ onImported }: ImportBudgetButtonProps) {
 
       const totalServices = budget.tabs.reduce((s, t) => s + t.services.length, 0);
       setSuccess({
-        name: budget.clientName || "Unnamed client",
+        name: budget.clientName || "Unnamed participant",
         services: totalServices,
         id: budget.id,
       });

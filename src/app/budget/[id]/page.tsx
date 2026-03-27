@@ -57,7 +57,7 @@ export default function BudgetPage() {
           </Button>
           <div>
             <h1 className="text-xl font-bold">
-              {budget.clientName || <span className="text-muted-foreground italic font-normal">Unnamed client</span>}
+              {budget.clientName || <span className="text-muted-foreground italic font-normal">Unnamed participant</span>}
             </h1>
             <p className="text-sm text-muted-foreground">
               {budget.quarter} &middot; Auto-saved
@@ -76,7 +76,7 @@ export default function BudgetPage() {
           <Button size="sm" className="gap-2" asChild>
             <Link href={`/budget/${id}/sign`}>
               <PenLine className="h-4 w-4" />
-              Client Sign
+              Participant Sign
             </Link>
           </Button>
         </div>
@@ -84,10 +84,10 @@ export default function BudgetPage() {
 
       <Separator />
 
-      {/* Client Details */}
+      {/* Participant Details */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Client &amp; Funding Details</CardTitle>
+          <CardTitle className="text-base">Participant &amp; Funding Details</CardTitle>
         </CardHeader>
         <CardContent>
           <ClientDetailsForm

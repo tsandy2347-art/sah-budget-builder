@@ -26,7 +26,7 @@ export function ProviderSummary({ calcs, viewPeriod }: ProviderSummaryProps) {
             <span className="font-medium">{formatCurrency(s(calcs.tabCalcs.totalCost))}</span>
           </div>
           <div className="flex justify-between text-muted-foreground">
-            <span className="pl-4">— Client contributions</span>
+            <span className="pl-4">— Participant contributions</span>
             <span>({formatCurrency(s(calcs.tabCalcs.totalClientContribution))})</span>
           </div>
           <div className="flex justify-between">

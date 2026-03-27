@@ -124,15 +124,15 @@ export default function BudgetSignPage() {
             </p>
           </div>
 
-          {/* Client Details */}
+          {/* Participant Details */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Client Details</CardTitle>
+              <CardTitle className="text-lg">Participant Details</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <span className="font-medium">Client Name:</span>{" "}
+                  <span className="font-medium">Participant Name:</span>{" "}
                   {budget.clientName || "—"}
                 </div>
                 <div>
@@ -185,7 +185,7 @@ export default function BudgetSignPage() {
                   <p className="text-xl font-bold mt-1">{formatCurrency(grandTotalCost)}</p>
                 </div>
                 <div className="bg-gray-50 rounded p-3">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Client Contribution</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Participant Contribution</p>
                   <p className="text-xl font-bold mt-1">{formatCurrency(grandTotalContribution)}</p>
                 </div>
                 <div className="bg-gray-50 rounded p-3">
@@ -202,7 +202,7 @@ export default function BudgetSignPage() {
                 )}
                 {grandTotalExcess > 0 && (
                   <div>
-                    <p className="text-xs text-red-600 uppercase tracking-wide">Client Excess (Out of Pocket)</p>
+                    <p className="text-xs text-red-600 uppercase tracking-wide">Participant Excess (Out of Pocket)</p>
                     <p className="text-xl font-bold mt-1 text-red-600">{formatCurrency(grandTotalExcess)}</p>
                   </div>
                 )}
@@ -228,7 +228,7 @@ export default function BudgetSignPage() {
                       <th className="py-2 font-medium">Service</th>
                       <th className="py-2 font-medium">Category</th>
                       <th className="py-2 font-medium text-right">Cost (Qtr)</th>
-                      <th className="py-2 font-medium text-right">Client Contrib.</th>
+                      <th className="py-2 font-medium text-right">Participant Contrib.</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -294,18 +294,9 @@ export default function BudgetSignPage() {
                   <strong>{formatCurrency(grandTotalCost)}</strong>.
                 </li>
                 <li>
-                  My estimated client contribution is{" "}
+                  My estimated participant contribution is{" "}
                   <strong>{formatCurrency(grandTotalContribution)}</strong>, calculated in accordance
                   with the Support at Home contribution framework based on my pension status.
-                </li>
-                <li>
-                  The Australian Government subsidy of{" "}
-                  <strong>{formatCurrency(ongoingCalcs.totalQuarterlyBudget)}</strong> is paid directly to my
-                  approved provider.
-                </li>
-                <li>
-                  Services may be varied during the quarter by mutual agreement between myself and
-                  my provider, subject to available funding.
                 </li>
                 <li>
                   I have the right to change providers at any time with reasonable notice as set out
@@ -331,7 +322,7 @@ export default function BudgetSignPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Relationship to Client</label>
+                <label className="block text-sm font-medium mb-1">Relationship to Participant</label>
                 <Select value={relationshipToClient} onValueChange={(val) => { setRelationshipToClient(val); if (val === "self" && budget) setClientPrintName(budget.clientName || ""); else if (val !== "self") setClientPrintName(""); }}>
                   <SelectTrigger className="max-w-sm">
                     <SelectValue placeholder="Select relationship" />

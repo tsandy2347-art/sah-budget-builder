@@ -34,7 +34,7 @@ export function BudgetCard({ budget, onRefresh, onExportPDF }: BudgetCardProps) 
   }
 
   async function handleDelete() {
-    if (confirm(`Delete budget for "${budget.clientName || "Unnamed client"}"?`)) {
+    if (confirm(`Delete budget for "${budget.clientName || "Unnamed participant"}"?`)) {
       await apiDeleteBudget(budget.id);
       onRefresh();
     }
@@ -49,7 +49,7 @@ export function BudgetCard({ budget, onRefresh, onExportPDF }: BudgetCardProps) 
             onClick={() => router.push(`/budget/${budget.id}`)}
           >
             <h3 className="font-semibold text-base truncate">
-              {budget.clientName || <span className="text-muted-foreground italic">Unnamed client</span>}
+              {budget.clientName || <span className="text-muted-foreground italic">Unnamed participant</span>}
             </h3>
             {budget.macId && (
               <p className="text-xs text-muted-foreground truncate">{budget.macId}</p>

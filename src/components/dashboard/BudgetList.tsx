@@ -66,7 +66,7 @@ export function BudgetList({ onExportPDF }: BudgetListProps) {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             className="pl-9"
-            placeholder="Search by client name or MAC ID..."
+            placeholder="Search by participant name or MAC ID..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -94,7 +94,7 @@ export function BudgetList({ onExportPDF }: BudgetListProps) {
             <div>
               <p className="font-medium text-lg">No budgets yet</p>
               <p className="text-sm text-muted-foreground mt-1">
-                Create a new budget to get started with a client&apos;s Support at Home plan.
+                Create a new budget to get started with a participant&apos;s Support at Home plan.
               </p>
               <Button className="mt-4 gap-2" onClick={handleCreate}>
                 <Plus className="h-4 w-4" />

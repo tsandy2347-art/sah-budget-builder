@@ -62,9 +62,9 @@ function BudgetPDF({ budget }: { budget: ClientBudget }) {
 
       // Client details
       createElement(View, { style: styles.section },
-        createElement(Text, { style: styles.sectionTitle }, "Client Details"),
+        createElement(Text, { style: styles.sectionTitle }, "Participant Details"),
         ...[
-          ["Client Name", budget.clientName || "—"],
+          ["Participant Name", budget.clientName || "—"],
           ["My Aged Care ID", budget.macId || "—"],
           ["Classification", classification?.label ?? budget.classificationId],
           ["Pension Status", PENSION_STATUS_LABELS[budget.pensionStatus]],
@@ -113,7 +113,7 @@ function BudgetPDF({ budget }: { budget: ClientBudget }) {
               createElement(Text, { style: [styles.th, { flex: 3 }] }, "Service"),
               createElement(Text, { style: [styles.th, { flex: 1.2 }] }, "Category"),
               createElement(Text, { style: [styles.th, { flex: 1, textAlign: "right" }] }, "Qtr Cost"),
-              createElement(Text, { style: [styles.th, { flex: 1, textAlign: "right" }] }, "Client Contrib"),
+              createElement(Text, { style: [styles.th, { flex: 1, textAlign: "right" }] }, "Participant Contrib"),
               createElement(Text, { style: [styles.th, { flex: 1, textAlign: "right" }] }, "Govt Subsidy"),
             ),
             ...tab.services.map((item, idx) => {
@@ -169,7 +169,7 @@ export async function exportBudgetPDF(budget: ClientBudget): Promise<void> {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `SaH-Budget-${(budget.clientName || "Client").replace(/\s+/g, "-")}-${budget.quarter.replace(/[^a-zA-Z0-9]/g, "-")}.pdf`;
+  a.download = `SaH-Budget-${(budget.clientName || "Participant").replace(/\s+/g, "-")}-${budget.quarter.replace(/[^a-zA-Z0-9]/g, "-")}.pdf`;
   a.click();
   URL.revokeObjectURL(url);
 }

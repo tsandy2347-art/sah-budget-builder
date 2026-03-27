@@ -12,9 +12,9 @@ export default function DashboardPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-foreground">Client Budgets</h1>
+        <h1 className="text-2xl font-bold text-foreground">Participant Budgets</h1>
         <p className="text-muted-foreground mt-1">
-          Manage Support at Home quarterly budgets for your clients.
+          Manage Support at Home quarterly budgets for your participants.
         </p>
       </div>
       <BudgetList onExportPDF={handleExportPDF} />

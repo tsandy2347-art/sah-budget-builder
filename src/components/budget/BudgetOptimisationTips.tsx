@@ -89,7 +89,7 @@ export function BudgetOptimisationTips({ budget, calcs, budgetType }: BudgetOpti
           ))}
 
           <p className="text-[11px] text-muted-foreground italic pt-1">
-            Tips are based on SaH Program Manual guidelines. Always confirm with the client&apos;s
+            Tips are based on SaH Program Manual guidelines. Always confirm with the participant&apos;s
             support plan and assessed needs before making changes.
           </p>
         </CardContent>
@@ -138,9 +138,9 @@ function generateTips(
     tips.push({
       id: "no-clinical",
       icon: <Stethoscope className="h-4 w-4 text-blue-600" />,
-      title: "Add clinical services (0% client contribution)",
+      title: "Add clinical services (0% participant contribution)",
       description:
-        "Clinical services (nursing, physio, OT, podiatry, dietitian, psychology) have 0% client contribution across all pension statuses. This means 100% government subsidy — the highest-margin service category. Consider adding clinically appropriate services.",
+        "Clinical services (nursing, physio, OT, podiatry, dietitian, psychology) have 0% participant contribution across all pension statuses. This means 100% government subsidy — the highest-margin service category. Consider adding clinically appropriate services.",
       priority: "high",
       category: "revenue",
     });
@@ -162,7 +162,7 @@ function generateTips(
       icon: <ArrowRightLeft className="h-4 w-4 text-purple-600" />,
       title: "Clinical services are only " + formatPercent(clinicalPct) + " of spend",
       description:
-        "Clinical services attract 0% client contribution (100% govt subsidy), while Everyday services can be up to 80% client-funded. Where clinically appropriate, shifting the service mix toward clinical categories improves revenue. For example, a registered nurse doing medication management counts as clinical.",
+        "Clinical services attract 0% participant contribution (100% govt subsidy), while Everyday services can be up to 80% participant-funded. Where clinically appropriate, shifting the service mix toward clinical categories improves revenue. For example, a registered nurse doing medication management counts as clinical.",
       priority: "medium",
       category: "revenue",
     });
@@ -177,7 +177,7 @@ function generateTips(
         icon: <Heart className="h-4 w-4 text-pink-600" />,
         title: "Restorative Care Pathway available",
         description:
-          "Each participant can access $6,000–$12,000 in additional restorative care funding (on top of their ongoing budget). This covers physio, OT, exercise physiology — services that improve independence. Check if the client would benefit from a short-term restorative program.",
+          "Each participant can access $6,000–$12,000 in additional restorative care funding (on top of their ongoing budget). This covers physio, OT, exercise physiology — services that improve independence. Check if the participant would benefit from a short-term restorative program.",
         priority: "medium",
         category: "funding",
       });
@@ -212,7 +212,7 @@ function generateTips(
       id: "high-everyday",
       icon: <PiggyBank className="h-4 w-4 text-orange-600" />,
       title: `${formatPercent(everydayPct)} of spend is Everyday services`,
-      description: `For ${budget.pensionStatus === "part_pensioner" ? "part pensioners" : "self-funded retirees"}, Everyday services have ${contribRate} client contribution. This means a significant portion is paid by the client, not government subsidy. Review whether any services could be reclassified or substituted with Independence (lower contribution) or Clinical (0% contribution) alternatives.`,
+      description: `For ${budget.pensionStatus === "part_pensioner" ? "part pensioners" : "self-funded retirees"}, Everyday services have ${contribRate} participant contribution. This means a significant portion is paid by the participant, not government subsidy. Review whether any services could be reclassified or substituted with Independence (lower contribution) or Clinical (0% contribution) alternatives.`,
       priority: "medium",
       category: "revenue",
     });
@@ -257,7 +257,7 @@ function generateTips(
         id: "supplements-available",
         icon: <TrendingUp className="h-4 w-4 text-cyan-600" />,
         title: "Check supplement eligibility",
-        description: `Supplements increase the quarterly budget on top of the base classification. Available supplements: ${suppList}. Check if this client qualifies for any — particularly the Dementia Supplement for clients with a formal diagnosis. Enable them in the Client Details section above.`,
+        description: `Supplements increase the quarterly budget on top of the base classification. Available supplements: ${suppList}. Check if this participant qualifies for any — particularly the Dementia Supplement for participants with a formal diagnosis. Enable them in the Participant Details section above.`,
         priority: "medium",
         category: "funding",
       });
@@ -286,7 +286,7 @@ function generateTips(
       id: "over-budget",
       icon: <TrendingUp className="h-4 w-4 text-red-600" />,
       title: "Budget is over-allocated",
-      description: `This budget is ${formatCurrency(Math.abs(calcs.remaining))} over the envelope. Either reduce hours/services, check if the client qualifies for a higher classification via reassessment, or consider moving some services to a separate pathway (Restorative, AT-HM) if clinically appropriate.`,
+      description: `This budget is ${formatCurrency(Math.abs(calcs.remaining))} over the envelope. Either reduce hours/services, check if the participant qualifies for a higher classification via reassessment, or consider moving some services to a separate pathway (Restorative, AT-HM) if clinically appropriate.`,
       priority: "high",
       category: "compliance",
     });

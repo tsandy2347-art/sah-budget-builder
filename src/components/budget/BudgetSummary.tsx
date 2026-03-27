@@ -113,7 +113,7 @@ export function BudgetSummary({ calcs, viewPeriod }: BudgetSummaryProps) {
         <div className="flex items-start gap-2 text-xs text-muted-foreground border rounded-md p-2.5 bg-muted/30">
           <Info className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
           <span>
-            Lifetime client contribution cap: <strong>{formatCurrency(LIFETIME_CONTRIBUTION_CAP)}</strong> (indexed 20
+            Lifetime participant contribution cap: <strong>{formatCurrency(LIFETIME_CONTRIBUTION_CAP)}</strong> (indexed 20
             March & 20 September each year). Track total contributions separately via My Aged Care.
           </span>
         </div>

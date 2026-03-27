@@ -80,7 +80,7 @@ export function ServiceTable({
                   <th className="text-right px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">Hrs/Session</th>
                   <th className="text-right px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">Days/Freq</th>
                   <th className="text-right px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">{costLabel}</th>
-                  <th className="text-right px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">Client Contrib</th>
+                  <th className="text-right px-2 py-2.5 font-medium text-muted-foreground whitespace-nowrap">Participant Contrib</th>
                   <th className="px-2 py-2.5"></th>
                 </tr>
               </thead>
