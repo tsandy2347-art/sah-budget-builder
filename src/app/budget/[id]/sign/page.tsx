@@ -105,7 +105,57 @@ export default function BudgetSignPage() {
     <>
       <style dangerouslySetInnerHTML={{ __html: `
         @media print {
+          * { margin: 0; }
           body * { visibility: hidden; }
+          #print-area, #print-area * { visibility: visible; }
+          #print-area { position: absolute; left: 0; top: 0; width: 100%; padding: 0 !important; font-size: 11px !important; }
+          nav, header, .no-print, .no-print-element { display: none !important; }
+          @page { margin: 1.5cm 2cm; }
+          .print-only { display: block !important; }
+          .sig-print-img { display: block !important; max-height: 60px; border-bottom: 1px solid #333; padding-bottom: 2px; width: 180px; }
+          /* Kill ALL card styling */
+          div[class*="rounded"], div[class*="border"], div[class*="shadow"] {
+            border: none !important; box-shadow: none !important;
+            border-radius: 0 !important; padding: 0 !important;
+          }
+          /* Force tight spacing on everything */
+          #print-area > div { margin-top: 8px !important; margin-bottom: 0 !important; padding: 0 !important; }
+          #print-area > div > div { margin-bottom: 4px !important; padding: 2px 0 !important; }
+          #print-area .space-y-8 > * + * { margin-top: 8px !important; }
+          #print-area .space-y-4 > * + * { margin-top: 4px !important; }
+          #print-area .space-y-3 > * + * { margin-top: 3px !important; }
+          #print-area .space-y-1 > * + * { margin-top: 1px !important; }
+          /* Headers */
+          h1 { font-size: 16px !important; margin: 0 0 2px 0 !important; }
+          h2, h3, [class*="text-lg"] { font-size: 13px !important; font-weight: bold !important; margin: 4px 0 2px 0 !important; padding: 0 !important; }
+          /* Paragraphs */
+          p { margin: 2px 0 !important; line-height: 1.4 !important; }
+          /* Grid gaps */
+          .gap-4, .gap-6 { gap: 4px !important; }
+          .mt-4 { margin-top: 6px !important; }
+          /* Table */
+          table { page-break-inside: avoid; font-size: 11px !important; }
+          th, td { padding: 3px 6px !important; }
+          /* Remove backgrounds */
+          [class*="bg-blue"], [class*="bg-gray"], [class*="bg-amber"], [class*="bg-red"], [class*="bg-green"] {
+            background-color: transparent !important;
+          }
+          .text-blue-700 { color: #1d4ed8 !important; }
+          .text-red-600 { color: #dc2626 !important; }
+          .text-amber-600 { color: #d97706 !important; }
+          .text-green-600 { color: #16a34a !important; }
+          /* Funding summary values */
+          .text-xl { font-size: 15px !important; }
+          .text-xs { font-size: 9px !important; }
+          /* Prevent page break between header and content */
+          #print-area > div > div { page-break-inside: avoid; }
+          /* Bullet points */
+          ul { margin: 2px 0 !important; padding-left: 20px !important; }
+          li { margin: 1px 0 !important; }
+          /* Text center grids (funding summary) */
+          .text-center .rounded { padding: 4px !important; }
+          .text-center p { margin: 1px 0 !important; }
+        }
           #print-area, #print-area * { visibility: visible; }
           #print-area { position: absolute; left: 0; top: 0; width: 100%; padding: 0; }
           nav, header, .no-print, .no-print-element { display: none !important; }
@@ -162,7 +212,7 @@ export default function BudgetSignPage() {
           </Button>
         </div>
 
-        <div id="print-area" className="max-w-4xl mx-auto p-6 space-y-8">
+        <div id="print-area" className="max-w-4xl mx-auto p-6 space-y-8 print:space-y-2 print:p-0">
           {/* Header */}
           <div className="text-center space-y-1">
             <h1 className="text-2xl font-bold">Support at Home Budget Agreement</h1>
