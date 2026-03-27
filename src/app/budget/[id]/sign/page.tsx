@@ -25,6 +25,14 @@ export default function BudgetSignPage() {
   const [jbcRepRole, setJbcRepRole] = useState("");
   const [jbcSignatureDataUrl, setJbcSignatureDataUrl] = useState<string | null>(null);
 
+  const relationshipLabels: Record<string, string> = {
+    self: "Self",
+    family_member: "Family Member",
+    legal_guardian: "Legal Guardian",
+    authorised_representative: "Authorised Representative",
+    other: "Other",
+  };
+
   useEffect(() => {
     async function fetchCarePartner() {
       try {
@@ -100,8 +108,10 @@ export default function BudgetSignPage() {
           body * { visibility: hidden; }
           #print-area, #print-area * { visibility: visible; }
           #print-area { position: absolute; left: 0; top: 0; width: 100%; }
-          nav, header, .no-print { display: none !important; }
+          nav, header, .no-print, .no-print-element { display: none !important; }
           @page { margin: 1.5cm; }
+          .print-only { display: block !important; }
+          .sig-print-img { display: block !important; max-height: 80px; border-bottom: 1px solid #333; padding-bottom: 4px; margin-top: 8px; }
         }
       ` }} />
 
@@ -313,15 +323,21 @@ export default function BudgetSignPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Full Name (print)</label>
-                <Input
-                  value={clientPrintName}
-                  onChange={(e) => setClientPrintName(e.target.value)}
-                  placeholder="Enter your full name"
-                  className="max-w-sm"
-                />
+                <div className="no-print-element">
+                  <label className="block text-sm font-medium mb-1">Full Name (print)</label>
+                  <Input
+                    value={clientPrintName}
+                    onChange={(e) => setClientPrintName(e.target.value)}
+                    placeholder="Enter your full name"
+                    className="max-w-sm"
+                  />
+                </div>
+                <p className="print-only text-sm" style={{ display: "none" }}>
+                  <span className="font-medium">Name:</span> {clientPrintName}
+                </p>
               </div>
               <div>
+                <div className="no-print-element">
                 <label className="block text-sm font-medium mb-1">Relationship to Participant</label>
                 <Select value={relationshipToClient} onValueChange={(val) => { setRelationshipToClient(val); if (val === "self" && budget) setClientPrintName(budget.clientName || ""); else if (val !== "self") setClientPrintName(""); }}>
                   <SelectTrigger className="max-w-sm">
@@ -335,13 +351,24 @@ export default function BudgetSignPage() {
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
+                </div>
+                {relationshipToClient !== "self" && (
+                  <p className="print-only text-sm" style={{ display: "none" }}>
+                    <span className="font-medium">Relationship to Participant:</span> {relationshipLabels[relationshipToClient] || relationshipToClient}
+                  </p>
+                )}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Signature</label>
-                <SignaturePad onSignatureChange={setSignatureDataUrl} />
+                <div className="no-print-element">
+                  <label className="block text-sm font-medium mb-1">Signature</label>
+                  <SignaturePad onSignatureChange={setSignatureDataUrl} />
+                </div>
+                {signatureDataUrl && (
+                  <img src={signatureDataUrl} alt="Signature" className="sig-print-img" style={{ display: "none" }} />
+                )}
               </div>
-              <div className="text-sm text-muted-foreground">
-                Date: {new Date().toLocaleDateString("en-AU")}
+              <div className="text-sm">
+                <span className="font-medium">Date:</span> {new Date().toLocaleDateString("en-AU")}
               </div>
             </CardContent>
           </Card>
@@ -353,29 +380,44 @@ export default function BudgetSignPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Name of authorised person from Just Better Care</label>
-                <Input
-                  value={jbcRepName}
-                  onChange={(e) => setJbcRepName(e.target.value)}
-                  placeholder="Enter name"
-                  className="max-w-sm"
-                />
+                <div className="no-print-element">
+                  <label className="block text-sm font-medium mb-1">Name of authorised person from Just Better Care</label>
+                  <Input
+                    value={jbcRepName}
+                    onChange={(e) => setJbcRepName(e.target.value)}
+                    placeholder="Enter name"
+                    className="max-w-sm"
+                  />
+                </div>
+                <p className="print-only text-sm" style={{ display: "none" }}>
+                  <span className="font-medium">Name:</span> {jbcRepName}
+                </p>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Role</label>
-                <Input
-                  value={jbcRepRole}
-                  onChange={(e) => setJbcRepRole(e.target.value)}
-                  placeholder="Enter role"
-                  className="max-w-sm"
-                />
+                <div className="no-print-element">
+                  <label className="block text-sm font-medium mb-1">Role</label>
+                  <Input
+                    value={jbcRepRole}
+                    onChange={(e) => setJbcRepRole(e.target.value)}
+                    placeholder="Enter role"
+                    className="max-w-sm"
+                  />
+                </div>
+                <p className="print-only text-sm" style={{ display: "none" }}>
+                  <span className="font-medium">Role:</span> {jbcRepRole}
+                </p>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Signature</label>
-                <SignaturePad onSignatureChange={setJbcSignatureDataUrl} />
+                <div className="no-print-element">
+                  <label className="block text-sm font-medium mb-1">Signature</label>
+                  <SignaturePad onSignatureChange={setJbcSignatureDataUrl} />
+                </div>
+                {jbcSignatureDataUrl && (
+                  <img src={jbcSignatureDataUrl} alt="Signature" className="sig-print-img" style={{ display: "none" }} />
+                )}
               </div>
-              <div className="text-sm text-muted-foreground">
-                Date: {new Date().toLocaleDateString("en-AU")}
+              <div className="text-sm">
+                <span className="font-medium">Date:</span> {new Date().toLocaleDateString("en-AU")}
               </div>
             </CardContent>
           </Card>
