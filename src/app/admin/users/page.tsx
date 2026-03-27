@@ -37,7 +37,7 @@ interface UserRow {
   role: "ADMIN" | "USER";
   approved: boolean;
   createdAt: string;
-  organisation?: { name: string } | null;
+  organisation?: { id: string; name: string } | null;
   _count: { budgets: number };
 }
 
@@ -52,6 +52,7 @@ export default function AdminUsersPage() {
   const [resetPassword, setResetPassword] = useState("");
   const [resetLoading, setResetLoading] = useState(false);
   const [resetMessage, setResetMessage] = useState("");
+  const [orgs, setOrgs] = useState<{ id: string; name: string }[]>([]);
 
   async function handleResetPassword() {
     if (!resetTarget || resetPassword.length < 6) return;
@@ -72,6 +73,23 @@ export default function AdminUsersPage() {
       setError(err.message || "Failed to reset password.");
     } finally {
       setResetLoading(false);
+    }
+  }
+
+  async function handleChangeOrg(userId: string, organisationId: string) {
+    setActionLoading(userId + "org");
+    try {
+      const res = await fetch("/api/admin/users/" + userId, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ organisationId }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      await fetchUsers();
+    } catch {
+      setError("Failed to change organisation.");
+    } finally {
+      setActionLoading(null);
     }
   }
 
@@ -99,6 +117,7 @@ export default function AdminUsersPage() {
       return;
     }
     fetchUsers();
+    fetch('/api/organisations').then(r => r.json()).then(d => setOrgs(d)).catch(() => {});
   }, [session, status, router, fetchUsers]);
 
   async function handleAction(userId: string, action: "approve" | "reject" | "delete" | "make-admin" | "remove-admin") {
@@ -322,7 +341,19 @@ export default function AdminUsersPage() {
                           <Badge variant="secondary">User</Badge>
                         )}
                       </TableCell>
-                      <TableCell className="text-muted-foreground">{user.organisation?.name || <em>None</em>}</TableCell>
+                      <TableCell>
+                        <select
+                          className="text-sm border rounded px-2 py-1 bg-background"
+                          value={user.organisation?.id || ""}
+                          onChange={(e) => handleChangeOrg(user.id, e.target.value)}
+                          disabled={!!actionLoading}
+                        >
+                          <option value="">No org</option>
+                          {orgs.map((o) => (
+                            <option key={o.id} value={o.id}>{o.name}</option>
+                          ))}
+                        </select>
+                      </TableCell>
                       <TableCell className="text-muted-foreground">{user._count.budgets}</TableCell>
                       <TableCell className="text-muted-foreground">
                         {new Date(user.createdAt).toLocaleDateString("en-AU", {
