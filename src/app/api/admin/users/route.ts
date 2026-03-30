@@ -17,7 +17,9 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
+  // Scope to admin's own organisation
   const users = await prisma.user.findMany({
+    where: admin.organisationId ? { organisationId: admin.organisationId } : {},
     select: {
       id: true,
       name: true,
@@ -31,5 +33,5 @@ export async function GET() {
     orderBy: [{ approved: "asc" }, { createdAt: "desc" }],
   });
 
-  return NextResponse.json(users);
+  return NextResponse.json({ users, adminOrgId: admin.organisationId || null });
 }

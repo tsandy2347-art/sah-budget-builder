@@ -54,6 +54,8 @@ export default function AdminUsersPage() {
   const [resetMessage, setResetMessage] = useState("");
   const [orgs, setOrgs] = useState<{ id: string; name: string }[]>([]);
   const [selectedOrgId, setSelectedOrgId] = useState<string>("");
+  const [adminOrgId, setAdminOrgId] = useState<string | null>(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
   async function handleResetPassword() {
     if (!resetTarget || resetPassword.length < 6) return;
@@ -103,7 +105,9 @@ export default function AdminUsersPage() {
       }
       if (!res.ok) throw new Error("Failed to load users");
       const data = await res.json();
-      setUsers(data);
+      setUsers(data.users || data);
+      if (data.adminOrgId === null) setIsSuperAdmin(true);
+      setAdminOrgId(data.adminOrgId);
     } catch {
       setError("Failed to load users.");
     } finally {
@@ -157,7 +161,7 @@ export default function AdminUsersPage() {
     }
   }
 
-  const orgUsers = selectedOrgId === "__unassigned" ? users.filter((u) => !u.organisation) : selectedOrgId ? users.filter((u) => u.organisation?.id === selectedOrgId) : users;
+  const orgUsers = selectedOrgId ? users.filter((u) => u.organisation?.id === selectedOrgId) : users;
   const pendingUsers = orgUsers.filter((u) => !u.approved);
   const approvedUsers = orgUsers.filter((u) => u.approved);
   const selectedOrgName = orgs.find((o) => o.id === selectedOrgId)?.name || "All";
@@ -184,26 +188,25 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      {/* Organisation Toggle */}
-      <div className="flex gap-2">
-        {orgs.map((org) => (
+      {isSuperAdmin && orgs.length > 0 && (
+        <div className="flex gap-2">
           <Button
-            key={org.id}
-            variant={selectedOrgId === org.id ? "default" : "outline"}
-            onClick={() => setSelectedOrgId(org.id)}
-            className="gap-2"
+            variant={selectedOrgId === "" ? "default" : "outline"}
+            onClick={() => setSelectedOrgId("")}
           >
-            {org.name}
+            All
           </Button>
-        ))}
-        <Button
-          variant={selectedOrgId === "__unassigned" ? "default" : "outline"}
-          onClick={() => setSelectedOrgId("__unassigned")}
-          className="gap-2"
-        >
-          Unassigned {users.filter((u) => !u.organisation).length > 0 ? `(${users.filter((u) => !u.organisation).length})` : ""}
-        </Button>
-      </div>
+          {orgs.map((org) => (
+            <Button
+              key={org.id}
+              variant={selectedOrgId === org.id ? "default" : "outline"}
+              onClick={() => setSelectedOrgId(org.id)}
+            >
+              {org.name}
+            </Button>
+          ))}
+        </div>
+      )}
 
       {error && (
         <Alert variant="destructive">
@@ -218,7 +221,7 @@ export default function AdminUsersPage() {
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center gap-2">
               <Clock className="h-5 w-5 text-amber-500" />
-              {selectedOrgName} — Pending Approval ({pendingUsers.length})
+              Pending Approval ({pendingUsers.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -325,7 +328,7 @@ export default function AdminUsersPage() {
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-green-500" />
-            {selectedOrgName} — Active Users ({approvedUsers.length})
+            Active Users ({approvedUsers.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
