@@ -122,7 +122,7 @@ export default function AdminUsersPage() {
       return;
     }
     fetchUsers();
-    fetch('/api/organisations').then(r => r.json()).then(d => { setOrgs(d); if (d.length > 0) setSelectedOrgId(d[0].id); }).catch(() => {});
+    fetch('/api/organisations').then(r => r.json()).then(d => { setOrgs(d); }).catch(() => {});
   }, [session, status, router, fetchUsers]);
 
   async function handleAction(userId: string, action: "approve" | "reject" | "delete" | "make-admin" | "remove-admin") {

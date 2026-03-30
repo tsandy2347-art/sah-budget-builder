@@ -17,9 +17,11 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
-  // Scope to admin's own organisation
+  // Super admin (no org) sees everyone; org admin sees own org + all other admins
   const users = await prisma.user.findMany({
-    where: admin.organisationId ? { organisationId: admin.organisationId } : {},
+    where: admin.organisationId
+      ? { OR: [{ organisationId: admin.organisationId }, { role: "ADMIN" }] }
+      : {},
     select: {
       id: true,
       name: true,
