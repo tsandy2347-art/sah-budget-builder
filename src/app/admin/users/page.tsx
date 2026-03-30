@@ -157,7 +157,7 @@ export default function AdminUsersPage() {
     }
   }
 
-  const orgUsers = selectedOrgId ? users.filter((u) => u.organisation?.id === selectedOrgId) : users;
+  const orgUsers = selectedOrgId === "__unassigned" ? users.filter((u) => !u.organisation) : selectedOrgId ? users.filter((u) => u.organisation?.id === selectedOrgId) : users;
   const pendingUsers = orgUsers.filter((u) => !u.approved);
   const approvedUsers = orgUsers.filter((u) => u.approved);
   const selectedOrgName = orgs.find((o) => o.id === selectedOrgId)?.name || "All";
@@ -196,6 +196,13 @@ export default function AdminUsersPage() {
             {org.name}
           </Button>
         ))}
+        <Button
+          variant={selectedOrgId === "__unassigned" ? "default" : "outline"}
+          onClick={() => setSelectedOrgId("__unassigned")}
+          className="gap-2"
+        >
+          Unassigned {users.filter((u) => !u.organisation).length > 0 ? `(${users.filter((u) => !u.organisation).length})` : ""}
+        </Button>
       </div>
 
       {error && (
@@ -358,7 +365,19 @@ export default function AdminUsersPage() {
                           <Badge variant="secondary">User</Badge>
                         )}
                       </TableCell>
-                      <TableCell className="text-muted-foreground">{user.organisation?.name || "—"}</TableCell>
+                      <TableCell>
+                        <select
+                          className="text-sm border rounded px-2 py-1 bg-background"
+                          value={user.organisation?.id || ""}
+                          onChange={(e) => handleChangeOrg(user.id, e.target.value)}
+                          disabled={!!actionLoading}
+                        >
+                          <option value="">No org</option>
+                          {orgs.map((o) => (
+                            <option key={o.id} value={o.id}>{o.name}</option>
+                          ))}
+                        </select>
+                      </TableCell>
                       <TableCell className="text-muted-foreground">{user._count.budgets}</TableCell>
                       <TableCell className="text-muted-foreground">
                         {new Date(user.createdAt).toLocaleDateString("en-AU", {

@@ -43,6 +43,11 @@ export default function RegisterPage() {
       return;
     }
 
+    if (organisations.length > 0 && !organisationId) {
+      setError("Please select an organisation.");
+      return;
+    }
+
     setLoading(true);
 
     const res = await fetch("/api/register", {
@@ -153,7 +158,7 @@ export default function RegisterPage() {
                   onChange={(e) => setOrganisationId(e.target.value)}
                   className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
-                  <option value="">Select organisation...</option>
+                  <option value="">Select organisation (required)...</option>
                   {organisations.map((org) => (
                     <option key={org.id} value={org.id}>
                       {org.name}
