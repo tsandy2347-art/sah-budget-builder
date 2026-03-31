@@ -114,12 +114,18 @@ export default function BudgetSignPage() {
           @page { margin: 1.5cm 2cm; }
           .print-only { display: block !important; }
           .sig-print-img { display: block !important; max-height: 60px; border-bottom: 1px solid #333; padding-bottom: 2px; width: 180px; }
-          div[class*="rounded"], div[class*="border"], div[class*="shadow"] {
-            border: none !important; box-shadow: none !important;
-            border-radius: 0 !important; padding: 0 !important;
-          }
-          #print-area > div { margin-top: 8px !important; margin-bottom: 0 !important; padding: 0 !important; }
-          #print-area > div > div { margin-bottom: 4px !important; padding: 2px 0 !important; page-break-inside: avoid; }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+          div[class*="shadow"] { box-shadow: none !important; }
+          div[class*="bg-blue-50"] { background-color: #eff6ff !important; border-radius: 6px !important; padding: 8px !important; }
+          div[class*="bg-gray-50"] { background-color: #f9fafb !important; border-radius: 6px !important; padding: 8px !important; }
+          div[class*="bg-amber-50"] { background-color: #fffbeb !important; border-radius: 6px !important; padding: 8px !important; }
+          div[class*="bg-green-50"] { background-color: #f0fdf4 !important; border-radius: 6px !important; padding: 8px !important; }
+          .text-blue-700 { color: #1d4ed8 !important; }
+          .text-amber-600 { color: #d97706 !important; }
+          .text-green-600 { color: #16a34a !important; }
+          .text-red-600 { color: #dc2626 !important; }
+          #print-area > div { margin-top: 8px !important; margin-bottom: 0 !important; }
+          #print-area > div > div { margin-bottom: 4px !important; page-break-inside: avoid; }
           #print-area .space-y-8 > * + * { margin-top: 8px !important; }
           #print-area .space-y-4 > * + * { margin-top: 4px !important; }
           #print-area .space-y-3 > * + * { margin-top: 3px !important; }
