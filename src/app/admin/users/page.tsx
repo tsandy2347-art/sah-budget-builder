@@ -50,12 +50,32 @@ export default function AdminUsersPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [resetTarget, setResetTarget] = useState<{ id: string; name: string; email: string } | null>(null);
   const [resetPassword, setResetPassword] = useState("");
+  const [editingName, setEditingName] = useState<{ id: string; name: string } | null>(null);
   const [resetLoading, setResetLoading] = useState(false);
   const [resetMessage, setResetMessage] = useState("");
   const [orgs, setOrgs] = useState<{ id: string; name: string }[]>([]);
   const [selectedOrgId, setSelectedOrgId] = useState<string>("");
   const [adminOrgId, setAdminOrgId] = useState<string | null>(null);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  async function handleEditName(userId: string, newName: string) {
+    if (!newName.trim()) return;
+    try {
+      setActionLoading(userId + "editname");
+      const res = await fetch("/api/admin/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, name: newName.trim() }),
+      });
+      if (!res.ok) throw new Error("Failed to update name");
+      await fetchUsers();
+      setEditingName(null);
+    } catch (err) {
+      setError((err as any).message || "Failed to update name");
+    } finally {
+      setActionLoading(null);
+    }
+  }
 
   async function handleResetPassword() {
     if (!resetTarget || resetPassword.length < 6) return;

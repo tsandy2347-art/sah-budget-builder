@@ -37,3 +37,22 @@ export async function GET() {
 
   return NextResponse.json({ users, adminOrgId: admin.organisationId || null });
 }
+
+
+// PATCH /api/admin/users — update user name
+export async function PATCH(req: Request) {
+  const admin = await requireAdmin();
+  if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const { userId, name } = await req.json();
+  if (!userId || !name?.trim()) {
+    return NextResponse.json({ error: "userId and name are required" }, { status: 400 });
+  }
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { name: name.trim() },
+  });
+
+  return NextResponse.json({ ok: true });
+}
