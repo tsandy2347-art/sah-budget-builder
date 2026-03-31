@@ -40,12 +40,8 @@ export function getAnnualBudget(classificationId: string): number {
 }
 
 export function getCareManagementAmount(quarterlyBudget: number, pct: number): number {
-  // Care management % is applied to the available-for-services portion, not the total.
-  // Total budget = available + careMgmt, where careMgmt = pct% of available.
-  // So: total = available * (1 + pct/100), available = total / (1 + pct/100)
-  const rate = Math.min(pct, 10) / 100;
-  const available = quarterlyBudget / (1 + rate);
-  return round2(quarterlyBudget - available);
+  // Standard method: care management is pct% of the total quarterly budget
+  return round2(quarterlyBudget * (Math.min(pct, 10) / 100));
 }
 
 export function getAvailableForServices(quarterlyBudget: number, careManagementAmount: number): number {
@@ -228,8 +224,9 @@ export function getSupplementsAnnual(supplementIds: string[]): number {
 export function calcBudget(budget: ClientBudget, budgetType: BudgetType): BudgetCalculations {
   const classificationQuarterly = getQuarterlyBudget(budget.classificationId, budget.quarter);
   // If using Services Australia amount, reverse-calculate: SA amount is available-for-services
-  // Total budget = SA amount × (1 + careMgmtPct/100) since care mgmt is inclusive
-  const quarterlyBudget = (budget.useServicesAustraliaAmount && budget.servicesAustraliaAmount != null) ? round2(budget.servicesAustraliaAmount * (1 + budget.careManagementPct / 100)) : classificationQuarterly;
+  // SA uses 10% of total method, so: available = total × 0.9, therefore total = available / 0.9
+  const useSA = budget.useServicesAustraliaAmount && budget.servicesAustraliaAmount != null;
+  const quarterlyBudget = useSA ? round2(budget.servicesAustraliaAmount! / (1 - budget.careManagementPct / 100)) : classificationQuarterly;
   const classificationAnnual = getAnnualBudget(budget.classificationId);
   const annualBudget = (budget.useServicesAustraliaAmount && budget.servicesAustraliaAmount != null) ? round2(quarterlyBudget * 4) : classificationAnnual;
   const supplementIds = budget.supplements ?? [];
