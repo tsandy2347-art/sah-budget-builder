@@ -26,7 +26,7 @@ export const SAH_CLASSIFICATIONS: FundingClassification[] = [
 export const TRANSITIONED_HCP_LEVELS: FundingClassification[] = [
   { id: "t1", label: "Transitioned HCP Level 1", dailyRate: 30.1000, quarterlyBudget: 2746.63, annualBudget: 10986.50, isTransitioned: true },
   { id: "t2", label: "Transitioned HCP Level 2", dailyRate: 52.9300, quarterlyBudget: 4829.86, annualBudget: 19319.45, isTransitioned: true },
-  { id: "t3", label: "Transitioned HCP Level 3", dailyRate: 113.2364, quarterlyBudget: 10332.82, annualBudget: 41331.28, isTransitioned: true },
+  { id: "t3", label: "Transitioned HCP Level 3", dailyRate: 115.2200, quarterlyBudget: 10513.83, annualBudget: 42055.30, isTransitioned: true },
   { id: "t4", label: "Transitioned HCP Level 4", dailyRate: 174.6800, quarterlyBudget: 15939.55, annualBudget: 63758.20, isTransitioned: true },
 ];
 
