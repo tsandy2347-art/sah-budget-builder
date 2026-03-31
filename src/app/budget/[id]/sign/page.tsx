@@ -147,7 +147,7 @@ export default function BudgetSignPage() {
           <Link href={`/budget/${id}`} className="text-sm text-blue-600 hover:underline">
             &larr; Back to Forecast Budget
           </Link>
-          <Button onClick={handlePrint} disabled={!isSigned}>
+          <Button onClick={handlePrint} >
             Print / Save PDF
           </Button>
         </div>
