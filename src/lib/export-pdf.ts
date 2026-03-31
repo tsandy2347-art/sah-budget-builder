@@ -153,6 +153,34 @@ function BudgetPDF({ budget }: { budget: ClientBudget }) {
         );
       }).filter(Boolean),
 
+      // AT Purchases from Grandfathered Funds
+      ...((budget.atPurchases ?? []).length > 0 ? [
+        createElement(View, { style: styles.section },
+          createElement(Text, { style: styles.sectionTitle }, "AT Purchases (from HCP Unspent Funds)"),
+          createElement(View, { style: styles.table },
+            createElement(View, { style: styles.tr },
+              createElement(Text, { style: [styles.th, { flex: 3 }] }, "Description"),
+              createElement(Text, { style: [styles.th, { flex: 1, textAlign: "right" }] }, "Cost"),
+            ),
+            ...(budget.atPurchases ?? []).map((item, idx) =>
+              createElement(View, { style: idx % 2 === 0 ? styles.tr : styles.trAlt, key: item.id },
+                createElement(Text, { style: [styles.td, { flex: 3 }] }, item.description || "Unnamed item"),
+                createElement(Text, { style: [styles.td, { flex: 1, textAlign: "right" }] }, fmtCurrency(item.cost)),
+              )
+            ),
+            createElement(View, { style: [styles.tr, { backgroundColor: "#f1f5f9" }] },
+              createElement(Text, { style: [styles.td, { flex: 3, fontFamily: "Helvetica-Bold" }] }, "Total AT Purchases"),
+              createElement(Text, { style: [styles.td, { flex: 1, textAlign: "right", fontFamily: "Helvetica-Bold" }] }, fmtCurrency(ongoingCalcs.atPurchasesTotal)),
+            ),
+            createElement(View, { style: styles.tr },
+              createElement(Text, { style: [styles.td, { flex: 3, color: "#d97706" }] }, "HCP Balance After AT"),
+              createElement(Text, { style: [styles.td, { flex: 1, textAlign: "right", color: "#d97706", fontFamily: "Helvetica-Bold" }] }, fmtCurrency(ongoingCalcs.grandfatheredFundsAfterAT)),
+            ),
+          ),
+          createElement(Text, { style: { fontSize: 7, marginTop: 3, color: "#94a3b8" } }, "HCP unspent funds must be used before accessing AT-HM scheme funding")
+        ),
+      ] : []),
+
       // Footer
       createElement(View, { style: styles.footer, fixed: true },
         createElement(Text, null,
