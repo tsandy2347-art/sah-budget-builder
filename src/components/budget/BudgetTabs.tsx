@@ -105,6 +105,9 @@ export function BudgetTabs({
                   <Badge variant="outline" className="self-center text-xs">
                     Envelope: {formatCurrency(calcs.budgetEnvelope)}
                   </Badge>
+                  {(budget.grandfatheredUnspentFunds ?? 0) > 0 && (
+                    <p className="text-xs text-amber-600 w-full mt-1">HCP unspent funds must be used before accessing AT-HM scheme tiers</p>
+                  )}
                 </CardContent>
               </Card>
             )}
@@ -134,6 +137,7 @@ export function BudgetTabs({
                       key={tier}
                       variant={tab.pathwayConfig.athmTier === tier ? "default" : "outline"}
                       size="sm"
+                      disabled={(budget.grandfatheredUnspentFunds ?? 0) > 0}
                       onClick={() => onUpdatePathway("at_hm", { athmTier: tier })}
                     >
                       {tier.charAt(0).toUpperCase() + tier.slice(1)} — {formatCurrency(ATHM_BUDGETS[tier])}
@@ -142,6 +146,9 @@ export function BudgetTabs({
                   <Badge variant="outline" className="self-center text-xs">
                     Envelope: {formatCurrency(calcs.budgetEnvelope)}
                   </Badge>
+                  {(budget.grandfatheredUnspentFunds ?? 0) > 0 && (
+                    <p className="text-xs text-amber-600 w-full mt-1">HCP unspent funds must be used before accessing AT-HM scheme tiers</p>
+                  )}
                 </CardContent>
               </Card>
             )}
