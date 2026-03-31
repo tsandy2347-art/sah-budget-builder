@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/table";
 import {
   CheckCircle2, Pencil, XCircle,
-  XCircle,
   Trash2,
   Shield,
   ShieldOff,
