@@ -67,8 +67,8 @@ export interface ClientBudget {
   grandfatheredUnspentFunds?: number; // display-only: grandfathered unspent funds
   isGrandfathered: boolean; // pre-existing arrangement: 0% contributions
   isGrandfatheredContributions?: boolean; // grandfathered contribution rates (can be 0%)
-  isPartiallyFunded?: boolean; // true when client receives less than full funding
-  customQuarterlyBudget?: number; // override quarterly budget when partially funded
+  useServicesAustraliaAmount?: boolean; // true when client receives less than full funding
+  servicesAustraliaAmount?: number; // the available-for-services figure from Services Australia // override quarterly budget when partially funded
   tabs: BudgetTab[];
   activeTab: BudgetType;
   createdAt: string;

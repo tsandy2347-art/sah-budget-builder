@@ -227,9 +227,11 @@ export function getSupplementsAnnual(supplementIds: string[]): number {
 
 export function calcBudget(budget: ClientBudget, budgetType: BudgetType): BudgetCalculations {
   const classificationQuarterly = getQuarterlyBudget(budget.classificationId, budget.quarter);
-  const quarterlyBudget = (budget.isPartiallyFunded && budget.customQuarterlyBudget != null) ? budget.customQuarterlyBudget : classificationQuarterly;
+  // If using Services Australia amount, reverse-calculate: SA amount is available-for-services
+  // Total budget = SA amount × (1 + careMgmtPct/100) since care mgmt is inclusive
+  const quarterlyBudget = (budget.useServicesAustraliaAmount && budget.servicesAustraliaAmount != null) ? round2(budget.servicesAustraliaAmount * (1 + budget.careManagementPct / 100)) : classificationQuarterly;
   const classificationAnnual = getAnnualBudget(budget.classificationId);
-  const annualBudget = (budget.isPartiallyFunded && budget.customQuarterlyBudget != null) ? round2(budget.customQuarterlyBudget * 4) : classificationAnnual;
+  const annualBudget = (budget.useServicesAustraliaAmount && budget.servicesAustraliaAmount != null) ? round2(quarterlyBudget * 4) : classificationAnnual;
   const supplementIds = budget.supplements ?? [];
   const supplementsQuarterly = getSupplementsQuarterly(supplementIds, budget.quarter);
   const supplementsAnnual = getSupplementsAnnual(supplementIds);

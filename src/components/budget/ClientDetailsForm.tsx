@@ -115,30 +115,30 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
           <label className="flex items-center gap-2 text-sm cursor-pointer">
             <input
               type="checkbox"
-              checked={budget.isPartiallyFunded ?? false}
+              checked={budget.useServicesAustraliaAmount ?? false}
               onChange={() => {
-                const toggled = !(budget.isPartiallyFunded ?? false);
+                const toggled = !(budget.useServicesAustraliaAmount ?? false);
                 onChange({
-                  isPartiallyFunded: toggled,
-                  customQuarterlyBudget: toggled ? calcs.quarterlyBudget : undefined,
+                  useServicesAustraliaAmount: toggled,
+                  servicesAustraliaAmount: toggled ? calcs.availableForServices : undefined,
                 });
               }}
               className="rounded border-gray-300"
             />
-            <span>Partially Funded</span>
+            <span>Use Services Australia Amount</span>
           </label>
-          {budget.isPartiallyFunded && (
+          {budget.useServicesAustraliaAmount && (
             <div className="mt-1.5">
-              <Label htmlFor="customQuarterlyBudget">Quarterly Budget ($)</Label>
+              <Label htmlFor="servicesAustraliaAmount">Services Australia Amount ($)</Label>
               <Input
-                id="customQuarterlyBudget"
+                id="servicesAustraliaAmount"
                 type="number"
                 min={0}
                 step={0.01}
-                value={budget.customQuarterlyBudget ?? 0}
-                onChange={(e) => onChange({ customQuarterlyBudget: Math.max(0, Number(e.target.value)) })}
+                value={budget.servicesAustraliaAmount ?? 0}
+                onChange={(e) => onChange({ servicesAustraliaAmount: Math.max(0, Number(e.target.value)) })}
               />
-              <p className="text-xs text-muted-foreground">Override the standard classification budget</p>
+              <p className="text-xs text-muted-foreground">Enter the amount from Services Australia (care management already deducted)</p>
             </div>
           )}
         </div>
