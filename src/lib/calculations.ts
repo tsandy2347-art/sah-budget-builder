@@ -242,7 +242,11 @@ export function calcBudget(budget: ClientBudget, budgetType: BudgetType): Budget
   const pathwayConfig = tab?.pathwayConfig ?? { restorativeTier: "standard", athmTier: "low" };
 
   const tabCalcs = calcTabTotals(services, budget.pensionStatus, budget.partPensionerRates, budget.isGrandfathered);
-  const budgetEnvelope = getBudgetEnvelope(budgetType, pathwayConfig, availableForServices);
+  let budgetEnvelope = getBudgetEnvelope(budgetType, pathwayConfig, availableForServices);
+  // For AT-HM: if grandfathered with unspent funds, no scheme tier - use HCP funds only
+  if (budgetType === "at_hm" && (budget.isGrandfathered || budget.isGrandfatheredContributions) && (budget.grandfatheredUnspentFunds ?? 0) > 0) {
+    budgetEnvelope = 0;
+  }
 
   // Unspent funds / carryover from prior quarter
   const unspentPriorQuarter = budget.unspentPriorQuarter ?? 0;

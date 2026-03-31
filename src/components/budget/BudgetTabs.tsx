@@ -135,7 +135,7 @@ export function BudgetTabs({
                   {(["low", "medium", "high"] as const).map((tier) => (
                     <Button
                       key={tier}
-                      variant={tab.pathwayConfig.athmTier === tier ? "default" : "outline"}
+                      variant={(budget.grandfatheredUnspentFunds ?? 0) > 0 ? "outline" : tab.pathwayConfig.athmTier === tier ? "default" : "outline"}
                       size="sm"
                       disabled={(budget.grandfatheredUnspentFunds ?? 0) > 0}
                       onClick={() => onUpdatePathway("at_hm", { athmTier: tier })}
