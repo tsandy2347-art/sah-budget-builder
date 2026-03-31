@@ -307,6 +307,44 @@ export default function BudgetSignPage() {
             </Card>
           ))}
 
+          {/* AT Purchases from Grandfathered Funds */}
+          {(budget.atPurchases ?? []).length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">AT Purchases (from HCP Unspent Funds)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b text-left">
+                      <th className="py-2 font-medium">Description</th>
+                      <th className="py-2 font-medium text-right">Cost</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(budget.atPurchases ?? []).map((purchase) => (
+                      <tr key={purchase.id} className="border-b last:border-0">
+                        <td className="py-2">{purchase.description || "Unnamed item"}</td>
+                        <td className="py-2 text-right">{formatCurrency(purchase.cost)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className="border-t font-medium">
+                      <td className="py-2">Total AT Purchases</td>
+                      <td className="py-2 text-right">{formatCurrency(ongoingCalcs.atPurchasesTotal)}</td>
+                    </tr>
+                    <tr className="text-amber-600">
+                      <td className="py-2">HCP Balance After AT</td>
+                      <td className="py-2 text-right">{formatCurrency(ongoingCalcs.grandfatheredFundsAfterAT)}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+                <p className="text-xs text-muted-foreground mt-2">HCP unspent funds must be used before accessing AT-HM scheme funding</p>
+              </CardContent>
+            </Card>
+          )}
+
                     {/* Acknowledgement of Consent */}
           <div style={{ pageBreakBefore: "always" }} />
           <Card>
