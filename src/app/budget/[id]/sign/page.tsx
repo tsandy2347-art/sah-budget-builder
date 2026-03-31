@@ -116,14 +116,20 @@ export default function BudgetSignPage() {
           .sig-print-img { display: block !important; max-height: 60px; border-bottom: 1px solid #333; padding-bottom: 2px; width: 180px; }
           * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
           div[class*="shadow"] { box-shadow: none !important; }
-          div[class*="bg-blue-50"] { background-color: #eff6ff !important; border-radius: 6px !important; padding: 8px !important; }
-          div[class*="bg-gray-50"] { background-color: #f9fafb !important; border-radius: 6px !important; padding: 8px !important; }
-          div[class*="bg-amber-50"] { background-color: #fffbeb !important; border-radius: 6px !important; padding: 8px !important; }
-          div[class*="bg-green-50"] { background-color: #f0fdf4 !important; border-radius: 6px !important; padding: 8px !important; }
-          .text-blue-700 { color: #1d4ed8 !important; }
-          .text-amber-600 { color: #d97706 !important; }
-          .text-green-600 { color: #16a34a !important; }
-          .text-red-600 { color: #dc2626 !important; }
+          div[class*="bg-blue-50"] { background-color: #dbeafe !important; border-radius: 4px !important; padding: 4px 6px !important; }
+          div[class*="bg-gray-50"] { background-color: #e5e7eb !important; border-radius: 4px !important; padding: 4px 6px !important; }
+          div[class*="bg-amber-50"] { background-color: #fde68a !important; border-radius: 4px !important; padding: 4px 6px !important; }
+          div[class*="bg-green-50"] { background-color: #bbf7d0 !important; border-radius: 4px !important; padding: 4px 6px !important; }
+          .text-blue-700 { color: #1e40af !important; }
+          .text-amber-600 { color: #b45309 !important; }
+          .text-green-600 { color: #15803d !important; }
+          .text-red-600 { color: #b91c1c !important; }
+          [class*="text-xl"] { font-size: 14px !important; line-height: 1.2 !important; margin-top: 1px !important; }
+          [class*="text-xs"][class*="uppercase"] { font-size: 7px !important; line-height: 1.2 !important; }
+          .grid.grid-cols-3 { gap: 4px !important; }
+          .mt-4 { margin-top: 4px !important; }
+          .gap-4 { gap: 4px !important; }
+          .p-3 { padding: 4px 6px !important; }
           #print-area > div { margin-top: 8px !important; margin-bottom: 0 !important; }
           #print-area > div > div { margin-bottom: 4px !important; page-break-inside: avoid; }
           #print-area .space-y-8 > * + * { margin-top: 8px !important; }
@@ -132,7 +138,7 @@ export default function BudgetSignPage() {
           h1 { font-size: 16px !important; margin: 0 0 2px 0 !important; }
           h2, h3, [class*="text-lg"] { font-size: 13px !important; font-weight: bold !important; margin: 4px 0 2px 0 !important; padding: 0 !important; }
           p { margin: 2px 0 !important; line-height: 1.4 !important; }
-          .gap-4, .gap-6 { gap: 4px !important; }
+          .gap-4, .gap-6 { gap: 3px !important; }
           .mt-4 { margin-top: 6px !important; }
           table { page-break-inside: avoid; font-size: 11px !important; }
           th, td { padding: 3px 6px !important; }
