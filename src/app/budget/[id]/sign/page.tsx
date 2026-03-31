@@ -232,6 +232,31 @@ export default function BudgetSignPage() {
                   <p className={`text-xl font-bold mt-1 ${ongoingCalcs.remaining >= 0 ? "text-green-600" : "text-red-600"}`}>{formatCurrency(ongoingCalcs.remaining)}</p>
                 </div>
 
+                {/* Unspent Funds */}
+                {((budget.grandfatheredUnspentFunds ?? 0) > 0 || (budget.unspentPriorQuarter ?? 0) > 0) && (
+                  <>
+                    <div className="col-span-3 mt-2 mb-0"><p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Unspent Funds</p></div>
+                    {(budget.grandfatheredUnspentFunds ?? 0) > 0 && (
+                      <div className="bg-amber-50 rounded p-3">
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Grandfathered HCP Unspent</p>
+                        <p className="text-xl font-bold mt-1 text-amber-600">{formatCurrency(budget.grandfatheredUnspentFunds ?? 0)}</p>
+                      </div>
+                    )}
+                    {(budget.unspentPriorQuarter ?? 0) > 0 && (
+                      <div className="bg-amber-50 rounded p-3">
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Unspent Prior Quarter</p>
+                        <p className="text-xl font-bold mt-1 text-amber-600">{formatCurrency(budget.unspentPriorQuarter ?? 0)}</p>
+                      </div>
+                    )}
+                    {ongoingCalcs.effectiveCarryover > 0 && (
+                      <div className="bg-green-50 rounded p-3">
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide">Effective Carryover</p>
+                        <p className="text-xl font-bold mt-1 text-green-600">{formatCurrency(ongoingCalcs.effectiveCarryover)}</p>
+                      </div>
+                    )}
+                  </>
+                )}
+
                 {grandTotalGfUsed > 0 && (
                   <div>
                     <p className="text-xs text-amber-600 uppercase tracking-wide">HCP Funds Used (Grandfathered)</p>

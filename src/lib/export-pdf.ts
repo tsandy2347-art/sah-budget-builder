@@ -90,6 +90,9 @@ function BudgetPDF({ budget }: { budget: ClientBudget }) {
             ...(ongoingCalcs.supplementsQuarterly > 0 ? [["Supplements (Quarterly)", fmtCurrency(ongoingCalcs.supplementsQuarterly)]] : []),
             ["Care Management", fmtCurrency(ongoingCalcs.careManagementAmount)],
             ["Available for Services", fmtCurrency(ongoingCalcs.availableForServices)],
+            ...((budget.grandfatheredUnspentFunds ?? 0) > 0 ? [["Grandfathered HCP Unspent", fmtCurrency(budget.grandfatheredUnspentFunds ?? 0)]] : []),
+            ...((budget.unspentPriorQuarter ?? 0) > 0 ? [["Unspent Prior Quarter", fmtCurrency(budget.unspentPriorQuarter ?? 0)]] : []),
+            ...(ongoingCalcs.effectiveCarryover > 0 ? [["Effective Carryover", fmtCurrency(ongoingCalcs.effectiveCarryover)]] : []),
           ].map(([lbl, val]) =>
             createElement(View, { style: styles.metricCard, key: lbl },
               createElement(Text, { style: styles.metricLabel }, lbl),
