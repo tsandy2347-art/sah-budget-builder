@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useBudget } from "@/hooks/useBudget";
 import { calcBudget, calcServiceCost, calcClientContribution, getClassification } from "@/lib/calculations";
-import { BUDGET_TYPE_LABELS, PENSION_STATUS_LABELS } from "@/lib/constants";
+import { BUDGET_TYPE_LABELS, PENSION_STATUS_LABELS, FREQUENCY_LABELS } from "@/lib/constants";
 import { formatCurrency } from "@/lib/format";
 import { SignaturePad } from "@/components/budget/SignaturePad";
 import { Button } from "@/components/ui/button";
@@ -264,8 +264,12 @@ export default function BudgetSignPage() {
                     <tr className="border-b text-left">
                       <th className="py-2 font-medium">Service</th>
                       <th className="py-2 font-medium">Category</th>
-                      <th className="py-2 font-medium text-right">Cost (Qtr)</th>
-                      <th className="py-2 font-medium text-right">Participant Contrib.</th>
+                      <th className="py-2 font-medium">Frequency</th>
+                      <th className="py-2 font-medium text-right">Rate/Hr</th>
+                      <th className="py-2 font-medium text-right">Hrs</th>
+                      <th className="py-2 font-medium text-right">Days</th>
+                      <th className="py-2 font-medium text-right">Qtr Cost</th>
+                      <th className="py-2 font-medium text-right">Contrib.</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -281,6 +285,10 @@ export default function BudgetSignPage() {
                         <tr key={svc.id} className="border-b last:border-0">
                           <td className="py-2">{svc.name}</td>
                           <td className="py-2 capitalize">{svc.category}</td>
+                          <td className="py-2">{svc.isLumpSum ? "Lump Sum" : FREQUENCY_LABELS[svc.frequency ?? "weekly"]}</td>
+                          <td className="py-2 text-right">{svc.isLumpSum ? "—" : formatCurrency(svc.ratePerHour)}</td>
+                          <td className="py-2 text-right">{svc.isLumpSum ? "—" : (svc.hrsPerSession ?? 0)}</td>
+                          <td className="py-2 text-right">{svc.isLumpSum ? "—" : (svc.daysPerFrequency ?? 1)}</td>
                           <td className="py-2 text-right">{formatCurrency(cost)}</td>
                           <td className="py-2 text-right">{formatCurrency(contrib)}</td>
                         </tr>
@@ -289,7 +297,7 @@ export default function BudgetSignPage() {
                   </tbody>
                   <tfoot>
                     <tr className="border-t font-medium">
-                      <td className="py-2" colSpan={2}>Subtotal</td>
+                      <td className="py-2" colSpan={6}>Subtotal</td>
                       <td className="py-2 text-right">{formatCurrency(calcs.tabCalcs.totalCost)}</td>
                       <td className="py-2 text-right">{formatCurrency(calcs.tabCalcs.totalClientContribution)}</td>
                     </tr>

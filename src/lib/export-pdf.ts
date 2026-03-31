@@ -8,7 +8,7 @@ import {
 } from "@react-pdf/renderer";
 import { createElement } from "react";
 import { calcBudget, calcServiceCost, calcClientContribution, getClassification } from "./calculations";
-import { BUDGET_TYPE_LABELS, PENSION_STATUS_LABELS, SUPPLEMENTS } from "./constants";
+import { BUDGET_TYPE_LABELS, PENSION_STATUS_LABELS, SUPPLEMENTS, FREQUENCY_LABELS } from "./constants";
 import type { ClientBudget, BudgetType } from "./types";
 
 const BUDGET_TYPES: BudgetType[] = ["ongoing", "restorative", "end_of_life", "at_hm"];
@@ -109,33 +109,42 @@ function BudgetPDF({ budget }: { budget: ClientBudget }) {
           createElement(Text, { style: styles.sectionTitle }, BUDGET_TYPE_LABELS[budgetType]),
           createElement(View, { style: styles.table },
             createElement(View, { style: styles.tr },
-              createElement(Text, { style: [styles.th, { flex: 3 }] }, "Service"),
-              createElement(Text, { style: [styles.th, { flex: 1.2 }] }, "Category"),
+              createElement(Text, { style: [styles.th, { flex: 2.5 }] }, "Service"),
+              createElement(Text, { style: [styles.th, { flex: 1 }] }, "Category"),
+              createElement(Text, { style: [styles.th, { flex: 1 }] }, "Frequency"),
+              createElement(Text, { style: [styles.th, { flex: 0.7, textAlign: "right" }] }, "Rate/Hr"),
+              createElement(Text, { style: [styles.th, { flex: 0.6, textAlign: "right" }] }, "Hrs"),
+              createElement(Text, { style: [styles.th, { flex: 0.5, textAlign: "right" }] }, "Days"),
               createElement(Text, { style: [styles.th, { flex: 1, textAlign: "right" }] }, "Qtr Cost"),
-              createElement(Text, { style: [styles.th, { flex: 1, textAlign: "right" }] }, "Participant Contrib"),
-              createElement(Text, { style: [styles.th, { flex: 1, textAlign: "right" }] }, "Govt Subsidy"),
+              createElement(Text, { style: [styles.th, { flex: 1, textAlign: "right" }] }, "Contrib"),
             ),
             ...tab.services.map((item, idx) => {
               const cost = calcServiceCost(item);
               const contrib = calcClientContribution(item, budget.pensionStatus, budget.partPensionerRates, budget.isGrandfathered);
               return createElement(View, { style: idx % 2 === 0 ? styles.tr : styles.trAlt, key: item.id },
-                createElement(Text, { style: [styles.td, { flex: 3 }] }, item.name),
-                createElement(View, { style: [styles.td, { flex: 1.2, justifyContent: "center" }] },
+                createElement(Text, { style: [styles.td, { flex: 2.5 }] }, item.name),
+                createElement(View, { style: [styles.td, { flex: 1, justifyContent: "center" }] },
                   createElement(Text, {
                     style: [styles.badge, { backgroundColor: categoryColor(item.category) }]
                   }, item.category.charAt(0).toUpperCase() + item.category.slice(1))
                 ),
+                createElement(Text, { style: [styles.td, { flex: 1 }] }, item.isLumpSum ? "Lump Sum" : (item.frequency ? FREQUENCY_LABELS[item.frequency] : "Weekly")),
+                createElement(Text, { style: [styles.td, { flex: 0.7, textAlign: "right" }] }, item.isLumpSum ? "—" : fmtCurrency(item.ratePerHour)),
+                createElement(Text, { style: [styles.td, { flex: 0.6, textAlign: "right" }] }, item.isLumpSum ? "—" : String(item.hrsPerSession ?? 0)),
+                createElement(Text, { style: [styles.td, { flex: 0.5, textAlign: "right" }] }, item.isLumpSum ? "—" : String(item.daysPerFrequency ?? 1)),
                 createElement(Text, { style: [styles.td, { flex: 1, textAlign: "right" }] }, fmtCurrency(cost)),
                 createElement(Text, { style: [styles.td, { flex: 1, textAlign: "right" }] }, fmtCurrency(contrib)),
-                createElement(Text, { style: [styles.td, { flex: 1, textAlign: "right" }] }, fmtCurrency(cost - contrib)),
               );
             }),
             createElement(View, { style: [styles.tr, { backgroundColor: "#f1f5f9" }] },
-              createElement(Text, { style: [styles.td, { flex: 3, fontFamily: "Helvetica-Bold" }] }, "Total"),
-              createElement(Text, { style: [styles.td, { flex: 1.2 }] }, ""),
+              createElement(Text, { style: [styles.td, { flex: 2.5, fontFamily: "Helvetica-Bold" }] }, "Total"),
+              createElement(Text, { style: [styles.td, { flex: 1 }] }, ""),
+              createElement(Text, { style: [styles.td, { flex: 1 }] }, ""),
+              createElement(Text, { style: [styles.td, { flex: 0.7 }] }, ""),
+              createElement(Text, { style: [styles.td, { flex: 0.6 }] }, ""),
+              createElement(Text, { style: [styles.td, { flex: 0.5 }] }, ""),
               createElement(Text, { style: [styles.td, { flex: 1, textAlign: "right", fontFamily: "Helvetica-Bold" }] }, fmtCurrency(calcs.tabCalcs.totalCost)),
               createElement(Text, { style: [styles.td, { flex: 1, textAlign: "right", fontFamily: "Helvetica-Bold" }] }, fmtCurrency(calcs.tabCalcs.totalClientContribution)),
-              createElement(Text, { style: [styles.td, { flex: 1, textAlign: "right", fontFamily: "Helvetica-Bold" }] }, fmtCurrency(calcs.tabCalcs.totalGovtSubsidy)),
             ),
           ),
           createElement(Text, { style: { fontSize: 8, marginTop: 4, color: "#64748b" } },
