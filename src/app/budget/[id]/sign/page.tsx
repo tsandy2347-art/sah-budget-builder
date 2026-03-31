@@ -22,7 +22,7 @@ export default function BudgetSignPage() {
   const [clientPrintName, setClientPrintName] = useState("");
   const [relationshipToClient, setRelationshipToClient] = useState("self");
   const [jbcRepName, setJbcRepName] = useState("");
-  const [jbcRepRole, setJbcRepRole] = useState("");
+  const [jbcRepRole, setJbcRepRole] = useState("Care Partner");
   const [jbcSignatureDataUrl, setJbcSignatureDataUrl] = useState<string | null>(null);
 
   const relationshipLabels: Record<string, string> = {
