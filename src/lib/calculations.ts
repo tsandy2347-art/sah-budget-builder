@@ -252,9 +252,12 @@ export function calcBudget(budget: ClientBudget, budgetType: BudgetType): Budget
 
   const rawExcess = round2(Math.max(0, tabCalcs.totalCost - effectiveBudgetEnvelope));
   const gfFunds = (budget.isGrandfathered || budget.isGrandfatheredContributions) ? (budget.grandfatheredUnspentFunds ?? 0) : 0;
-  const grandfatheredFundsUsed = round2(Math.min(gfFunds, rawExcess));
+  // Deduct AT purchases from grandfathered funds first
+  const atPurchasesTotal = round2((budget.atPurchases ?? []).reduce((sum, item) => sum + (item.cost || 0), 0));
+  const grandfatheredFundsAfterAT = round2(Math.max(0, gfFunds - atPurchasesTotal));
+  const grandfatheredFundsUsed = round2(Math.min(grandfatheredFundsAfterAT, rawExcess));
   const clientExcess = round2(rawExcess - grandfatheredFundsUsed);
-  const grandfatheredFundsRemaining = round2(gfFunds - grandfatheredFundsUsed);
+  const grandfatheredFundsRemaining = round2(grandfatheredFundsAfterAT - grandfatheredFundsUsed);
   const govtSubsidy = round2(Math.min(tabCalcs.totalGovtSubsidy, effectiveBudgetEnvelope));
   const utilisation = calcBudgetUtilisation(tabCalcs.totalCost, effectiveBudgetEnvelope);
   const remaining = round2(effectiveBudgetEnvelope - tabCalcs.totalCost);
@@ -276,6 +279,8 @@ export function calcBudget(budget: ClientBudget, budgetType: BudgetType): Budget
     unspentPriorQuarter,
     effectiveCarryover,
     effectiveBudgetEnvelope,
+    atPurchasesTotal,
+    grandfatheredFundsAfterAT,
     govtSubsidy,
     clientExcess,
     grandfatheredFundsUsed,

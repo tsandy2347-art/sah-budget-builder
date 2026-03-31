@@ -52,6 +52,12 @@ export interface Supplement {
   annualAmount: number;
 }
 
+export interface ATPurchase {
+  id: string;
+  description: string;
+  cost: number;
+}
+
 export interface ClientBudget {
   id: string;
   clientName: string;
@@ -64,7 +70,8 @@ export interface ClientBudget {
   partPensionerRates: PartPensionerRates;
   supplements: string[]; // array of supplement IDs
   unspentPriorQuarter: number; // $ unspent from previous quarter (user-entered)
-  grandfatheredUnspentFunds?: number; // display-only: grandfathered unspent funds
+  grandfatheredUnspentFunds?: number;
+  atPurchases?: ATPurchase[]; // display-only: grandfathered unspent funds
   isGrandfathered: boolean; // pre-existing arrangement: 0% contributions
   isGrandfatheredContributions?: boolean; // grandfathered contribution rates (can be 0%)
   useServicesAustraliaAmount?: boolean; // true when client receives less than full funding
@@ -109,6 +116,8 @@ export interface BudgetCalculations {
   effectiveBudgetEnvelope: number; // budgetEnvelope + effectiveCarryover
   govtSubsidy: number; // govt pays up to availableForServices
   clientExcess: number; // client pays overspend above budget
+  atPurchasesTotal: number;
+  grandfatheredFundsAfterAT: number;
   grandfatheredFundsUsed: number; // HCP funds used to cover excess
   grandfatheredFundsRemaining: number; // remaining HCP funds after covering excess
 }
