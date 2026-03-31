@@ -104,11 +104,13 @@ export default function BudgetSignPage() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
+        .print-only-line { display: none; }
         @media print {
           body * { visibility: hidden; }
           #print-area, #print-area * { visibility: visible; }
           #print-area { position: absolute; left: 0; top: 0; width: 100%; padding: 0 !important; font-size: 11px !important; }
           nav, header, .no-print, .no-print-element { display: none !important; }
+          .print-only-line { display: block !important; }
           @page { margin: 1.5cm 2cm; }
           .print-only { display: block !important; }
           .sig-print-img { display: block !important; max-height: 60px; border-bottom: 1px solid #333; padding-bottom: 2px; width: 180px; }
@@ -431,6 +433,12 @@ export default function BudgetSignPage() {
                 {signatureDataUrl && (
                   <img src={signatureDataUrl} alt="Signature" className="sig-print-img" style={{ display: "none" }} />
                 )}
+                {!signatureDataUrl && (
+                  <div className="print-only-line mt-8 mb-2">
+                    <div className="border-b border-gray-400 w-full" />
+                    <p className="text-xs text-muted-foreground mt-1">Signature</p>
+                  </div>
+                )}
               </div>
               <div className="text-sm">
                 <span className="font-medium">Date:</span> {new Date().toLocaleDateString("en-AU")}
@@ -479,6 +487,12 @@ export default function BudgetSignPage() {
                 </div>
                 {jbcSignatureDataUrl && (
                   <img src={jbcSignatureDataUrl} alt="Signature" className="sig-print-img" style={{ display: "none" }} />
+                )}
+                {!jbcSignatureDataUrl && (
+                  <div className="print-only-line mt-8 mb-2">
+                    <div className="border-b border-gray-400 w-full" />
+                    <p className="text-xs text-muted-foreground mt-1">Signature</p>
+                  </div>
                 )}
               </div>
               <div className="text-sm">
