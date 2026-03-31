@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  CheckCircle2,
+  CheckCircle2, Pencil, XCircle,
   XCircle,
   Trash2,
   Shield,
@@ -373,11 +373,32 @@ export default function AdminUsersPage() {
                   return (
                     <TableRow key={user.id}>
                       <TableCell className="font-medium">
-                        {user.name}
-                        {isMe && (
-                          <Badge variant="outline" className="ml-2 text-xs">
-                            You
-                          </Badge>
+                        {editingName?.id === user.id ? (
+                          <div className="flex items-center gap-1">
+                            <Input
+                              className="h-7 text-sm w-40"
+                              value={editingName.name}
+                              onChange={(e) => setEditingName({ ...editingName, name: e.target.value })}
+                              onKeyDown={(e) => { if (e.key === "Enter") handleEditName(user.id, editingName.name); if (e.key === "Escape") setEditingName(null); }}
+                              autoFocus
+                            />
+                            <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => handleEditName(user.id, editingName.name)} disabled={!!actionLoading}>
+                              <CheckCircle2 className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => setEditingName(null)}>
+                              <XCircle className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1">
+                            {user.name}
+                            {isMe && (
+                              <Badge variant="outline" className="ml-2 text-xs">You</Badge>
+                            )}
+                            <Button size="sm" variant="ghost" className="h-6 w-6 p-0 ml-1" onClick={() => setEditingName({ id: user.id, name: user.name })}>
+                              <Pencil className="h-3 w-3 text-muted-foreground" />
+                            </Button>
+                          </div>
                         )}
                       </TableCell>
                       <TableCell className="text-muted-foreground">{user.email}</TableCell>
