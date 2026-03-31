@@ -471,15 +471,15 @@ export default function BudgetSignPage() {
             </CardContent>
           </Card>
 
-          {/* Authorised Person from Just Better Care */}
+          {/* Authorised Person from Provider */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Authorised Person from Just Better Care</CardTitle>
+              <CardTitle className="text-lg">Authorised Person from {budget.providerName || "Just Better Care"}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <div className="no-print-element">
-                  <label className="block text-sm font-medium mb-1">Name of authorised person from Just Better Care</label>
+                  <label className="block text-sm font-medium mb-1">Name of authorised person from {budget.providerName || "Just Better Care"}</label>
                   <Input
                     value={jbcRepName}
                     onChange={(e) => setJbcRepName(e.target.value)}
