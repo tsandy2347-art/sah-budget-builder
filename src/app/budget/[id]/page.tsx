@@ -105,6 +105,7 @@ export default function BudgetPage() {
         onRemoveService={removeService}
         onUpdatePathway={updatePathwayConfig}
         onTabChange={setActiveTab}
+        onUpdateClientDetails={(updates) => updateClientDetails(updates)}
       />
     </div>
   );

@@ -1,8 +1,6 @@
 "use client";
 
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
@@ -16,8 +14,7 @@ import {
   SUPPLEMENTS,
 } from "@/lib/constants";
 import { calcBudget } from "@/lib/calculations";
-import type { ClientBudget, PensionStatus, ATPurchase } from "@/lib/types";
-import { v4 as uuidv4 } from "uuid";
+import type { ClientBudget, PensionStatus } from "@/lib/types";
 
 interface ClientDetailsFormProps {
   budget: ClientBudget;
@@ -184,99 +181,7 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
             />
             <p className="text-xs text-muted-foreground">Grandfathered unspent funds (for reference only)</p>
 
-            {/* AT Purchases from Grandfathered Funds */}
-            <div className="mt-4 space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>AT Purchases (from HCP Unspent Funds)</Label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-1 h-7 text-xs"
-                  onClick={() => {
-                    const purchases = [...(budget.atPurchases ?? []), { id: uuidv4(), description: "", cost: 0 }];
-                    onChange({ atPurchases: purchases });
-                  }}
-                >
-                  <Plus className="h-3 w-3" />
-                  Add AT Purchase
-                </Button>
-              </div>
-              {(budget.atPurchases ?? []).length > 0 && (
-                <div className="border rounded-md overflow-hidden">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="bg-muted/40 border-b">
-                        <th className="text-left px-3 py-1.5 font-medium text-muted-foreground">Description</th>
-                        <th className="text-right px-3 py-1.5 font-medium text-muted-foreground w-32">Cost ($)</th>
-                        <th className="w-10"></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {(budget.atPurchases ?? []).map((purchase, idx) => (
-                        <tr key={purchase.id} className={idx % 2 === 0 ? "" : "bg-muted/20"}>
-                          <td className="px-3 py-1">
-                            <Input
-                              className="h-7 text-sm border-0 bg-transparent p-0 focus-visible:ring-1"
-                              placeholder="e.g. Wheelchair, Grab rails"
-                              value={purchase.description}
-                              onChange={(e) => {
-                                const updated = [...(budget.atPurchases ?? [])];
-                                updated[idx] = { ...purchase, description: e.target.value };
-                                onChange({ atPurchases: updated });
-                              }}
-                            />
-                          </td>
-                          <td className="px-3 py-1">
-                            <Input
-                              className="h-7 text-sm text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                              type="number"
-                              min={0}
-                              step={0.01}
-                              value={purchase.cost || ""}
-                              onChange={(e) => {
-                                const updated = [...(budget.atPurchases ?? [])];
-                                updated[idx] = { ...purchase, cost: Number(e.target.value) };
-                                onChange({ atPurchases: updated });
-                              }}
-                            />
-                          </td>
-                          <td className="px-1 py-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                              onClick={() => {
-                                const updated = (budget.atPurchases ?? []).filter((_, i) => i !== idx);
-                                onChange({ atPurchases: updated });
-                              }}
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                    <tfoot>
-                      <tr className="border-t bg-muted/40">
-                        <td className="px-3 py-1.5 text-sm font-medium">Total AT Purchases</td>
-                        <td className="px-3 py-1.5 text-sm text-right font-medium">
-                          {calcs.atPurchasesTotal > 0 ? "$" + calcs.atPurchasesTotal.toLocaleString("en-AU", { minimumFractionDigits: 2 }) : "$0.00"}
-                        </td>
-                        <td></td>
-                      </tr>
-                      <tr className="bg-muted/20">
-                        <td className="px-3 py-1.5 text-sm text-muted-foreground">HCP Balance After AT</td>
-                        <td className="px-3 py-1.5 text-sm text-right font-medium text-amber-600">
-                          {"$" + calcs.grandfatheredFundsAfterAT.toLocaleString("en-AU", { minimumFractionDigits: 2 })}
-                        </td>
-                        <td></td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              )}
-              <p className="text-xs text-muted-foreground">HCP unspent funds must be used before accessing AT-HM scheme funding</p>
-            </div>
+
           </div>
         )}
         <div className="space-y-1.5">

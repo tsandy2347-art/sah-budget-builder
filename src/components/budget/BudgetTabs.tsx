@@ -4,7 +4,9 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Plus, Trash2 } from "lucide-react";
 import { ServiceTable } from "./ServiceTable";
 import { BudgetSummary } from "./BudgetSummary";
 import { BudgetOptimisationTips } from "./BudgetOptimisationTips";
@@ -13,7 +15,8 @@ import { MetricCard } from "./MetricCard";
 import { calcBudget, getPathwayWeeks, scaleAmount, VIEW_PERIOD_LABELS } from "@/lib/calculations";
 import { BUDGET_TYPE_LABELS, RESTORATIVE_BUDGETS, ATHM_BUDGETS, EOL_BUDGET, EOL_WEEKS } from "@/lib/constants";
 import { formatCurrency } from "@/lib/format";
-import type { ClientBudget, BudgetType, ServiceLineItem, PathwayConfig, ViewPeriod } from "@/lib/types";
+import { v4 as uuidv4 } from "uuid";
+import type { ClientBudget, ATPurchase, BudgetType, ServiceLineItem, PathwayConfig, ViewPeriod } from "@/lib/types";
 
 interface BudgetTabsProps {
   budget: ClientBudget;
@@ -22,6 +25,7 @@ interface BudgetTabsProps {
   onRemoveService: (budgetType: BudgetType, itemId: string) => void;
   onUpdatePathway: (budgetType: BudgetType, config: Partial<PathwayConfig>) => void;
   onTabChange: (tab: BudgetType) => void;
+  onUpdateClientDetails?: (updates: Partial<ClientBudget>) => void;
 }
 
 const TABS: BudgetType[] = ["ongoing", "restorative", "end_of_life", "at_hm"];
@@ -33,6 +37,7 @@ export function BudgetTabs({
   onRemoveService,
   onUpdatePathway,
   onTabChange,
+  onUpdateClientDetails,
 }: BudgetTabsProps) {
   const [viewPeriod, setViewPeriod] = useState<ViewPeriod>("quarterly");
 
@@ -138,6 +143,60 @@ export function BudgetTabs({
                     Envelope: {formatCurrency(calcs.budgetEnvelope)}
                   </Badge>
                 </CardContent>
+              </Card>
+            )}
+
+
+            {/* AT Purchases from Grandfathered HCP Funds */}
+            {tabType === "at_hm" && (budget.isGrandfathered || budget.isGrandfatheredContributions) && onUpdateClientDetails && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-medium">AT Purchases from HCP Unspent Funds</CardTitle>
+                    <Button variant="outline" size="sm" className="gap-1 h-7 text-xs"
+                      onClick={() => {
+                        const purchases = [...(budget.atPurchases ?? []), { id: uuidv4(), description: "", cost: 0 }];
+                        onUpdateClientDetails({ atPurchases: purchases });
+                      }}>
+                      <Plus className="h-3 w-3" /> Add AT Purchase
+                    </Button>
+                  </div>
+                </CardHeader>
+                {(budget.atPurchases ?? []).length > 0 && (
+                  <CardContent>
+                    <div className="border rounded-md overflow-hidden">
+                      <table className="w-full text-sm">
+                        <thead><tr className="bg-muted/40 border-b">
+                          <th className="text-left px-3 py-1.5 font-medium text-muted-foreground">Description</th>
+                          <th className="text-right px-3 py-1.5 font-medium text-muted-foreground w-32">Cost ($)</th>
+                          <th className="w-10"></th>
+                        </tr></thead>
+                        <tbody>
+                          {(budget.atPurchases ?? []).map((purchase, idx) => (
+                            <tr key={purchase.id} className={idx % 2 === 0 ? "" : "bg-muted/20"}>
+                              <td className="px-3 py-1"><Input className="h-7 text-sm border-0 bg-transparent p-0 focus-visible:ring-1" placeholder="e.g. Wheelchair, Grab rails" value={purchase.description} onChange={(e) => { const updated = [...(budget.atPurchases ?? [])]; updated[idx] = { ...purchase, description: e.target.value }; onUpdateClientDetails({ atPurchases: updated }); }} /></td>
+                              <td className="px-3 py-1"><Input className="h-7 text-sm text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" type="number" min={0} step={0.01} value={purchase.cost || ""} onChange={(e) => { const updated = [...(budget.atPurchases ?? [])]; updated[idx] = { ...purchase, cost: Number(e.target.value) }; onUpdateClientDetails({ atPurchases: updated }); }} /></td>
+                              <td className="px-1 py-1"><Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => { const updated = (budget.atPurchases ?? []).filter((_, i) => i !== idx); onUpdateClientDetails({ atPurchases: updated }); }}><Trash2 className="h-3.5 w-3.5" /></Button></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                        <tfoot>
+                          <tr className="border-t bg-muted/40">
+                            <td className="px-3 py-1.5 text-sm font-medium">Total AT Purchases</td>
+                            <td className="px-3 py-1.5 text-sm text-right font-medium">{formatCurrency(calcs.atPurchasesTotal)}</td>
+                            <td></td>
+                          </tr>
+                          <tr className="bg-muted/20">
+                            <td className="px-3 py-1.5 text-sm text-muted-foreground">HCP Balance After AT</td>
+                            <td className="px-3 py-1.5 text-sm text-right font-medium text-amber-600">{formatCurrency(calcs.grandfatheredFundsAfterAT)}</td>
+                            <td></td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">HCP unspent funds must be used before accessing AT-HM scheme funding</p>
+                  </CardContent>
+                )}
               </Card>
             )}
 
