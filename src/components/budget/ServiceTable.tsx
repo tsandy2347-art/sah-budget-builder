@@ -125,7 +125,7 @@ export function ServiceTable({
                                 className="h-7 w-24 text-sm text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                 type="number"
                                 min={0}
-                                value={item.lumpSumAmount}
+                                value={item.lumpSumAmount || ""}
                                 onChange={(e) => onUpdate(item.id, { lumpSumAmount: Number(e.target.value) })}
                               />
                               <span className="text-xs text-muted-foreground">lump</span>
@@ -150,7 +150,7 @@ export function ServiceTable({
                               className="h-7 w-20 text-sm text-right pr-1 ml-auto [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                               type="number"
                               min={0}
-                              value={item.ratePerHour}
+                              value={item.ratePerHour || ""}
                               onChange={(e) => onUpdate(item.id, { ratePerHour: Number(e.target.value) })}
                             />
                           </td>
@@ -160,7 +160,7 @@ export function ServiceTable({
                               type="number"
                               min={0}
                               step={0.5}
-                              value={item.hrsPerSession ?? 0}
+                              value={item.hrsPerSession || ""}
                               onChange={(e) => onUpdate(item.id, { hrsPerSession: Number(e.target.value) })}
                             />
                           </td>
@@ -170,7 +170,7 @@ export function ServiceTable({
                               type="number"
                               min={1}
                               max={52}
-                              value={item.daysPerFrequency ?? 1}
+                              value={item.daysPerFrequency || ""}
                               onChange={(e) => onUpdate(item.id, { daysPerFrequency: Number(e.target.value) })}
                             />
                           </td>
