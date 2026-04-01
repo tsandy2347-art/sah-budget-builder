@@ -180,8 +180,6 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
               onChange={(e) => onChange({ grandfatheredUnspentFunds: Math.max(0, Number(e.target.value)) })}
             />
             <p className="text-xs text-muted-foreground">Grandfathered unspent funds (for reference only)</p>
-
-
           </div>
         )}
         <div className="space-y-1.5">
@@ -246,7 +244,15 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
                   onChange({
                     partPensionerRates: {
                       ...budget.partPensionerRates,
-                      independence: Math.min(0.5, Math.max(budget.isGrandfatheredContributions ? 0 : 0.05, Number(e.target.value) / 100)),
+                      independence: Number(e.target.value) / 100,
+                    },
+                  })
+                }
+                onBlur={() =>
+                  onChange({
+                    partPensionerRates: {
+                      ...budget.partPensionerRates,
+                      independence: Math.min(0.5, Math.max(budget.isGrandfatheredContributions ? 0 : 0.05, budget.partPensionerRates.independence)),
                     },
                   })
                 }
@@ -266,7 +272,15 @@ export function ClientDetailsForm({ budget, onChange }: ClientDetailsFormProps) 
                   onChange({
                     partPensionerRates: {
                       ...budget.partPensionerRates,
-                      everyday: Math.min(0.8, Math.max(budget.isGrandfatheredContributions ? 0 : 0.175, Number(e.target.value) / 100)),
+                      everyday: Number(e.target.value) / 100,
+                    },
+                  })
+                }
+                onBlur={() =>
+                  onChange({
+                    partPensionerRates: {
+                      ...budget.partPensionerRates,
+                      everyday: Math.min(0.8, Math.max(budget.isGrandfatheredContributions ? 0 : 0.175, budget.partPensionerRates.everyday)),
                     },
                   })
                 }

@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClientDetailsForm } from "@/components/budget/ClientDetailsForm";
 import { BudgetTabs } from "@/components/budget/BudgetTabs";
 import { useBudget } from "@/hooks/useBudget";
-import { ChevronLeft, FileDown, Sheet, Loader2, PenLine } from "lucide-react";
+import { ChevronLeft, FileDown, Sheet, Loader2, PenLine, Undo2 } from "lucide-react";
 import type { ClientBudget } from "@/lib/types";
 
 export default function BudgetPage() {
@@ -17,6 +17,8 @@ export default function BudgetPage() {
   const {
     budget,
     loading,
+    canUndo,
+    undo,
     updateClientDetails,
     setActiveTab,
     updatePathwayConfig,
@@ -65,6 +67,10 @@ export default function BudgetPage() {
           </div>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" size="sm" className="gap-2" onClick={undo} disabled={!canUndo} title="Undo last change">
+            <Undo2 className="h-4 w-4" />
+            Undo
+          </Button>
           <Button variant="outline" size="sm" className="gap-2" onClick={handleExportExcel}>
             <Sheet className="h-4 w-4" />
             Export Excel

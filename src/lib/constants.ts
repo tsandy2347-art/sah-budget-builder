@@ -143,13 +143,13 @@ export const DEFAULT_EOL: DefaultService[] = [
 
 export const DEFAULT_ATHM: DefaultService[] = [
   { name: "OT assessment", category: "clinical", ratePerHour: 190, defaultHrsPerSession: 1 },
-  { name: "Grab rails / bathroom rails", category: "everyday", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 400 },
-  { name: "Ramp installation", category: "everyday", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 1500 },
-  { name: "Shower chair / commode", category: "everyday", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 250 },
-  { name: "Walking frame / rollator", category: "everyday", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 350 },
-  { name: "Pressure mattress", category: "everyday", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 800 },
-  { name: "Wheelchair / scooter", category: "everyday", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 2000 },
-  { name: "Bathroom modification", category: "everyday", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 3000 },
+  { name: "Grab rails / bathroom rails", category: "clinical", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 400 },
+  { name: "Ramp installation", category: "clinical", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 1500 },
+  { name: "Shower chair / commode", category: "clinical", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 250 },
+  { name: "Walking frame / rollator", category: "clinical", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 350 },
+  { name: "Pressure mattress", category: "clinical", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 800 },
+  { name: "Wheelchair / scooter", category: "clinical", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 2000 },
+  { name: "Bathroom modification", category: "clinical", ratePerHour: 0, isLumpSum: true, defaultLumpSumAmount: 3000 },
 ];
 
 export const DEFAULT_SERVICES_BY_TYPE: Record<BudgetType, DefaultService[]> = {
